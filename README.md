@@ -16,6 +16,9 @@ The output shows - per ensemble - next to "standard" output items, the
 SNR during reception of that ensemble, and - if it can be identified -
 the transmitter identification in terms of a "mainId" and a "subId".
 
+You cound consider sending the DAB ensemble description to Gunther Lorenz glorenz@gmlist.org. He maintains a large database with FM stations and DAB ensembles.
+
+
 
 -----------------------------------------------------------------------
 Scanner use
@@ -27,8 +30,7 @@ Touching the "start" button will
 
 * show a menu with which the name of a file can be chosen, the file to which
 the output is written;
-* start the scanning with the lowest signal in the band. If the program is convinced that there no DAB signal can be identified, a next channel will be selected
-within a few seconds. If, however, a DAB signal can be identified, the name
+* start the scanning with the lowest signal in the band. If the program is convinced that there no DAB signal can be identified, a next channel will be selected within a few seconds. If, however, a DAB signal can be identified, the name
 of the ensemble will be shown, as well as the number of services detected in
 that channel. After a user defined amount of time (the left spinbox on the GUI)
 a next channel will be selected.
@@ -90,6 +92,21 @@ lines could be packed in a script and executed
 
 Obviously assuming that the driver libraries for the device (or devices) to
 be used are installed.
+
+-----------------------------------------------------------------------------------------------------------------------
+Copyrights
+-----------------------------------------------------------------------------------------------------------------------
+
+  	Copyright (C)  2013, 2014, 2015, 2016, 2017, 2018, 2019
+        Jan van Katwijk (J.vanKatwijk@gmail.com)
+        Lazy Chair Computing
+
+        The dab-scanner software is made available under the GPL-2.0.
+        The SDR-J software, of which the dab-scanner software is a part,
+        is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
 
 
 
