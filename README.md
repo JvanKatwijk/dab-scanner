@@ -29,7 +29,8 @@ will wait for the user to touch the "start" button.
 Touching the "start" button will 
 
 * show a menu with which the name of a file can be chosen, the file to which
-the output is written;
+the output is written. A filename, containing date and time, is suggested but while
+the name is perfectly legal under Linux, Windows does not accept it, so one has to choose another name.
 * start the scanning with the lowest signal in the band. If the program is convinced that there no DAB signal can be identified, a next channel will be selected within a few seconds. If, however, a DAB signal can be identified, the name
 of the ensemble will be shown, as well as the number of services detected in
 that channel. After a user defined amount of time (the left spinbox on the GUI)
@@ -68,6 +69,9 @@ The dab-scanner on Windows
 For use on Windows the releases section of the git repository contains
 an installer. The installer, when run, will - as the name suggests -
 the software and create - if so desired - a link on the screen.
+
+One issue on Windows is that the suggested name for the output file (a name containing the date and time)
+is considered erroneous. 
 
 ----------------------------------------------------------------------------
 The dab-scanner on Linux and the RPI
