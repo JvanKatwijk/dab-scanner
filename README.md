@@ -76,17 +76,17 @@ As usual, users on Linux based systems have to do all the work themselves.
 On a Debian based system (i.e. Ubuntu and RPI Stretch) the following
 lines could be packed in a script and executed
 
-   sudo apt-get update
-   sudo apt-get install qt5-qmake build-essential g++ git 
-   sudo apt-get install qt5-default libfftw3-dev 
-   sudo apt-get install zlib1g-dev rtl-sdr libusb-1.0-0-dev mesa-common-dev
-   sudo apt-get install libgl1-mesa-dev libqt5opengl5-dev 
-   sudo apt-get install qtbase5-dev
-   sudo apt-get install librtlsdr-dev 
-   git clone https://github.com/JvanKatwijk/dab-scanner.git
-   cd dab-scanner
-   qmake
-   make
+	sudo apt-get update
+	sudo apt-get install qt5-qmake build-essential g++ git 
+	sudo apt-get install qt5-default libfftw3-dev 
+	sudo apt-get install zlib1g-dev rtl-sdr libusb-1.0-0-dev mesa-common-dev
+	sudo apt-get install libgl1-mesa-dev libqt5opengl5-dev 
+	sudo apt-get install qtbase5-dev
+	sudo apt-get install librtlsdr-dev 
+	git clone https://github.com/JvanKatwijk/dab-scanner.git
+	cd dab-scanner
+	qmake
+	make
 
 Obviously assuming that the driver libraries for the device (or devices) to
 be used are installed.
