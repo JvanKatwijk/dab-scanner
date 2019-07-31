@@ -16,7 +16,7 @@ The output shows - per ensemble - next to "standard" output items, the
 SNR during reception of that ensemble, and - if it can be identified -
 the transmitter identification in terms of a "mainId" and a "subId".
 
-You cound consider sending the DAB ensemble description to Gunther Lorenz glorenz@gmlist.org. He maintains a large database with FM stations and DAB ensembles.
+You could consider sending the DAB ensemble description to Gunther Lorenz glorenz@gmlist.org. He maintains a large database with FM stations and DAB ensembles.
 
 
 
