@@ -25,13 +25,27 @@ Scanner use
 -----------------------------------------------------------------------
 
 The use of the scanner is extremely simple. The program - when started -
-will wait for the user to touch the "start" button.
-Touching the "start" button will 
+will wait for the user to select a device and touch the "start" button.
+
+In a previous version, the software would "poll" for the configured
+devices to be connected to the computer. However, working with a laptop with one and a half usb connection, I did not realize that people might have
+different devices connected to the computer and need explicit control
+over the selection of the device.
+
+On the top right of the GUI a selector for a device is available.
+To keep things simple, the selection is once only per program run,
+after a device is selected, the selector will not be visible anymore.
+
+If the start button is touched without a device being selected, the
+start button will not do anything.
+
+If, however, a device is selected, touching the start button will:
 
 * show a menu with which the name of a file can be chosen, the file to which
 the output is written. A filename, containing date and time, is suggested but while
 the name is perfectly legal under Linux, Windows does not accept it, so one has to choose another name.
-* start the scanning with the lowest signal in the band. If the program is convinced that there no DAB signal can be identified, a next channel will be selected within a few seconds. If, however, a DAB signal can be identified, the name
+* start the scanning with the lowest channel in the band (5A for Band III).
+If the program is convinced that there no DAB signal can be identified, a next channel will be selected within a few seconds. If, however, a DAB signal can be identified, the name
 of the ensemble will be shown, as well as the number of services detected in
 that channel. After a user defined amount of time (the left spinbox on the GUI)
 a next channel will be selected.
@@ -59,8 +73,7 @@ variety of devices:
 * the AIRspy
 * the good old "RT2832" based dabsticks
 
-When started the program will try each of the configured devices and selects
-the first one encountered. 
+As mentioned, a device should be selected prior to touching the start button.
 
 ----------------------------------------------------------------------------
 The dab-scanner on Windows

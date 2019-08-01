@@ -56,7 +56,6 @@ public:
 
 private:
 	QSettings	*dabSettings;
-	deviceHandler	*setDevice		(QSettings *);
 	FILE		*fileP;
 	std::atomic<int>	channelNumber;
 	int		serviceCount;
@@ -69,7 +68,7 @@ private:
 	bandHandler	*theBand;
 	int		channels;
 	std::atomic<bool>	running;
-	deviceHandler	*inputDevice;
+	deviceHandler	*theDevice;
 	dabProcessor	*my_dabProcessor;
 	QTimer		channelTimer;
 	int16_t		ficBlocks;
@@ -79,10 +78,12 @@ private:
 	void		startScanning		(void);
 	void		stopScanning		(void);
 	void		showEnsembleData	(int, int);
+	deviceHandler	*setDevice		(QString);
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 
 public slots:
+	void		selectDevice		(QString);
 	void		handle_startButton 	(void);
 	void		nextChannel_withSignal	(void);
 	void		nextChannel_noSignal	(void);

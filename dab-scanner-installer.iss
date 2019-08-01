@@ -4,7 +4,7 @@
 #define MyAppName "dab-scanner"
 #define MyAppVersion "1.0"
 #define MyAppPublisher "Lazy Chair Computing"
-#define MyAppURL "https://github.com/JvanKatwijk/dabradio"
+#define MyAppURL "https://github.com/JvanKatwijk/dab-scanner"
 #define MyAppExeName "dab-scanner-1.0.exe";
 
 [Setup]

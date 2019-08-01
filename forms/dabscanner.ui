@@ -308,6 +308,16 @@
      <string/>
     </property>
    </widget>
+   <widget class="QComboBox" name="deviceSelector">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>6</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>

@@ -90,12 +90,27 @@ QString h;
 //	The settings are done, now creation of the GUI parts
 	setupUi (this);
 //
-//	... and the device
-	inputDevice		= setDevice (dabSettings);
-	if (inputDevice == NULL) {
-	   throw (33);
-	}
+//	... and the device selector
+	
+#ifdef	HAVE_RTLSDR
+	deviceSelector	-> addItem ("rtlsdr");
+#endif
+#ifdef	HAVE_SDRPLAY
+	deviceSelector	-> addItem ("sdrplay");
+#endif
+#ifdef	HAVE_AIRSPY
+	deviceSelector	-> addItem ("airspy");
+#endif
+#ifdef	HAVE_HACKRF
+	deviceSelector	-> addItem ("hackrf");
+#endif
+#ifdef	HAVE_LIME
+	deviceSelector -> addItem ("lime");
+#endif
+	connect (deviceSelector, SIGNAL (activated (QString)),
+	         this, SLOT (selectDevice (QString)));
 
+	theDevice		= NULL;
 	ficBlocks		= 0;
 	ficSuccess		= 0;
 //	
@@ -109,19 +124,6 @@ QString h;
 
 	channelNumber		= 0;
 //
-	my_dabProcessor	= new dabProcessor (this,
-	                                    inputDevice,
-	                                    dabMode,
-	                                    threshold,
-	                                    diff_length);
-	connect (my_dabProcessor, SIGNAL (show_snr (int)),
-	         this, SLOT (show_snr (int)));
-	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
-	         this, SLOT (setSynced (bool)));
-	connect (my_dabProcessor, SIGNAL (show_tii (int)),
-	         this, SLOT (show_tii (int)));
-	connect (startButton, SIGNAL (clicked (void)),
-	         this, SLOT (handle_startButton (void)));
 }
 
 	RadioInterface::~RadioInterface (void) {
@@ -145,7 +147,7 @@ void	RadioInterface::stopScanning (void) {
                     this, SLOT (nextChannel_noSignal (void)));
         disconnect (&channelTimer, SIGNAL (timeout (void)),
                     this, SLOT (nextChannel_withSignal (void)));
-        inputDevice     -> stopReader ();
+        theDevice     -> stopReader ();
         my_dabProcessor -> stop ();
         channelTimer. stop ();
 	running. store (false);
@@ -157,7 +159,7 @@ int	frequency;
 	            this, SLOT (nextChannel_noSignal (void)));
 	disconnect (&channelTimer, SIGNAL (timeout (void)),
 	            this, SLOT (nextChannel_withSignal (void)));
-	inputDevice	-> stopReader ();
+	theDevice	-> stopReader ();
 	my_dabProcessor -> stop ();
 	channelTimer. stop ();
 	ensembleDisplay	-> setText ("");
@@ -192,7 +194,7 @@ int	frequency;
                     this, SLOT (nextChannel_noSignal (void)));
         disconnect (&channelTimer, SIGNAL (timeout (void)),
                     this, SLOT (nextChannel_withSignal (void)));
-        inputDevice     -> stopReader ();
+        theDevice     -> stopReader ();
         my_dabProcessor -> stop ();
         channelTimer. stop ();
 	showEnsembleData	(snrDisplay -> value (), tii_Value);
@@ -253,14 +255,14 @@ void	RadioInterface::show_snr		(int s) {
 
 void	RadioInterface::TerminateProcess (void) {
 	running. store (false);
-	inputDevice	-> stopReader ();
+	theDevice	-> stopReader ();
 	my_dabProcessor	-> stop ();		// definitely concurrent
 //	everything should be halted by now
 	fprintf (stderr, "going to delete dabProcessor\n");
 	delete	my_dabProcessor;
 	fprintf (stderr, "deleted dabProcessor\n");
-	if (inputDevice != NULL)
-	   delete	inputDevice;
+	if (theDevice != NULL)
+	   delete	theDevice;
 	close ();
 	fprintf (stderr, ".. end the radio silences\n");
 }
@@ -286,43 +288,80 @@ bool	RadioInterface::eventFilter (QObject *obj, QEvent *event) {
 	return QMainWindow::eventFilter (obj, event);
 }
 
-deviceHandler	*RadioInterface::setDevice (QSettings	*dabSettings) {
-deviceHandler	*inputDevice	= NULL;
+//
+//	In this setting, the user just select one device
+//	per program invocation
+void	RadioInterface::selectDevice (QString s) {
+	theDevice	= setDevice (s);
+	if (theDevice == NULL)
+	   return;
+	deviceSelector	-> hide ();
+
+	my_dabProcessor	= new dabProcessor (this,
+	                                    theDevice,
+	                                    dabMode,
+	                                    threshold,
+	                                    diff_length);
+	connect (my_dabProcessor, SIGNAL (show_snr (int)),
+	         this, SLOT (show_snr (int)));
+	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
+	         this, SLOT (setSynced (bool)));
+	connect (my_dabProcessor, SIGNAL (show_tii (int)),
+	         this, SLOT (show_tii (int)));
+	connect (startButton, SIGNAL (clicked (void)),
+	         this, SLOT (handle_startButton (void)));
+}
+
+deviceHandler	*RadioInterface::setDevice (QString s) {
 #ifdef	HAVE_AIRSPY
-	try {
-	   inputDevice	= new airspyHandler (dabSettings);
-	   return inputDevice;
-	} catch (int e) {
+	if (s == "airspy") {
+	   try {
+	      return new airspyHandler (dabSettings);
+	   } catch (int e) {}
 	}
+	else
 #endif
 #ifdef	HAVE_SDRPLAY
-	try {
-	   inputDevice	= new sdrplayHandler (dabSettings);
-	   return inputDevice;
-	} catch (int e) {}
+	if (s == "sdrplay") {
+	   try {
+	      return  new sdrplayHandler (dabSettings);
+	   } catch (int e) {}
+	}
+	else
 #endif
 #ifdef	HAVE_RTLSDR
-	try {
-	   inputDevice	= new rtlsdrHandler (dabSettings);
-	   return inputDevice;
-	} catch (int e) {}
+	if (s == "rtlsdr") {
+	   try {
+	      return new rtlsdrHandler (dabSettings);
+	   } catch (int e) {}
+	}
+	else
 #endif
 #ifdef	HAVE_HACKRF
-	try {
-	   inputDevice	= new hackrfHandler (dabSettings);
-	   return inputDevice;
-	} catch (int e) {}
+	if (s == "hackrf") {
+	   try {
+	      return new hackrfHandler (dabSettings);
+	   } catch (int e) {}
+	}
+	else
 #endif
 #ifdef	HAVE_LIME
-	try {
-	   inputDevice	= new limeHandler (dabSettings);
-	   return inputDevice;
-	} catch (int e) {}
+	if (s == "lime") {
+	   try {
+	      return new limeHandler (dabSettings);
+	   } catch (int e) {}
+	}
 #endif
 	return NULL;
 }
 
 void	RadioInterface::handle_startButton (void) {
+	if (theDevice == NULL) {
+	   QMessageBox::warning (this, tr ("Warning"),
+                                       tr ("Select a device first\n"));
+           return;
+	}
+
 	if (nrCycles -> value () < 1)
 	   return;
 	if (!running. load ()) {
@@ -362,7 +401,7 @@ void	RadioInterface::handle_startButton (void) {
 
 void	RadioInterface::showEnsembleData	(int snr, int tii) {
 QString currentChannel	= theBand -> channel (channelNumber);
-int32_t	frequency	= inputDevice -> getVFOFrequency();
+int32_t	frequency	= theDevice -> getVFOFrequency();
 QString theTime		= localTimeDisplay -> text ();
 ensemblePrinter	my_Printer;
 
