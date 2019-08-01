@@ -107,7 +107,7 @@ virtual	void		run			(void);
 	bool		isReset;
 signals:
 	void		setSynced		(bool);
-	void		show_tii		(int);
+	void		show_tii		(QList <int>);
 	void		noSignal_Found		(void);
 	void		show_snr		(int);
 };

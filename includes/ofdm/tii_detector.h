@@ -26,6 +26,7 @@
 #include	<cstdint>
 #include	"dab-params.h"
 #include	"fft-handler.h"
+#include	<QList>
 #include	<vector>
 
 class	TII_Detector {
@@ -34,7 +35,7 @@ public:
 		~TII_Detector();
 	void	reset();
 	void	addBuffer	(std::vector<std::complex<float>>);
-	int	processNULL();
+	QList<int>	processNULL();
 
 private:
 	void			collapse	(std::complex<float> *,

@@ -84,7 +84,7 @@ QString h;
 	   dabMode = 1;
 
 	isSynced	= false;
-	tii_Value	= -1;
+	tii_Value. clear ();
 ///////////////////////////////////////////////////////////////////////////
 
 //	The settings are done, now creation of the GUI parts
@@ -111,6 +111,7 @@ QString h;
 	         this, SLOT (selectDevice (QString)));
 
 	theDevice		= NULL;
+	my_dabProcessor		= NULL;
 	ficBlocks		= 0;
 	ficSuccess		= 0;
 //	
@@ -166,7 +167,7 @@ int	frequency;
 	Services	= QStringList ();
 	serviceCountDisplay	-> display (0);
 	tii_Label	-> setText (" ");
-	tii_Value	= -1;
+	tii_Value. clear ();
 	channelNumber . store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
@@ -197,11 +198,13 @@ int	frequency;
         theDevice     -> stopReader ();
         my_dabProcessor -> stop ();
         channelTimer. stop ();
-	showEnsembleData	(snrDisplay -> value (), tii_Value);
+	if ((Services. size () != 0) &&
+            (ensembleDisplay -> text () != QString ("")))
+	   showEnsembleData	(snrDisplay -> value (), tii_Value);
 	ensembleDisplay	-> setText ("");
 	Services	= QStringList ();
 	tii_Label	-> setText (" ");
-	tii_Value	= -1;
+	tii_Value. clear ();
 	serviceCountDisplay	-> display (0);
 	channelNumber. store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
@@ -255,12 +258,13 @@ void	RadioInterface::show_snr		(int s) {
 
 void	RadioInterface::TerminateProcess (void) {
 	running. store (false);
-	theDevice	-> stopReader ();
-	my_dabProcessor	-> stop ();		// definitely concurrent
+	if (theDevice != NULL) 
+	   theDevice	-> stopReader ();
+	if (my_dabProcessor != NULL) {
+	   my_dabProcessor	-> stop ();		// definitely concurrent
 //	everything should be halted by now
-	fprintf (stderr, "going to delete dabProcessor\n");
-	delete	my_dabProcessor;
-	fprintf (stderr, "deleted dabProcessor\n");
+	   delete	my_dabProcessor;
+	}
 	if (theDevice != NULL)
 	   delete	theDevice;
 	close ();
@@ -306,8 +310,8 @@ void	RadioInterface::selectDevice (QString s) {
 	         this, SLOT (show_snr (int)));
 	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
 	         this, SLOT (setSynced (bool)));
-	connect (my_dabProcessor, SIGNAL (show_tii (int)),
-	         this, SLOT (show_tii (int)));
+	connect (my_dabProcessor, SIGNAL (show_tii (QList <int>)),
+	         this, SLOT (show_tii (QList <int>)));
 	connect (startButton, SIGNAL (clicked (void)),
 	         this, SLOT (handle_startButton (void)));
 }
@@ -399,7 +403,8 @@ void	RadioInterface::handle_startButton (void) {
 	startButton	-> setText ("start");
 }
 
-void	RadioInterface::showEnsembleData	(int snr, int tii) {
+void	RadioInterface::showEnsembleData	(int snr,
+	                                         QList <int> tiiValue) {
 QString currentChannel	= theBand -> channel (channelNumber);
 int32_t	frequency	= theDevice -> getVFOFrequency();
 QString theTime		= localTimeDisplay -> text ();
@@ -410,7 +415,8 @@ ensemblePrinter	my_Printer;
 
 	my_Printer. showEnsembleData (currentChannel,
 	                              frequency,
-	                              snr, tii,
+	                              snr,
+	                              tiiValue,
 	                              theTime,
                                       Services, my_dabProcessor, fileP);
 
@@ -454,10 +460,14 @@ void    RadioInterface::show_ficSuccess (bool b) {
         }
 }
 
-void	RadioInterface::show_tii	(int tii) {
-char	buffer [20];
-	sprintf (buffer, "%d %d \n", tii >> 8, tii & 0xFF);
-	tii_Label -> setText (buffer);
+void	RadioInterface::show_tii	(QList <int> tii) {
+QString s;
+	for (int i = 0; i < tii. size (); i ++) {
+	   char buffer [20];
+	   sprintf (buffer, " (%d %d) ", tii. at (i) >> 8, tii. at (i) & 0xFF);
+	   s. append (buffer);
+	}
+	tii_Label -> setText (s);
 	tii_Value	= tii;
 }
 
