@@ -35,7 +35,7 @@ public:
 		~TII_Detector();
 	void	reset();
 	void	addBuffer	(std::vector<std::complex<float>>);
-	QList<int>	processNULL();
+	std::vector<int>	processNULL();
 
 private:
 	void			collapse	(std::complex<float> *,

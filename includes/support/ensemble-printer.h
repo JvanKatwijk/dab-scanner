@@ -26,7 +26,7 @@
 //	pressed - the content of the ensemble with relevant data.
 //	The output can be viewed (a.o) in LibreOfficeCalc
 #include	<QString>
-#include	<QList>
+#include	<vector>
 #include	"dab-constants.h"
 #include	<cstdint>
 #include	<cstdio>
@@ -40,7 +40,7 @@ public:
 	void	showEnsembleData	(QString,
 	                                 int32_t,
 	                                 int,		// snr
-	                                 QList <int>,	// tii
+	                                 std::vector <int>,	// tii
 	                                 QString,	// time
 	                                 QStringList,
 	                                 dabProcessor *,

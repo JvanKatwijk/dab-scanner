@@ -57,7 +57,7 @@ int16_t	i = 0;
 void	ensemblePrinter::showEnsembleData (QString	channel,
 	                                   int32_t	freq,
 	                                   int		snr,
-	                                   QList<int>	tii,
+	                                   std::vector<int>	tii,
 	                                   QString	theTime,
 	                                   QStringList	Services,
 	                                   dabProcessor *my_dabProcessor,

@@ -286,9 +286,11 @@ NewOffset:
 	      if (wasSecond (my_ficHandler. get_CIFcount(), &params)) {
 	         my_TII_Detector. addBuffer (ofdmBuffer);
 	         if (++tii_counter >= tii_delay) {
-	            QList <int> transmitterIds = my_TII_Detector. processNULL();
-	            if (transmitterIds . size ()> 0)
-	               show_tii (transmitterIds);
+	            std::vector <int> transmitterIds =
+	                              my_TII_Detector. processNULL();
+	            if (transmitterIds . size ()> 0) 
+	               for (int i = 0; i <  transmitterIds. size (); i ++)
+	                  show_tii (transmitterIds. at (i));
 	            tii_counter = 0;
 	            my_TII_Detector. reset();
 	         }

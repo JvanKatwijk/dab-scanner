@@ -79,12 +79,12 @@ QString h;
 	diff_length	=
 	           dabSettings	-> value ("diff_length", DIFF_LENGTH). toInt ();
 
-        dabMode		= dabSettings   -> value ("dabMode", 1). toInt ();
+	dabMode		= dabSettings   -> value ("dabMode", 1). toInt ();
 	if ((dabMode != 1) && (dabMode != 2))
 	   dabMode = 1;
 
 	isSynced	= false;
-	tii_Value. clear ();
+	tii_Value. resize  (0);
 ///////////////////////////////////////////////////////////////////////////
 
 //	The settings are done, now creation of the GUI parts
@@ -145,12 +145,12 @@ int	frequency	= theBand -> Frequency (channelNumber);
 
 void	RadioInterface::stopScanning (void) {
 	disconnect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-                    this, SLOT (nextChannel_noSignal (void)));
-        disconnect (&channelTimer, SIGNAL (timeout (void)),
-                    this, SLOT (nextChannel_withSignal (void)));
-        theDevice     -> stopReader ();
-        my_dabProcessor -> stop ();
-        channelTimer. stop ();
+	            this, SLOT (nextChannel_noSignal (void)));
+	disconnect (&channelTimer, SIGNAL (timeout (void)),
+	            this, SLOT (nextChannel_withSignal (void)));
+	theDevice     -> stopReader ();
+	my_dabProcessor -> stop ();
+	channelTimer. stop ();
 	running. store (false);
 }
 
@@ -167,7 +167,7 @@ int	frequency;
 	Services	= QStringList ();
 	serviceCountDisplay	-> display (0);
 	tii_Label	-> setText (" ");
-	tii_Value. clear ();
+	tii_Value. resize (0);
 	channelNumber . store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
@@ -181,30 +181,30 @@ int	frequency;
 	}
 	frequency	= theBand -> Frequency (channelNumber);
 	channelDisplay -> setText (theBand -> channel (channelNumber));
-        connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-                 this, SLOT (nextChannel_noSignal (void)));
+	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
+	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
 	         this, SLOT (nextChannel_withSignal (void)));
-        channelTimer. start (channelDelay -> value () * 1000);
-        my_dabProcessor -> start (frequency);
+	channelTimer. start (channelDelay -> value () * 1000);
+	my_dabProcessor -> start (frequency);
 }
 
 void	RadioInterface::nextChannel_withSignal (void) {
 int	frequency;
 	disconnect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-                    this, SLOT (nextChannel_noSignal (void)));
-        disconnect (&channelTimer, SIGNAL (timeout (void)),
-                    this, SLOT (nextChannel_withSignal (void)));
-        theDevice     -> stopReader ();
-        my_dabProcessor -> stop ();
-        channelTimer. stop ();
+	            this, SLOT (nextChannel_noSignal (void)));
+	disconnect (&channelTimer, SIGNAL (timeout (void)),
+	            this, SLOT (nextChannel_withSignal (void)));
+	theDevice     -> stopReader ();
+	my_dabProcessor -> stop ();
+	channelTimer. stop ();
 	if ((Services. size () != 0) &&
-            (ensembleDisplay -> text () != QString ("")))
+	    (ensembleDisplay -> text () != QString ("")))
 	   showEnsembleData	(snrDisplay -> value (), tii_Value);
 	ensembleDisplay	-> setText ("");
 	Services	= QStringList ();
 	tii_Label	-> setText (" ");
-	tii_Value. clear ();
+	tii_Value. resize (0);
 	serviceCountDisplay	-> display (0);
 	channelNumber. store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
@@ -220,27 +220,27 @@ int	frequency;
 	}
 	channelDisplay	-> setText (theBand -> channel (channelNumber));
 	frequency	= theBand -> Frequency (channelNumber);
-        connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-                 this, SLOT (nextChannel_noSignal (void)));
+	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
+	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
 	         this, SLOT (nextChannel_withSignal (void)));
-        channelTimer. start (channelDelay -> value () * 1000);
-        my_dabProcessor -> start (frequency);
+	channelTimer. start (channelDelay -> value () * 1000);
+	my_dabProcessor -> start (frequency);
 }
 
 void	RadioInterface::reset (void) {
 }
 
 void    RadioInterface::showTime        (const QString &s) {
-        localTimeDisplay        -> setText (s);
+	localTimeDisplay        -> setText (s);
 }
 
 void	RadioInterface::addtoEnsemble (const QString &s) {
 	if (!running. load())
-           return;
+	   return;
 
-        Services << s;
-        Services. removeDuplicates();
+	Services << s;
+	Services. removeDuplicates();
 	serviceCountDisplay	-> display (Services. size ());
 }
 
@@ -277,9 +277,9 @@ void RadioInterface::closeEvent (QCloseEvent *event) {
 
 	QMessageBox::StandardButton resultButton =
 	                QMessageBox::question (this, "dabRadio",
-                                               tr("Are you sure?\n"),
-                                               QMessageBox::No | QMessageBox::Yes,
-                                               QMessageBox::Yes);
+	                                       tr("Are you sure?\n"),
+	                                       QMessageBox::No | QMessageBox::Yes,
+	                                       QMessageBox::Yes);
 	if (resultButton != QMessageBox::Yes) {
 	   event -> ignore();
 	} else {
@@ -310,8 +310,8 @@ void	RadioInterface::selectDevice (QString s) {
 	         this, SLOT (show_snr (int)));
 	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
 	         this, SLOT (setSynced (bool)));
-	connect (my_dabProcessor, SIGNAL (show_tii (QList <int>)),
-	         this, SLOT (show_tii (QList <int>)));
+	connect (my_dabProcessor, SIGNAL (show_tii (int)),
+	         this, SLOT (show_tii (int)));
 	connect (startButton, SIGNAL (clicked (void)),
 	         this, SLOT (handle_startButton (void)));
 }
@@ -362,8 +362,8 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 void	RadioInterface::handle_startButton (void) {
 	if (theDevice == NULL) {
 	   QMessageBox::warning (this, tr ("Warning"),
-                                       tr ("Select a device first\n"));
-           return;
+	                               tr ("Select a device first\n"));
+	   return;
 	}
 
 	if (nrCycles -> value () < 1)
@@ -404,7 +404,7 @@ void	RadioInterface::handle_startButton (void) {
 }
 
 void	RadioInterface::showEnsembleData	(int snr,
-	                                         QList <int> tiiValue) {
+	                                         std::vector<int> tiiValue) {
 QString currentChannel	= theBand -> channel (channelNumber);
 int32_t	frequency	= theDevice -> getVFOFrequency();
 QString theTime		= localTimeDisplay -> text ();
@@ -418,28 +418,28 @@ ensemblePrinter	my_Printer;
 	                              snr,
 	                              tiiValue,
 	                              theTime,
-                                      Services, my_dabProcessor, fileP);
+	                              Services, my_dabProcessor, fileP);
 
 }
 
 void    RadioInterface::setSynced       (bool b) {
-        if (!running. load())
-           return;
-        if (isSynced == b)
-           return;
+	if (!running. load())
+	   return;
+	if (isSynced == b)
+	   return;
 
-        isSynced = b;
-        switch (isSynced) {
-           case SYNCED:
-              syncedLabel ->
-                       setStyleSheet ("QLabel {background-color : green}");
-              break;
+	isSynced = b;
+	switch (isSynced) {
+	   case SYNCED:
+	      syncedLabel ->
+	               setStyleSheet ("QLabel {background-color : green}");
+	      break;
 
-           default:
-              syncedLabel ->
-                       setStyleSheet ("QLabel {background-color : red}");
-              break;
-        }
+	   default:
+	      syncedLabel ->
+	               setStyleSheet ("QLabel {background-color : red}");
+	      break;
+	}
 }
 
 
@@ -448,26 +448,27 @@ void	RadioInterface::set_CorrectorDisplay	(int c) {
 }
 
 void    RadioInterface::show_ficSuccess (bool b) {
-        if (!running. load())
-           return;
-        if (b) 
-           ficSuccess ++;
+	if (!running. load())
+	   return;
+	if (b) 
+	   ficSuccess ++;
 
-        if (++ficBlocks >= 100) {
-           ficSuccessDisplay   -> setValue (ficSuccess);
-           ficSuccess   = 0;
-           ficBlocks    = 0;
-        }
+	if (++ficBlocks >= 100) {
+	   ficSuccessDisplay   -> setValue (ficSuccess);
+	   ficSuccess   = 0;
+	   ficBlocks    = 0;
+	}
 }
 
-void	RadioInterface::show_tii	(QList <int> tii) {
+void	RadioInterface::show_tii	(int tii) {
 QString s;
-	for (int i = 0; i < tii. size (); i ++) {
-	   char buffer [20];
-	   sprintf (buffer, " (%d %d) ", tii. at (i) >> 8, tii. at (i) & 0xFF);
-	   s. append (buffer);
-	}
+char buffer [20];
+	sprintf (buffer, " (%d %d) ", tii >> 8, tii & 0xFF);
+	s. append (buffer);
 	tii_Label -> setText (s);
-	tii_Value	= tii;
+	for (int i = 0; i < tii_Value. size (); i ++)
+	   if (tii_Value. at (i) == tii)
+	      return;
+	tii_Value. push_back (tii);
 }
 

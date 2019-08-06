@@ -179,16 +179,16 @@ uint8_t bits [] = {0x80, 0x40, 0x20, 0x10 , 0x08, 0x04, 0x02, 0x01};
 
 #define	NUM_GROUPS	8
 #define	GROUPSIZE	24
-QList<int>	TII_Detector::processNULL() {
+std::vector <int>	TII_Detector::processNULL() {
 int i, j;
 float	hulpTable	[NUM_GROUPS * GROUPSIZE];
 float	C_table		[GROUPSIZE];	// contains the values
 int	D_table		[GROUPSIZE];	// count of indices in C_table with data
 float	avgTable	[NUM_GROUPS];
 float	minTable	[NUM_GROUPS];
-QList<int> results;
+std::vector<int> results;
 
-	results. clear ();
+	results. resize (0);
 //	we map the "carriers" carriers (complex values) onto
 //	a collapsed vector of "carriers / 8" length, 
 //	considered to consist of 8 segments of 24 values

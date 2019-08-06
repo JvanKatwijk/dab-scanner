@@ -74,11 +74,11 @@ private:
 	QTimer		channelTimer;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
-	QList<int>	tii_Value;
+	std::vector<int>	tii_Value;
 	void		TerminateProcess	(void);
 	void		startScanning		(void);
 	void		stopScanning		(void);
-	void		showEnsembleData	(int, QList <int>);
+	void		showEnsembleData	(int, std::vector <int>);
 	deviceHandler	*setDevice		(QString);
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);
@@ -94,7 +94,7 @@ public slots:
 	void		closeEvent		(QCloseEvent *event);
 	void		show_snr		(int);
 	void		showTime		(const QString &s);
-	void		show_tii		(QList <int>);
+	void		show_tii		(int);
 	void		set_CorrectorDisplay	(int);
 	void		show_ficSuccess		(bool);
 //	Somehow, these must be connected to the GUI
