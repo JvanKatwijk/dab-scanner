@@ -274,7 +274,7 @@
    <widget class="QSpinBox" name="nrCycles">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>170</x>
       <y>70</y>
       <width>121</width>
       <height>31</height>
@@ -316,6 +316,19 @@
       <width>121</width>
       <height>31</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="continuousButton">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>70</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>continuous</string>
     </property>
    </widget>
   </widget>

@@ -60,6 +60,25 @@ button will become a "start" button again.
 The GUI further shows during processing a red/green field, where green indicates that at least time synchonization could be achieved, an indicator for the 
 Signal Noise Ratio, and an indicator for the frequency offset required to achieve frequency synchronization.
 
+--------------------------------------------------------------------------
+Continuous scanning
+---------------------------------------------------------------------------
+
+Based on feedback, a button was added for continuous scanning. While
+a spinbox is on the GUI on which a fixed amount of scanning cycles
+can be set (and changed during operation), there was a need for
+a mode where the software is not limited in the number of scans.
+
+For this, the button labeled "continuous" is added. 
+If the button is touched, the text on the button changes to "running",
+and running will continue until 
+
+* the button is touched again, after which operation continues based on
+the setting of the spinbox indicating the amount of cycles to go, or
+* the "stop" button is touched.
+
+In both cases, writing output continues until the cycling is stopped.
+
 ---------------------------------------------------------------------------
 Selecting an input device
 ---------------------------------------------------------------------------

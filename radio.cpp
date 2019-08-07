@@ -114,6 +114,7 @@ QString h;
 	my_dabProcessor		= NULL;
 	ficBlocks		= 0;
 	ficSuccess		= 0;
+	go_continuously		= false;
 //	
 //	and start the timer(s)
 //	The displaytimer is there to show the number of
@@ -138,6 +139,8 @@ int	frequency	= theBand -> Frequency (channelNumber);
 	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
 	         this, SLOT (nextChannel_withSignal (void)));
+	connect (continuousButton, SIGNAL (clicked (void)),
+	         this, SLOT (handle_continuousButton (void)));
 	channelTimer. start (channelDelay -> value () * 1000);
 	my_dabProcessor -> start (frequency);
 	running. store (true);
@@ -171,7 +174,8 @@ int	frequency;
 	channelNumber . store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
-	   nrCycles	-> setValue (nrCycles -> value () - 1);
+	   if (!go_continuously)
+	      nrCycles	-> setValue (nrCycles -> value () - 1);
 	   if (nrCycles -> value () < 1) {
 	      running. store (false);
 	      fclose (fileP);
@@ -210,7 +214,8 @@ int	frequency;
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   fprintf (stderr, "channelNumber = %d\n", channelNumber. load ());
 	   channelNumber . store (0);
-	   nrCycles	-> setValue (nrCycles -> value () - 1);
+	   if (!go_continuously)
+	      nrCycles	-> setValue (nrCycles -> value () - 1);
 	   if (nrCycles -> value () < 1) {
 	      running. store (false);
 	      fclose (fileP);
@@ -400,6 +405,8 @@ void	RadioInterface::handle_startButton (void) {
 //	handling stop
 	fclose (fileP);
 	stopScanning ();
+	go_continuously	= false;
+	continuousButton -> setText ("continuous");
 	startButton	-> setText ("start");
 }
 
@@ -471,4 +478,10 @@ char buffer [20];
 	      return;
 	tii_Value. push_back (tii);
 }
+
+void	RadioInterface::handle_continuousButton (void) {
+	go_continuously = !go_continuously;
+	continuousButton -> setText (go_continuously ? "running": "continuous");
+}
+
 

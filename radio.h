@@ -59,6 +59,7 @@ private:
 	QSettings	*dabSettings;
 	FILE		*fileP;
 	std::atomic<int>	channelNumber;
+	bool		go_continuously;
 	int		serviceCount;
         QStringList     Services;
 	uint8_t		dabBand;
@@ -84,8 +85,6 @@ protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 
 public slots:
-	void		selectDevice		(QString);
-	void		handle_startButton 	(void);
 	void		nextChannel_withSignal	(void);
 	void		nextChannel_noSignal	(void);
 	void		addtoEnsemble		(const QString &);
@@ -99,6 +98,9 @@ public slots:
 	void		show_ficSuccess		(bool);
 //	Somehow, these must be connected to the GUI
 private slots:
+	void		selectDevice		(QString);
+	void		handle_startButton 	(void);
+	void		handle_continuousButton	(void);
 	void		reset			(void);
 signals:
 	void		set_quality		(int);
