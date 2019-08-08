@@ -5,10 +5,10 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.0
+TARGET		= dab-scanner-1.2
 
 QT		+= widgets 
-CONFIG		+= console
+CONFIG		-= console
 QMAKE_CXXFLAGS	+= -std=c++11
 #QMAKE_CFLAGS	+=  -lfto -ffast-math
 #QMAKE_CXXFLAGS	+=  -lfto -ffast-math
