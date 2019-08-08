@@ -19,7 +19,6 @@ the transmitter identification in terms of a "mainId" and a "subId".
 You could consider sending the DAB ensemble description to Gunther Lorenz glorenz@fmlist.org. He maintains a large database with FM stations and DAB ensembles.
 
 
-
 -----------------------------------------------------------------------
 Scanner use
 -----------------------------------------------------------------------
@@ -58,7 +57,9 @@ Note that at the start of the scanning process, the "start" button becomes a
 button will become a "start" button again.
 
 The GUI further shows during processing a red/green field, where green indicates that at least time synchonization could be achieved, an indicator for the 
-Signal Noise Ratio, and an indicator for the frequency offset required to achieve frequency synchronization.
+Signal Noise Ratio (measured as the ratio between the signals strength
+in the datablocks in a DAB frame and the signal strength in the null period
+of the frame), and an indicator for the frequency offset required to achieve frequency synchronization.
 
 --------------------------------------------------------------------------
 Continuous scanning
