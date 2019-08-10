@@ -49,8 +49,11 @@ of the ensemble will be shown, as well as the number of services detected in
 that channel. After a user defined amount of time (the left spinbox on the GUI)
 a next channel will be selected.
 * At the end of the cycle the software will determine whether or not to run a
-next cycle by looking at the spinbox at the right: if the number there is
+next cycle by looking at the spinbox at the right:  if running in
+continuous mode or otherwise, if the number in the spinbox is
 positive after decreasing it by one, a next cycle will be executed.
+
+![dab scanner](/dab-summary.png?raw=true)
 
 Note that at the start of the scanning process, the "start" button becomes a
 "stop" button. Note further that at the end of the scanning process the
