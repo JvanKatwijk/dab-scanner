@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.2
+TARGET		= dab-scanner-1.3
 
 QT		+= widgets 
 CONFIG		-= console

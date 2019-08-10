@@ -1,6 +1,6 @@
 
 ----------------------------------------------------------------------
-DAB-SCANNER
+DAB-SCANNER 1.3
 -----------------------------------------------------------------------
 
 ![dab scanner](/dab-scanner.png?raw=true)
@@ -24,7 +24,8 @@ Scanner use
 -----------------------------------------------------------------------
 
 The use of the scanner is extremely simple. The program - when started -
-will wait for the user to select a device and touch the "start" button.
+will wait for the user to select a device and touch  one of the two
+"start" buttons.
 
 In a previous version, the software would "poll" for the configured
 devices to be connected to the computer. However, working with a laptop with one and a half usb connection, I did not realize that people might have
@@ -38,11 +39,10 @@ after a device is selected, the selector will not be visible anymore.
 If the start button is touched without a device being selected, the
 start button will not do anything.
 
-If, however, a device is selected, touching the start button will:
+If, however, a device is selected, touching one of the two start buttons will:
 
 * show a menu with which the name of a file can be chosen, the file to which
-the output is written. A filename, containing date and time, is suggested but while
-the name is perfectly legal under Linux, Windows does not accept it, so one has to choose another name.
+the output is written. A filename, containing date and time, is suggested
 * start the scanning with the lowest channel in the band (5A for Band III).
 If the program is convinced that there no DAB signal can be identified, a next channel will be selected within a few seconds. If, however, a DAB signal can be identified, the name
 of the ensemble will be shown, as well as the number of services detected in
@@ -56,29 +56,24 @@ Note that at the start of the scanning process, the "start" button becomes a
 "stop" button. Note further that at the end of the scanning process the
 button will become a "start" button again.
 
+If one wants a known number of cycles, one would set the
+number in the "cycle counter" and select the "start controller" button.
+The software will use the cycle counter to determine whether or not
+to continue, after finishing a cycle, if the number is larger than zero
+the software will decrement the value in the cycles counter and continue
+with the next cycle.
+
+If, however, wants an "unlimited" amount of cycles, one shouls select the
+"start continuous" button. Cycling will just go on until the button is
+touches again or - for whatever reason - the program halts.
+Since many dx-ers want to cycle for hours, a summary of the output
+is written to another textfile. The name of the textfile is related to
+the name of the txt file containing the full output.
+
 The GUI further shows during processing a red/green field, where green indicates that at least time synchonization could be achieved, an indicator for the 
 Signal Noise Ratio (measured as the ratio between the signals strength
 in the datablocks in a DAB frame and the signal strength in the null period
 of the frame), and an indicator for the frequency offset required to achieve frequency synchronization.
-
---------------------------------------------------------------------------
-Continuous scanning
----------------------------------------------------------------------------
-
-Based on feedback, a button was added for continuous scanning. While
-a spinbox is on the GUI on which a fixed amount of scanning cycles
-can be set (and changed during operation), there was a need for
-a mode where the software is not limited in the number of scans.
-
-For this, the button labeled "continuous" is added. 
-If the button is touched, the text on the button changes to "running",
-and running will continue until 
-
-* the button is touched again, after which operation continues based on
-the setting of the spinbox indicating the amount of cycles to go, or
-* the "stop" button is touched.
-
-In both cases, writing output continues until the cycling is stopped.
 
 ---------------------------------------------------------------------------
 Selecting an input device

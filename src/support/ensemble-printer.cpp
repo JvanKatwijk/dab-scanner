@@ -173,3 +173,44 @@ QString transmitters = QString ("");
 	}
 }
 
+void	ensemblePrinter::addSummary (QString	channel,
+	                             int32_t	freq,
+	                             int		snr,
+	                             std::vector<int>	tii,
+	                             QString	theTime,
+	                             QStringList	Services,
+	                             dabProcessor *my_dabProcessor,
+	                             FILE		*file_P) {
+uint8_t	countryId;
+int16_t	i;
+textMapper	theMapper;
+uint8_t ecc_byte	= my_dabProcessor -> get_ecc();
+QString	ensembleLabel	= my_dabProcessor -> get_ensembleName();
+int32_t	ensembleId	= my_dabProcessor -> get_ensembleId();
+QString currentChannel	= channel;
+int32_t	frequency	= freq;
+bool	firstData;
+
+QString transmitters = QString ("");
+
+	if (ensembleLabel == QString (""))
+	   return;
+
+	for (i = 0; i < tii. size (); i ++) {
+	   char buffer [20];
+	   sprintf (buffer, " (%d %d)", tii. at (i) >> 8, tii. at (i) & 0xFF);
+	   transmitters. append (buffer);
+	}
+	if (transmitters == QString (""))
+	   transmitters = "xxx";
+
+	fprintf (file_P, "\n\n\n; channel %s; %s; ensembleId %X; frequency %d; time of recording  %s;  services %d; SNR %d; transmitterId(s) %s\n\n",
+	                  currentChannel. toUtf8(). data(),
+	                  ensembleLabel. toUtf8(). data(),
+	                  ensembleId,
+	                  frequency / 1000,
+	                  theTime. toUtf8(). data (),
+	                  Services. size (),
+	                  snr,
+	                  transmitters. toLatin1 (). data ());
+}

@@ -58,6 +58,7 @@ public:
 private:
 	QSettings	*dabSettings;
 	FILE		*fileP;
+	FILE		*summaryP;
 	std::atomic<int>	channelNumber;
 	bool		go_continuously;
 	int		serviceCount;
@@ -81,6 +82,8 @@ private:
 	void		stopScanning		(void);
 	void		showEnsembleData	(int, std::vector <int>);
 	deviceHandler	*setDevice		(QString);
+	QString		find_fileName		(void);
+
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 
@@ -99,7 +102,7 @@ public slots:
 //	Somehow, these must be connected to the GUI
 private slots:
 	void		selectDevice		(QString);
-	void		handle_startButton 	(void);
+	void		handle_startcontrolledButton 	(void);
 	void		handle_continuousButton	(void);
 	void		reset			(void);
 signals:

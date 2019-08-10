@@ -91,7 +91,7 @@ QString h;
 	setupUi (this);
 //
 //	... and the device selector
-	
+
 #ifdef	HAVE_RTLSDR
 	deviceSelector	-> addItem ("rtlsdr");
 #endif
@@ -114,7 +114,6 @@ QString h;
 	my_dabProcessor		= NULL;
 	ficBlocks		= 0;
 	ficSuccess		= 0;
-	go_continuously		= false;
 //	
 //	and start the timer(s)
 //	The displaytimer is there to show the number of
@@ -139,8 +138,6 @@ int	frequency	= theBand -> Frequency (channelNumber);
 	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
 	         this, SLOT (nextChannel_withSignal (void)));
-	connect (continuousButton, SIGNAL (clicked (void)),
-	         this, SLOT (handle_continuousButton (void)));
 	channelTimer. start (channelDelay -> value () * 1000);
 	my_dabProcessor -> start (frequency);
 	running. store (true);
@@ -174,13 +171,15 @@ int	frequency;
 	channelNumber . store (channelNumber. load () + 1);
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
-	   if (!go_continuously)
+	   if (!go_continuously) {
 	      nrCycles	-> setValue (nrCycles -> value () - 1);
-	   if (nrCycles -> value () < 1) {
-	      running. store (false);
-	      fclose (fileP);
-	      startButton	-> setText ("start");
-	      return;
+	      if (nrCycles -> value () < 1) {
+	         running. store (false);
+	         fclose (fileP);
+	         startButton		-> setText ("start controlled");
+	         continuousButton	-> show ();
+	         return;
+	      }
 	   }
 	}
 	frequency	= theBand -> Frequency (channelNumber);
@@ -203,8 +202,9 @@ int	frequency;
 	my_dabProcessor -> stop ();
 	channelTimer. stop ();
 	if ((Services. size () != 0) &&
-	    (ensembleDisplay -> text () != QString ("")))
+	    (ensembleDisplay -> text () != QString (""))) {
 	   showEnsembleData	(snrDisplay -> value (), tii_Value);
+	}
 	ensembleDisplay	-> setText ("");
 	Services	= QStringList ();
 	tii_Label	-> setText (" ");
@@ -214,13 +214,15 @@ int	frequency;
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   fprintf (stderr, "channelNumber = %d\n", channelNumber. load ());
 	   channelNumber . store (0);
-	   if (!go_continuously)
+	   if (!go_continuously) {
 	      nrCycles	-> setValue (nrCycles -> value () - 1);
-	   if (nrCycles -> value () < 1) {
-	      running. store (false);
-	      fclose (fileP);
-	      startButton	-> setText ("start");
-	      return;
+	      if (nrCycles -> value () < 1) {
+	         running. store (false);
+	         fclose (fileP);
+	         startButton		-> setText ("start");
+	         continuousButton	-> show ();
+	         return;
+	      }
 	   }
 	}
 	channelDisplay	-> setText (theBand -> channel (channelNumber));
@@ -318,7 +320,9 @@ void	RadioInterface::selectDevice (QString s) {
 	connect (my_dabProcessor, SIGNAL (show_tii (int)),
 	         this, SLOT (show_tii (int)));
 	connect (startButton, SIGNAL (clicked (void)),
-	         this, SLOT (handle_startButton (void)));
+	         this, SLOT (handle_startcontrolledButton (void)));
+	connect (continuousButton, SIGNAL (clicked (void)),
+	         this, SLOT (handle_continuousButton (void)));
 }
 
 deviceHandler	*RadioInterface::setDevice (QString s) {
@@ -364,7 +368,9 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 	return NULL;
 }
 
-void	RadioInterface::handle_startButton (void) {
+void	RadioInterface::handle_startcontrolledButton (void) {
+QString reportName;
+
 	if (theDevice == NULL) {
 	   QMessageBox::warning (this, tr ("Warning"),
 	                               tr ("Select a device first\n"));
@@ -374,30 +380,18 @@ void	RadioInterface::handle_startButton (void) {
 	if (nrCycles -> value () < 1)
 	   return;
 	if (!running. load ()) {
-	   QString timeString = QDate::currentDate (). toString ();
-	   timeString. append (":");
-	   timeString. append (QTime::currentTime (). toString ());
-	   localTimeDisplay	-> setText (timeString);
-	   QString theTime	= localTimeDisplay -> text ();
-	   QString suggestedFileName = QDir::homePath ();
-	   suggestedFileName. append ("/dab-scanner-");
-	   suggestedFileName. append (theTime);
-	   suggestedFileName. append (".txt");
-	   fprintf (stderr, "suggested filename = %s\n",
-	             suggestedFileName. toLatin1 (). data ());
-	   QString fileName = QFileDialog::getSaveFileName (this,
-	                                        tr ("Save file ..."),
-	                                        suggestedFileName,
-	                                        tr ("Text (*.txt)"));
-	   fileName	= QDir::toNativeSeparators (fileName);
-	   fileP	= fopen (fileName. toUtf8(). data(), "w");
-
+	   continuousButton	-> hide ();
+	   reportName	= find_fileName ();
+	   fileP	= fopen (reportName. toUtf8(). data(), "w");
 	   if (fileP == nullptr) {
 	      fprintf (stderr, "Could not open file %s\n",
-	                              fileName. toUtf8(). data());
+	                              reportName. toUtf8(). data());
+	      continuousButton	-> show ();
 	      return;
 	   }
 	   startButton -> setText ("stop");
+	   operationsLabel	-> setText ("running controlled");
+	   go_continuously	= false;
 	   startScanning ();
 	   return;
 	}
@@ -405,9 +399,9 @@ void	RadioInterface::handle_startButton (void) {
 //	handling stop
 	fclose (fileP);
 	stopScanning ();
-	go_continuously	= false;
-	continuousButton -> setText ("continuous");
-	startButton	-> setText ("start");
+	startButton		-> setText ("start controlled");
+	operationsLabel		-> setText ("");
+	continuousButton	-> show ();
 }
 
 void	RadioInterface::showEnsembleData	(int snr,
@@ -426,7 +420,14 @@ ensemblePrinter	my_Printer;
 	                              tiiValue,
 	                              theTime,
 	                              Services, my_dabProcessor, fileP);
-
+	if (go_continuously) {
+	   my_Printer. addSummary (currentChannel,
+	                           frequency,
+	                           snr,
+	                           tiiValue,
+	                           theTime,
+	                           Services, my_dabProcessor, summaryP);
+	}
 }
 
 void    RadioInterface::setSynced       (bool b) {
@@ -480,8 +481,81 @@ char buffer [20];
 }
 
 void	RadioInterface::handle_continuousButton (void) {
-	go_continuously = !go_continuously;
-	continuousButton -> setText (go_continuously ? "running": "continuous");
+QString reportName;
+QString	summaryName;
+
+	if (theDevice == NULL) {
+           QMessageBox::warning (this, tr ("Warning"),
+                                       tr ("Select a device first\n"));
+           return;
+        }
+	
+        if (!running. load ()) {
+	   startButton	-> hide ();
+	   nrCycles	-> hide ();
+           reportName = find_fileName ();
+           fileP        = fopen (reportName. toUtf8(). data(), "w");
+           if (fileP == nullptr) {
+              fprintf (stderr, "Could not open file %s\n",
+                                      reportName. toUtf8(). data());
+	      startButton	-> show ();
+	      nrCycles		-> show ();
+              return;
+           }
+	   else
+
+	   summaryName	= reportName;
+	   if (summaryName. indexOf ("dab-scanner") != -1)
+	      summaryName. replace ("dab-scanner", "dab-summary");
+	   else
+	      summaryName. append ("-summary.txt");
+	   fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
+	   summaryP	= fopen (summaryName. toUtf8(). data(), "w");
+           if (summaryP == nullptr) {
+              fprintf (stderr, "Could not open  summary file %s\n",
+                                      summaryName. toUtf8(). data());
+	      fclose (fileP);
+              startButton       -> show ();
+              nrCycles          -> show ();
+              return;
+           }
+	   operationsLabel	-> setText ("running continuously");
+	   continuousButton	-> setText ("stop");
+	   go_continuously	= true;
+	   startScanning ();	
+	   running. store (true);
+	   return;
+	}
+//	and in case we need to stop:
+	go_continuously = false;
+	stopScanning ();
+	operationsLabel	-> setText ("");
+	fclose (fileP);
+	fclose (summaryP);
+	running. store (false);
+	startButton       -> show ();
+	nrCycles          -> show ();
+	continuousButton -> setText ("start continuous");
 }
 
+QString	RadioInterface::find_fileName () {
+QString timeString = QDate::currentDate (). toString ();
 
+	timeString. append ("-");
+	timeString. append (QTime::currentTime (). toString ());
+	localTimeDisplay	-> setText (timeString);
+	QString theTime	= localTimeDisplay -> text ();
+	theTime. replace (":", "-");
+	QString suggestedFileName = QDir::homePath ();
+	suggestedFileName. append ("/dab-scanner-");
+	suggestedFileName. append (theTime);
+	suggestedFileName. append (".txt");
+	fprintf (stderr, "suggested filename = %s\n",
+	             suggestedFileName. toLatin1 (). data ());
+	QString fileName = QFileDialog::getSaveFileName (this,
+	                                        tr ("Save file ..."),
+	                                        suggestedFileName,
+	                                        tr ("Text (*.txt)"));
+	fileName	= QDir::toNativeSeparators (fileName);
+	return fileName;
+}
