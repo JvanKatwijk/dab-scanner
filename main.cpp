@@ -31,7 +31,7 @@
 #include        "dab-constants.h"
 #include        "radio.h"
 
-#define DEFAULT_INI     ".dabradio.ini"
+#define DEFAULT_INI     ".dab-scanner.ini"
 
 #ifndef	GITHASH
 #define	GITHASH	"      "
@@ -69,7 +69,7 @@ int     opt;
 
 	QCoreApplication::setOrganizationName ("Lazy Chair Computing");
 	QCoreApplication::setOrganizationDomain ("Lazy Chair Computing");
-	QCoreApplication::setApplicationName ("dabradio");
+	QCoreApplication::setApplicationName ("dab-scanner");
 	QCoreApplication::setApplicationVersion (QString (CURRENT_VERSION) + " Git: " + GITHASH);
 
 	while ((opt = getopt (argc, argv, "i:c:")) != -1) {
@@ -121,7 +121,7 @@ int     opt;
 	fflush (stdout);
 	fflush (stderr);
 	qDebug ("It is done\n");
-	delete MyRadioInterface;
+//	delete MyRadioInterface;
 	delete dabSettings;
 }
 

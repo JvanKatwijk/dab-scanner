@@ -10,7 +10,7 @@
  * @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
  *
  *	recoding, taking parts and extending for the airspyHandler interface
- *	for the Qt-DAB program
+ *	for the dab-scanner program
  *	jan van Katwijk
  *	Lazy Chair Computing
  */

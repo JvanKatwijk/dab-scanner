@@ -1,6 +1,6 @@
 #
 /*
- *    Copyright (C) 2010, 2011, 2012
+ *    Copyright (C) 2013, 2014, 2015, 2016, 2017, 2018, 2019
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
@@ -20,24 +20,32 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#ifndef __AIRSPY_FILTER__
-#define __AIRSPY_FILTER__
+#ifndef	__CHANNELS_TABLE__
+#define	__CHANNELS_TABLE__
 
-#include	<cstdlib>
-#include	<cmath>
-#include	<complex>
+#include	<QSettings>
+#include	<QTableWidget>
+#include	<QObject>
+#include	"band-handler.h"
 
-class	airspyFilter {
+class	channelsTable: public QObject {
+Q_OBJECT
 public:
-			airspyFilter	(int16_t, int32_t, int32_t);
-	                ~airspyFilter();
-	std::complex<float> Pass	(float re, float im);
-	int16_t		firSize;
-	float		*kernel;
-	float		*buffer_re;
-	float		*buffer_im;
-	int16_t		ip;
-	int32_t		sampleRate;
+	channelsTable	(QSettings *si, bandHandler	*theBand);
+	~channelsTable	();
+void	show		();
+void	hide		();
+bool	channel		(int);
+
+public	slots:
+       void            cellSelected            (int, int);
+
+private:
+	QSettings	*theSettings;
+	bandHandler	*theBand;
+	QTableWidget	theTable;
+	bool		isVisible;
 };
 
 #endif
+

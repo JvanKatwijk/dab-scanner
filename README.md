@@ -1,7 +1,22 @@
 
 ----------------------------------------------------------------------
-DAB-SCANNER 1.3
+DAB-SCANNER 1.4
 -----------------------------------------------------------------------
+
+
+------------------------------------------------------------------------
+New in version 1.4
+------------------------------------------------------------------------
+
+Version 1.4 has - compared to version 1.3 two extensions
+
+* the *directory name*, the name of the selected directory for storing the output will be kept between program invocations and used in the suggestion of
+the filename
+* in *continuous mode* a table is shown with the channel names and for each
+name a marker (either "+" or "-"). Channels for which the marker is "-"
+will be skipped while scanning the band. The table is maintained between
+program invocations
+
 
 ![dab scanner](/dab-scanner.png?raw=true)
 

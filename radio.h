@@ -39,6 +39,8 @@
 #include	"dab-processor.h"
 #include	"ensemble-printer.h"
 #include        "band-handler.h"
+#include	"channels-table.h"
+
 class	QSettings;
 class	virtualInput;
 /*
@@ -59,6 +61,8 @@ private:
 	QSettings	*dabSettings;
 	FILE		*fileP;
 	FILE		*summaryP;
+	QString		dirName;
+	channelsTable	*channelTable;
 	std::atomic<int>	channelNumber;
 	bool		go_continuously;
 	int		serviceCount;
@@ -83,6 +87,7 @@ private:
 	void		showEnsembleData	(int, std::vector <int>);
 	deviceHandler	*setDevice		(QString);
 	QString		find_fileName		(void);
+	bool		skipChannel		(int);
 
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);

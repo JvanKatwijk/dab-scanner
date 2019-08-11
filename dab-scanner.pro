@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.3
+TARGET		= dab-scanner-1.4
 
 QT		+= widgets 
 CONFIG		-= console
@@ -44,6 +44,7 @@ INCLUDEPATH += . \
 # Input
 HEADERS += ./radio.h \
 	   ./dab-processor.h \
+	   ./channels-table.h \
 	   ./includes/dab-constants.h \
 	   ./includes/country-codes.h \
 	   ./includes/ofdm/timesyncer.h \
@@ -74,6 +75,7 @@ FORMS	+= ./forms/dabscanner.ui
 SOURCES += ./main.cpp \
 	   ./radio.cpp \
 	   ./dab-processor.cpp \
+	   ./channels-table.cpp \
 	   ./src/ofdm/timesyncer.cpp \
 	   ./src/ofdm/sample-reader.cpp \
 	   ./src/ofdm/ofdm-decoder.cpp \

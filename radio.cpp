@@ -21,6 +21,7 @@
  */
 #include	<QSettings>
 #include	<QMessageBox>
+#include	<QStringList>
 #include	<QDebug>
 #include	<QDateTime>
 #include	<QTime>
@@ -28,17 +29,16 @@
 #include	<QDir>
 #include	<QFileDialog>
 #include	"dab-constants.h"
-#include <iostream>
-#include <string>
-#include <stdio.h>
-#include <time.h>
+#include	<iostream>
+#include	<string>
+#include	<stdio.h>
+#include	<time.h>
 #include	<numeric>
 #include	<unistd.h>
 #include	<vector>
 #include        <QMouseEvent>
 #include	"radio.h"
 #include	"band-handler.h"
-#include	<mutex>
 
 #ifdef	HAVE_RTLSDR
 #include	"rtlsdr-handler.h"
@@ -70,9 +70,8 @@ QString h;
 
 	dabSettings		= Si;
 	this	-> theBand	= theBand;
-	channels		= theBand	-> channels ();
+	channelTable		= new channelsTable (Si, theBand);
 	running. store (false);
-	isSynced		= UNSYNCED;
 	threshold	=
 	           dabSettings -> value ("threshold", 3). toInt ();
 //
@@ -82,7 +81,10 @@ QString h;
 	dabMode		= dabSettings   -> value ("dabMode", 1). toInt ();
 	if ((dabMode != 1) && (dabMode != 2))
 	   dabMode = 1;
-
+//
+//	we maintain the name of the directory of the last selection
+	dirName		= dabSettings -> value ("dirName",
+	                                        QDir::homePath ()). toString ();
 	isSynced	= false;
 	tii_Value. resize  (0);
 ///////////////////////////////////////////////////////////////////////////
@@ -105,8 +107,17 @@ QString h;
 	deviceSelector	-> addItem ("hackrf");
 #endif
 #ifdef	HAVE_LIME
-	deviceSelector -> addItem ("lime");
+	deviceSelector	-> addItem ("lime");
 #endif
+
+	h		=
+	            dabSettings -> value ("device", "no device"). toString();
+        int k		= deviceSelector -> findText (h);
+//      fprintf (stderr, "%d %s\n", k, h. toUtf8(). data());
+        if (k != -1) {
+           deviceSelector       -> setCurrentIndex (k);
+        }
+
 	connect (deviceSelector, SIGNAL (activated (QString)),
 	         this, SLOT (selectDevice (QString)));
 
@@ -122,13 +133,11 @@ QString h;
 //	timer for channel settings
 	channelTimer. setSingleShot (true);
 	channelTimer. setInterval   (channelDelay -> value () * 1000);
-
 	channelNumber		= 0;
 //
 }
 
 	RadioInterface::~RadioInterface (void) {
-	fprintf (stderr, "radioInterface is deleted\n");
 }
 //
 void	RadioInterface:: startScanning (void) {
@@ -168,11 +177,20 @@ int	frequency;
 	serviceCountDisplay	-> display (0);
 	tii_Label	-> setText (" ");
 	tii_Value. resize (0);
+	int nrChannels	= theBand -> channels ();
 	channelNumber . store (channelNumber. load () + 1);
+	int skipCount	= 0;
+	if (channelNumber. load () < nrChannels)
+	   while  (go_continuously && skipChannel (channelNumber. load ())) {
+	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
+	      if (++skipCount >= nrChannels)
+	         break;
+	      channelNumber. store ((channelNumber. load () + 1) % nrChannels);
+	   }
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
 	   if (!go_continuously) {
-	      nrCycles	-> setValue (nrCycles -> value () - 1);
+	if (channelNumber. load () < nrChannels)
 	      if (nrCycles -> value () < 1) {
 	         running. store (false);
 	         fclose (fileP);
@@ -182,6 +200,7 @@ int	frequency;
 	      }
 	   }
 	}
+	
 	frequency	= theBand -> Frequency (channelNumber);
 	channelDisplay -> setText (theBand -> channel (channelNumber));
 	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
@@ -210,7 +229,16 @@ int	frequency;
 	tii_Label	-> setText (" ");
 	tii_Value. resize (0);
 	serviceCountDisplay	-> display (0);
+	int nrChannels	= theBand -> channels ();
+	int skipCount	= 0;
 	channelNumber. store (channelNumber. load () + 1);
+	if (channelNumber. load () < nrChannels)
+	   while  (go_continuously && skipChannel (channelNumber. load ())) {
+	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
+	      if (++skipCount >= nrChannels)
+	         break;
+	      channelNumber. store ((channelNumber. load () + 1) % nrChannels);
+	   }
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   fprintf (stderr, "channelNumber = %d\n", channelNumber. load ());
 	   channelNumber . store (0);
@@ -274,6 +302,9 @@ void	RadioInterface::TerminateProcess (void) {
 	}
 	if (theDevice != NULL)
 	   delete	theDevice;
+	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
+	channelTable	-> hide ();
+	delete channelTable;
 	close ();
 	fprintf (stderr, ".. end the radio silences\n");
 }
@@ -489,7 +520,7 @@ QString	summaryName;
                                        tr ("Select a device first\n"));
            return;
         }
-	
+
         if (!running. load ()) {
 	   startButton	-> hide ();
 	   nrCycles	-> hide ();
@@ -502,7 +533,6 @@ QString	summaryName;
 	      nrCycles		-> show ();
               return;
            }
-	   else
 
 	   summaryName	= reportName;
 	   if (summaryName. indexOf ("dab-scanner") != -1)
@@ -519,6 +549,8 @@ QString	summaryName;
               nrCycles          -> show ();
               return;
            }
+	   
+	   channelTable		-> show ();
 	   operationsLabel	-> setText ("running continuously");
 	   continuousButton	-> setText ("stop");
 	   go_continuously	= true;
@@ -533,8 +565,9 @@ QString	summaryName;
 	fclose (fileP);
 	fclose (summaryP);
 	running. store (false);
-	startButton       -> show ();
-	nrCycles          -> show ();
+	startButton	-> show ();
+	nrCycles	-> show ();
+	channelTable	-> hide ();
 	continuousButton -> setText ("start continuous");
 }
 
@@ -546,7 +579,7 @@ QString timeString = QDate::currentDate (). toString ();
 	localTimeDisplay	-> setText (timeString);
 	QString theTime	= localTimeDisplay -> text ();
 	theTime. replace (":", "-");
-	QString suggestedFileName = QDir::homePath ();
+	QString suggestedFileName = dirName;
 	suggestedFileName. append ("/dab-scanner-");
 	suggestedFileName. append (theTime);
 	suggestedFileName. append (".txt");
@@ -556,6 +589,14 @@ QString timeString = QDate::currentDate (). toString ();
 	                                        tr ("Save file ..."),
 	                                        suggestedFileName,
 	                                        tr ("Text (*.txt)"));
+	int ind		= fileName. lastIndexOf ("/");
 	fileName	= QDir::toNativeSeparators (fileName);
+	dirName		= fileName;
+	dirName. remove (ind, 100);
+	dabSettings	-> setValue ("dirName", dirName);
 	return fileName;
+}
+
+bool	RadioInterface::skipChannel (int channelNumber) {
+	return !channelTable	-> channel (channelNumber);
 }
