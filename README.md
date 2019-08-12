@@ -20,7 +20,7 @@ program invocations
 
 ![dab scanner](/dab-scanner.png?raw=true)
 
-dab-scanner is a simple tool that is used to scan all channels in a given
+dab-scanner is a tool that is used to scan all channels in a given
 DAB band and report the contents of the ensemble(s) found in a txt file
 that is formatted in a way that interpretation by e.g. Libre Office is
 possible
@@ -43,16 +43,14 @@ will wait for the user to select a device and touch  one of the two
 "start" buttons.
 
 In a previous version, the software would "poll" for the configured
-devices to be connected to the computer. However, working with a laptop with one and a half usb connection, I did not realize that people might have
-different devices connected to the computer and need explicit control
+devices to be connected to the computer. However, working with a laptop with one and a half usb connection, I did not realize that people might have different devices connected to the computer and need explicit control
 over the selection of the device.
 
 On the top right of the GUI a selector for a device is available.
-To keep things simple, the selection is once only per program run,
+To keep things simple, the selection is *once only* per program run,
 after a device is selected, the selector will not be visible anymore.
 
-If the start button is touched without a device being selected, the
-start button will not do anything.
+If a start button is touched without a device being selected, no actions will follow.
 
 If, however, a device is selected, touching one of the two start buttons will:
 
@@ -64,29 +62,31 @@ of the ensemble will be shown, as well as the number of services detected in
 that channel. After a user defined amount of time (the left spinbox on the GUI)
 a next channel will be selected.
 * At the end of the cycle the software will determine whether or not to run a
-next cycle by looking at the spinbox at the right:  if running in
-continuous mode or otherwise, if the number in the spinbox is
-positive after decreasing it by one, a next cycle will be executed.
+next cycle. In *continuous mode* a next cycle will always start, if *controlled mode*
+the software will decrease the value in the spinbox by one, and if it is (still) larger
+than zero, a next cycle will start.
 
 ![dab scanner](/dab-summary.png?raw=true)
 
-Note that at the start of the scanning process, the "start" button becomes a
-"stop" button. Note further that at the end of the scanning process the
-button will become a "start" button again.
+Note that at the start of the scanning process, a "start" button becomes a
+"stop" button. Note further that at the end of the scanning process - either by exhaustion or
+by touching the (now) *stop button* - the button will become a "start" button again.
 
-If one wants a known number of cycles, one would set the
-number in the "cycle counter" and select the "start controller" button.
-The software will use the cycle counter to determine whether or not
-to continue, after finishing a cycle, if the number is larger than zero
-the software will decrement the value in the cycles counter and continue
-with the next cycle.
+The number of cycles in *controlled mode* is determined by the value in the
+*cycle counter*. This *cycle counter* is read after each cycle so, during processing
+it can be changed.
 
 If, however, wants an "unlimited" amount of cycles, one shouls select the
-"start continuous" button. Cycling will just go on until the button is
+*start continuous* button. Cycling will just go on until the button is
 touches again or - for whatever reason - the program halts.
 Since many dx-ers want to cycle for hours, a summary of the output
 is written to another textfile. The name of the textfile is related to
 the name of the txt file containing the full output.
+
+In *continuous mode* a table is shown with the channel numbers, each marked with a "+" or a "-" sign,
+which can be altered by the user (clicking *twice* will change the mark). The software will skip during
+scanning those channels marked with a "-" sign.
+
 
 The GUI further shows during processing a red/green field, where green indicates that at least time synchonization could be achieved, an indicator for the 
 Signal Noise Ratio (measured as the ratio between the signals strength
