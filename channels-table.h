@@ -28,10 +28,13 @@
 #include	<QObject>
 #include	"band-handler.h"
 
+class	RadioInterface;
+
 class	channelsTable: public QObject {
 Q_OBJECT
 public:
-	channelsTable	(QSettings *si, bandHandler	*theBand);
+	channelsTable	(QSettings *si,
+	                 RadioInterface *, bandHandler	*theBand);
 	~channelsTable	();
 void	show		();
 void	hide		();
@@ -42,6 +45,7 @@ public	slots:
 
 private:
 	QSettings	*theSettings;
+	RadioInterface	*myRadioInterface;
 	bandHandler	*theBand;
 	QTableWidget	theTable;
 	bool		isVisible;

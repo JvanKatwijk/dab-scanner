@@ -70,7 +70,7 @@ QString h;
 
 	dabSettings		= Si;
 	this	-> theBand	= theBand;
-	channelTable		= new channelsTable (Si, theBand);
+	channelTable		= new channelsTable (Si, this, theBand);
 	running. store (false);
 	threshold	=
 	           dabSettings -> value ("threshold", 3). toInt ();
@@ -112,11 +112,11 @@ QString h;
 
 	h		=
 	            dabSettings -> value ("device", "no device"). toString();
-        int k		= deviceSelector -> findText (h);
+	int k		= deviceSelector -> findText (h);
 //      fprintf (stderr, "%d %s\n", k, h. toUtf8(). data());
-        if (k != -1) {
-           deviceSelector       -> setCurrentIndex (k);
-        }
+	if (k != -1) {
+	   deviceSelector       -> setCurrentIndex (k);
+	}
 
 	connect (deviceSelector, SIGNAL (activated (QString)),
 	         this, SLOT (selectDevice (QString)));
@@ -142,12 +142,32 @@ QString h;
 //
 void	RadioInterface:: startScanning (void) {
 int	frequency	= theBand -> Frequency (channelNumber);
+
+	if (go_continuously) {
+	   int nrChannels	= theBand -> channels ();
+	   int skipCount	= 0;
+	   if (channelNumber. load () < nrChannels) {
+	      while  (go_continuously &&
+	                      skipChannel (channelNumber. load ())) {
+	         fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
+	         if (++skipCount >= nrChannels) {
+	            QMessageBox::warning (this, tr ("Warning"),
+	                               tr ("no channels in scanlist\n"));
+	            stopScanning ();
+	            return;
+	         }
+	         channelNumber.
+	               store ((channelNumber. load () + 1) % nrChannels);
+	      }
+	   }
+	}
 	channelDisplay -> setText (theBand -> channel (channelNumber));
 	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
 	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
 	         this, SLOT (nextChannel_withSignal (void)));
 	channelTimer. start (channelDelay -> value () * 1000);
+	
 	my_dabProcessor -> start (frequency);
 	running. store (true);
 }
@@ -157,10 +177,15 @@ void	RadioInterface::stopScanning (void) {
 	            this, SLOT (nextChannel_noSignal (void)));
 	disconnect (&channelTimer, SIGNAL (timeout (void)),
 	            this, SLOT (nextChannel_withSignal (void)));
-	theDevice     -> stopReader ();
-	my_dabProcessor -> stop ();
+	theDevice     		-> stopReader ();
+	my_dabProcessor		-> stop ();
 	channelTimer. stop ();
-	running. store (false);
+	running. store (false);	
+	startButton		-> setText ("start controlled");
+	startButton		-> show ();
+	continuousButton	-> setText ("start continuous");
+	continuousButton	-> show ();
+	nrCycles		-> show ();
 }
 
 void	RadioInterface::nextChannel_noSignal (void) {
@@ -185,9 +210,9 @@ int	frequency;
 //	in case we are called as "noSignal", we already know that
 //	the size is 0
 	if ((Services. size () != 0) &&
-            (ensembleDisplay -> text () != QString (""))) {
-           showEnsembleData     (snrDisplay -> value (), tii_Value);
-        }
+	    (ensembleDisplay -> text () != QString (""))) {
+	   showEnsembleData     (snrDisplay -> value (), tii_Value);
+	}
 
 	ensembleDisplay	-> setText ("");
 	Services	= QStringList ();
@@ -201,23 +226,28 @@ int	frequency;
 	if (channelNumber. load () < nrChannels) {
 	   while  (go_continuously && skipChannel (channelNumber. load ())) {
 	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
-	      if (++skipCount >= nrChannels)
-	         break;
+	      if (++skipCount >= nrChannels) {       
+	         QMessageBox::warning (this, tr ("Warning"),
+	                               tr ("no channels in scanlist\n"));
+	         stopScanning ();
+	         return;
+	      }
+
 	      channelNumber. store ((channelNumber. load () + 1) % nrChannels);
 	   }
 	}
-
+//
+//	end of cycle
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
 	   if (!go_continuously) {
-	      if (channelNumber. load () < nrChannels) {
-	         if (nrCycles -> value () < 1) {
-	            running. store (false);
-	            fclose (fileP);
-	            startButton		-> setText ("start controlled");
-	            continuousButton	-> show ();
-	            return;
-	         }
+	      nrCycles -> setValue (nrCycles -> value () - 1);
+	      if (nrCycles -> value () < 1) {
+	         running. store (false);
+	         fclose (fileP);
+	         startButton		-> setText ("start controlled");
+	         continuousButton	-> show ();
+	         return;
 	      }
 	   }
 	}
@@ -485,23 +515,23 @@ QString reportName;
 QString	summaryName;
 
 	if (theDevice == NULL) {
-           QMessageBox::warning (this, tr ("Warning"),
-                                       tr ("Select a device first\n"));
-           return;
-        }
+	   QMessageBox::warning (this, tr ("Warning"),
+	                               tr ("Select a device first\n"));
+	   return;
+	}
 
-        if (!running. load ()) {
+	if (!running. load ()) {
 	   startButton	-> hide ();
 	   nrCycles	-> hide ();
-           reportName = find_fileName ();
-           fileP        = fopen (reportName. toUtf8(). data(), "w");
-           if (fileP == nullptr) {
-              fprintf (stderr, "Could not open file %s\n",
-                                      reportName. toUtf8(). data());
+	   reportName = find_fileName ();
+	   fileP        = fopen (reportName. toUtf8(). data(), "w");
+	   if (fileP == nullptr) {
+	      fprintf (stderr, "Could not open file %s\n",
+	                              reportName. toUtf8(). data());
 	      startButton	-> show ();
 	      nrCycles		-> show ();
-              return;
-           }
+	      return;
+	   }
 
 	   summaryName	= reportName;
 	   if (summaryName. indexOf ("dab-scanner") != -1)
@@ -510,14 +540,14 @@ QString	summaryName;
 	      summaryName. append ("-summary.txt");
 	   fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
 	   summaryP	= fopen (summaryName. toUtf8(). data(), "w");
-           if (summaryP == nullptr) {
-              fprintf (stderr, "Could not open  summary file %s\n",
-                                      summaryName. toUtf8(). data());
+	   if (summaryP == nullptr) {
+	      fprintf (stderr, "Could not open  summary file %s\n",
+	                              summaryName. toUtf8(). data());
 	      fclose (fileP);
-              startButton       -> show ();
-              nrCycles          -> show ();
-              return;
-           }
+	      startButton       -> show ();
+	      nrCycles          -> show ();
+	      return;
+	   }
 	   
 	   channelTable		-> show ();
 	   operationsLabel	-> setText ("running continuously");

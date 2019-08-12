@@ -24,12 +24,15 @@
 #include	"band-handler.h"
 #include	<QHeaderView>
 #include	<QString>
-
+#include	<QMessageBox>
+#include	"radio.h"
 
 	channelsTable::channelsTable	(QSettings *si,
+	                                 RadioInterface *theRadio,
 	                                 bandHandler	*theBand):
 	                                    theTable (NULL) {
 	this	-> theSettings	= si;
+	this	-> myRadioInterface	= theRadio;
 	this	-> theBand	= theBand;
 
 	theTable. setColumnCount (2);
@@ -67,10 +70,18 @@
 void    channelsTable::cellSelected (int row, int column) {
         QString s1 = theTable. item (row, 0) ->text ();
         QString s2 = theTable. item (row, 1) ->text ();
-        if (s2 == "+")
-           theTable. item (row, 1) -> setText ("-");
-        else
+	int	amount_P	= 0;
+	for (int i = 0; i < theBand -> channels (); i ++)
+	   if (theTable. item (i, 1) -> text () == "+")
+	      amount_P ++;
+        if (s2 == "-") 
            theTable. item (row, 1) -> setText ("+");
+	else 
+	   if (amount_P == 1) 
+	      QMessageBox::warning (myRadioInterface, tr ("Warning"),
+                                    tr ("do not skip all channels!!\n"));
+	   else
+              theTable. item (row, 1) -> setText ("-");
 }
 
 void	channelsTable::show () {
