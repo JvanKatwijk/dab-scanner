@@ -88,7 +88,7 @@ private:
 	deviceHandler	*setDevice		(QString);
 	QString		find_fileName		(void);
 	bool		skipChannel		(int);
-
+	void		process_nextChannel	(void);
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 

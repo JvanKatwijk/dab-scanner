@@ -171,7 +171,7 @@
      </rect>
     </property>
     <property name="toolTip">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start/stop button. Touching the button will cause a dialog to be shown with which a file can be selected to which the output will be written.&lt;/p&gt;&lt;p&gt;After the file is selected, the program will start.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Although the scanning will stop after the number of cycles specified, it is possible to&lt;/p&gt;&lt;p&gt;prematurely stop the scanning by touching the button again.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touching this button will start the processing in &amp;quot;regular&amp;quot; mode. The program will scan for a given number of cycles and then be idle again. The number of cycles can be set by the cycle counter.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you select this mode, the button for the &amp;quot;continuous mode&amp;quot; disappears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>Start controlled</string>
@@ -317,6 +317,9 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a device. The software will wait until you have selected a device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <item>
      <property name="text">
       <string>select device</string>
@@ -331,6 +334,9 @@
       <width>131</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touching this button will set the software in &amp;quot;continuous mode&amp;quot;, it will run over the band until the button is touched for a second time or the program is terminated.&lt;/p&gt;&lt;p&gt;If you run this mode, the selector for &amp;quot;regular use&amp;quot; disappears.&lt;/p&gt;&lt;p&gt;In continuous mode, a table is made visible on which you can indicate that certain channels should be skipped in the scan. By double clicking on a table entry, the option will change from + to - and vv&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="text">
      <string>start continuous</string>

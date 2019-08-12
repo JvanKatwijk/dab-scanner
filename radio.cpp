@@ -164,6 +164,14 @@ void	RadioInterface::stopScanning (void) {
 }
 
 void	RadioInterface::nextChannel_noSignal (void) {
+	process_nextChannel ();
+}
+
+void	RadioInterface::nextChannel_withSignal (void) { 
+	process_nextChannel ();
+}
+
+void	RadioInterface::process_nextChannel (void) {
 int	frequency;
 	disconnect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
 	            this, SLOT (nextChannel_noSignal (void)));
@@ -171,90 +179,51 @@ int	frequency;
 	            this, SLOT (nextChannel_withSignal (void)));
 	theDevice	-> stopReader ();
 	my_dabProcessor -> stop ();
+
 	channelTimer. stop ();
+//
+//	in case we are called as "noSignal", we already know that
+//	the size is 0
+	if ((Services. size () != 0) &&
+            (ensembleDisplay -> text () != QString (""))) {
+           showEnsembleData     (snrDisplay -> value (), tii_Value);
+        }
+
 	ensembleDisplay	-> setText ("");
 	Services	= QStringList ();
-	serviceCountDisplay	-> display (0);
 	tii_Label	-> setText (" ");
 	tii_Value. resize (0);
+	serviceCountDisplay	-> display (0);
+
 	int nrChannels	= theBand -> channels ();
 	channelNumber . store (channelNumber. load () + 1);
 	int skipCount	= 0;
-	if (channelNumber. load () < nrChannels)
+	if (channelNumber. load () < nrChannels) {
 	   while  (go_continuously && skipChannel (channelNumber. load ())) {
 	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
 	      if (++skipCount >= nrChannels)
 	         break;
 	      channelNumber. store ((channelNumber. load () + 1) % nrChannels);
 	   }
+	}
+
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
 	   if (!go_continuously) {
-	if (channelNumber. load () < nrChannels)
-	      if (nrCycles -> value () < 1) {
-	         running. store (false);
-	         fclose (fileP);
-	         startButton		-> setText ("start controlled");
-	         continuousButton	-> show ();
-	         return;
+	      if (channelNumber. load () < nrChannels) {
+	         if (nrCycles -> value () < 1) {
+	            running. store (false);
+	            fclose (fileP);
+	            startButton		-> setText ("start controlled");
+	            continuousButton	-> show ();
+	            return;
+	         }
 	      }
 	   }
 	}
 	
 	frequency	= theBand -> Frequency (channelNumber);
 	channelDisplay -> setText (theBand -> channel (channelNumber));
-	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-	         this, SLOT (nextChannel_noSignal (void)));
-	connect (&channelTimer, SIGNAL (timeout (void)),
-	         this, SLOT (nextChannel_withSignal (void)));
-	channelTimer. start (channelDelay -> value () * 1000);
-	my_dabProcessor -> start (frequency);
-}
-
-void	RadioInterface::nextChannel_withSignal (void) {
-int	frequency;
-	disconnect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
-	            this, SLOT (nextChannel_noSignal (void)));
-	disconnect (&channelTimer, SIGNAL (timeout (void)),
-	            this, SLOT (nextChannel_withSignal (void)));
-	theDevice     -> stopReader ();
-	my_dabProcessor -> stop ();
-	channelTimer. stop ();
-	if ((Services. size () != 0) &&
-	    (ensembleDisplay -> text () != QString (""))) {
-	   showEnsembleData	(snrDisplay -> value (), tii_Value);
-	}
-	ensembleDisplay	-> setText ("");
-	Services	= QStringList ();
-	tii_Label	-> setText (" ");
-	tii_Value. resize (0);
-	serviceCountDisplay	-> display (0);
-	int nrChannels	= theBand -> channels ();
-	int skipCount	= 0;
-	channelNumber. store (channelNumber. load () + 1);
-	if (channelNumber. load () < nrChannels)
-	   while  (go_continuously && skipChannel (channelNumber. load ())) {
-	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
-	      if (++skipCount >= nrChannels)
-	         break;
-	      channelNumber. store ((channelNumber. load () + 1) % nrChannels);
-	   }
-	if (channelNumber. load () >= theBand -> channels ()) {
-	   fprintf (stderr, "channelNumber = %d\n", channelNumber. load ());
-	   channelNumber . store (0);
-	   if (!go_continuously) {
-	      nrCycles	-> setValue (nrCycles -> value () - 1);
-	      if (nrCycles -> value () < 1) {
-	         running. store (false);
-	         fclose (fileP);
-	         startButton		-> setText ("start");
-	         continuousButton	-> show ();
-	         return;
-	      }
-	   }
-	}
-	channelDisplay	-> setText (theBand -> channel (channelNumber));
-	frequency	= theBand -> Frequency (channelNumber);
 	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
 	         this, SLOT (nextChannel_noSignal (void)));
 	connect (&channelTimer, SIGNAL (timeout (void)),
