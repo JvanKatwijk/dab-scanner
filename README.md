@@ -1,8 +1,17 @@
 
 ----------------------------------------------------------------------
-DAB-SCANNER 1.4
+DAB-SCANNER 1.5
 -----------------------------------------------------------------------
+New in version 1.5
 
+In version 1.5 *device selection* is changed. As in previous versions, the
+name of the last selected device is kept between successive invocations
+and the device selector is set to that name.
+In that case there is *no need to touch the device selector*, the
+selected device will automatically be opened at touching one of the
+two start buttons. The device will remain open during the program run.
+Touching a start button for a next round does not have any effect
+on the device or its choice.
 
 ------------------------------------------------------------------------
 New in version 1.4

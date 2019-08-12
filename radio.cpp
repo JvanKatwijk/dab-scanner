@@ -118,8 +118,8 @@ QString h;
 	   deviceSelector       -> setCurrentIndex (k);
 	}
 
-	connect (deviceSelector, SIGNAL (activated (QString)),
-	         this, SLOT (selectDevice (QString)));
+//	connect (deviceSelector, SIGNAL (activated (QString)),
+//	         this, SLOT (selectDevice (QString)));
 
 	theDevice		= NULL;
 	my_dabProcessor		= NULL;
@@ -134,6 +134,10 @@ QString h;
 	channelTimer. setSingleShot (true);
 	channelTimer. setInterval   (channelDelay -> value () * 1000);
 	channelNumber		= 0;
+	connect (startButton, SIGNAL (clicked (void)),
+	         this, SLOT (handle_startcontrolledButton (void)));
+	connect (continuousButton, SIGNAL (clicked (void)),
+	         this, SLOT (handle_continuousButton (void)));
 //
 }
 
@@ -349,10 +353,6 @@ void	RadioInterface::selectDevice (QString s) {
 	         this, SLOT (setSynced (bool)));
 	connect (my_dabProcessor, SIGNAL (show_tii (int)),
 	         this, SLOT (show_tii (int)));
-	connect (startButton, SIGNAL (clicked (void)),
-	         this, SLOT (handle_startcontrolledButton (void)));
-	connect (continuousButton, SIGNAL (clicked (void)),
-	         this, SLOT (handle_continuousButton (void)));
 }
 
 deviceHandler	*RadioInterface::setDevice (QString s) {
@@ -401,10 +401,34 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 void	RadioInterface::handle_startcontrolledButton (void) {
 QString reportName;
 
-	if (theDevice == NULL) {
-	   QMessageBox::warning (this, tr ("Warning"),
+	if (theDevice == NULL) {	// initialize first
+	   if (deviceSelector -> currentText () == "select device") {
+	      QMessageBox::warning (this, tr ("Warning"),
 	                               tr ("Select a device first\n"));
-	   return;
+	      return;
+	   }
+
+	   theDevice	= setDevice (deviceSelector -> currentText ());
+	   if (theDevice == NULL) {
+	      QMessageBox::warning (this, tr ("Warning"),
+                                          tr ("Select a connected device"));
+	      return;
+	   }
+
+	   deviceSelector	-> hide ();
+//
+//	here we really start
+	   my_dabProcessor	= new dabProcessor (this,
+	                                    theDevice,
+	                                    dabMode,
+	                                    threshold,
+	                                    diff_length);
+	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
+	            this, SLOT (show_snr (int)));
+	   connect (my_dabProcessor, SIGNAL (setSynced (bool)),
+	            this, SLOT (setSynced (bool)));
+	   connect (my_dabProcessor, SIGNAL (show_tii (int)),
+	            this, SLOT (show_tii (int)));
 	}
 
 	if (nrCycles -> value () < 1)
@@ -515,9 +539,32 @@ QString reportName;
 QString	summaryName;
 
 	if (theDevice == NULL) {
-	   QMessageBox::warning (this, tr ("Warning"),
+	   if (deviceSelector -> currentText () == "select device") {
+	      QMessageBox::warning (this, tr ("Warning"),
 	                               tr ("Select a device first\n"));
-	   return;
+	      return;
+	   }
+
+	   theDevice	= setDevice (deviceSelector -> currentText ());
+	   if (theDevice == NULL) {
+	      QMessageBox::warning (this, tr ("Warning"),
+	                               tr ("select a connected device\n"));
+	      return;
+	   }
+	   deviceSelector	-> hide ();
+//
+//	here we really start
+	   my_dabProcessor	= new dabProcessor (this,
+	                                    theDevice,
+	                                    dabMode,
+	                                    threshold,
+	                                    diff_length);
+	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
+	            this, SLOT (show_snr (int)));
+	   connect (my_dabProcessor, SIGNAL (setSynced (bool)),
+	            this, SLOT (setSynced (bool)));
+	   connect (my_dabProcessor, SIGNAL (show_tii (int)),
+	            this, SLOT (show_tii (int)));
 	}
 
 	if (!running. load ()) {
