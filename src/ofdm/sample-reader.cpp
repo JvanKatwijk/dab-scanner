@@ -32,11 +32,18 @@ int16_t res     = 1;
 }
 
 	sampleReader::sampleReader (RadioInterface *mr,
-	                            deviceHandler   *theRig) {
+	                            deviceHandler   *theRig,
+	                            RingBuffer<std::complex <float>> *spectrumBuffer) {
 int	i;
 	this	-> theRig	= theRig;
         bufferSize		= 32768;
         localBuffer. resize (bufferSize);
+	localCounter		= 0;
+	this    -> spectrumBuffer       = spectrumBuffer;
+        connect (this, SIGNAL (show_Spectrum (int)),
+                 mr, SLOT (showSpectrum (int)));
+
+	
         connect (this, SIGNAL (show_Corrector (int)),
                  mr, SLOT (set_CorrectorDisplay (int)));
 	currentPhase	= 0;
@@ -87,12 +94,23 @@ std::complex<float> temp;
 	theRig -> getSamples (&temp, 1);
 	bufferContent --;
 //	OK, we have a sample!!
+	if (localCounter < bufferSize)
+	   localBuffer [localCounter ++] = temp;
 //	first: adjust frequency. We need Hz accuracy
 	currentPhase	-= phaseOffset;
 	currentPhase	= (currentPhase + INPUT_RATE) % INPUT_RATE;
 
 	temp		*= oscillatorTable [currentPhase];
 	sLevel		= 0.00001 * jan_abs (temp) + (1 - 0.00001) * sLevel;
+#define	N	5
+	if (++ sampleCount > INPUT_RATE / N) {
+           show_Corrector       (corrector);
+           sampleCount = 0;
+           spectrumBuffer -> putDataIntoBuffer (localBuffer. data(),
+                                                               localCounter);
+           emit show_Spectrum (bufferSize);
+           localCounter = 0;
+	}
 	return temp;
 }
 
@@ -122,6 +140,8 @@ int32_t		i;
 //	OK, we have samples!!
 //	first: adjust frequency. We need Hz accuracy
 	for (i = 0; i < n; i ++) {
+	   if (localCounter < bufferSize)
+	      localBuffer [localCounter ++] = v [i];
 	   currentPhase	-= phaseOffset;
 //
 //	Note that "phase" itself might be negative
@@ -129,10 +149,13 @@ int32_t		i;
 	   v [i]	*= oscillatorTable [currentPhase];
 	   sLevel	= 0.00001 * jan_abs (v [i]) + (1 - 0.00001) * sLevel;
 	}
-#define	N 5
 	sampleCount	+= n;
 	if (sampleCount > INPUT_RATE / N) {
 	   show_Corrector	(corrector);
+	   spectrumBuffer -> putDataIntoBuffer (localBuffer. data(),
+                                                               localCounter);
+	   emit show_Spectrum (bufferSize);
+           localCounter = 0;
 	   sampleCount = 0;
 	}
 }

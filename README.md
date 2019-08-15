@@ -1,5 +1,21 @@
 
 ----------------------------------------------------------------------
+DAB-SCANNER 1.6
+----------------------------------------------------------------------
+
+New in version 1.6
+
+When looking for some time to the operation of the DAB scanner, I missed
+the *spectrum display* as is implemented in Qt-DAB. Seeing some of the
+signals is - at least for me - helpful in setting the gain
+parameters for the device.
+
+So, in 1.6, the spectrum display is implemented.
+
+![dab scanner](/dab-scanner-1.6.png?raw=true)
+
+
+----------------------------------------------------------------------
 DAB-SCANNER 1.5
 -----------------------------------------------------------------------
 New in version 1.5

@@ -40,18 +40,20 @@ class	sampleReader : public QObject {
 Q_OBJECT
 public:
 			sampleReader	(RadioInterface *mr,
-	                         	 deviceHandler *theRig);
+	                   	 deviceHandler *theRig,
+	                           RingBuffer<std::complex<float>> *spectrumBuffer);
 
 			~sampleReader		(void);
 		void	setRunning	(bool b);
 		float	get_sLevel	(void);
 		std::complex<float> getSample	(int32_t);
-	        void	getSamples	(std::complex<float> *v,
-	                                 int16_t n, int32_t phase);
+	  void	getSamples	(std::complex<float> *v,
+	                           int16_t n, int32_t phase);
 private:
 		RadioInterface	*myRadioInterface;
 		deviceHandler	*theRig;
-		std::vector<std::complex<float>> localBuffer;
+	RingBuffer<std::complex<float>> *spectrumBuffer;
+	std::vector<std::complex<float>> localBuffer;
 		int32_t		localCounter;
 		int32_t		bufferSize;
 		int32_t		currentPhase;
@@ -60,9 +62,10 @@ private:
 		int32_t		bufferContent;
 		float		sLevel;
 		int32_t		sampleCount;
-	        int32_t		corrector;
+	  int32_t		corrector;
 signals:
-	        void		show_Corrector (int);
+	void		show_Corrector	(int);
+	void		show_Spectrum	(int);
 };
 
 #endif

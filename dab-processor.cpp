@@ -38,10 +38,15 @@
 	                                 deviceHandler	*theDevice,
 	                                 uint8_t	dabMode,
 	                                 int16_t	threshold,
-	                                 int16_t	diff_length):
+	                                 int16_t	diff_length,
+	                                 RingBuffer<std::complex<float>> *
+                                                                 spectrumBuffer,
+                                         RingBuffer<std::complex<float>> *
+                                                                 iqBuffer):
 	                                 params (dabMode),
 	                                 myReader (mr,
-	                                           theDevice),
+	                                           theDevice,
+	                                           spectrumBuffer),
 	                                 my_ficHandler (mr, dabMode),
 	                                 phaseSynchronizer (mr,
 	                                                    dabMode, 
@@ -49,7 +54,8 @@
 	                                 my_TII_Detector (dabMode, 1),
 	                                 my_ofdmDecoder (mr,
 	                                                 dabMode,
-	                                                 theDevice -> bitDepth ()) {
+	                                                 theDevice -> bitDepth (),
+	                                                 iqBuffer) {
 
 	this	-> myRadioInterface	= mr;
 	this	-> theDevice		= theDevice;

@@ -32,6 +32,7 @@
 #include	<vector>
 #include	"stdint.h"
 #include	<sndfile.h>
+#include	<ringbuffer.h>
 #include	"sample-reader.h"
 #include	"phasereference.h"
 #include	"ofdm-decoder.h"
@@ -49,7 +50,9 @@ public:
 	                         deviceHandler *,
 	                         uint8_t,
 	                         int16_t,
-	                         int16_t);
+	                         int16_t,
+	                         RingBuffer<std::complex<float>> *,
+	                         RingBuffer<std::complex<float>> *);
 		~dabProcessor	(void);
 	void		reset			(void);
 	void		start			(int);

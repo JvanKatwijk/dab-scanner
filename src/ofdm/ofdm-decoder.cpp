@@ -47,13 +47,19 @@
   */
 	ofdmDecoder::ofdmDecoder	(RadioInterface *mr,
 	                                 uint8_t	dabMode,
-	                                 int16_t	bitDepth) :
+	                                 int16_t	bitDepth,
+	                                 RingBuffer<std::complex<float>> *iqBuffer):
 	                                    params (dabMode),
 	                                    my_fftHandler (dabMode),
 	                                    myMapper (dabMode) {
 int16_t	i;
 	this	-> myRadioInterface	= mr;
-//
+	this    -> iqBuffer             = iqBuffer;
+        connect (this, SIGNAL (showIQ (int)),
+                 myRadioInterface, SLOT (showIQ (int)));
+        connect (this, SIGNAL (showQuality (float)),
+                 myRadioInterface, SLOT (showQuality (float)));
+
 	this	-> T_s			= params. get_T_s ();
 	this	-> T_u			= params. get_T_u ();
 	this	-> nrBlocks		= params. get_L ();
@@ -171,5 +177,16 @@ toBitsLabel:
 	}
 	memcpy (phaseReference. data (), fft_buffer,
 	                            T_u * sizeof (std::complex<float>));
+//	From time to time we show the constellation of symbol 2.
+        if (blkno == 2) {
+           if (++cnt > 7) {
+              iqBuffer  -> putDataIntoBuffer (&conjVector [T_u / 2 - carriers / 2],
+                                              carriers);
+              showIQ    (carriers);
+              showQuality (computeQuality (conjVector));
+              cnt = 0;
+           }
+        }
+
 }
 

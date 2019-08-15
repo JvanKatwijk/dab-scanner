@@ -40,9 +40,11 @@
 #include	"ensemble-printer.h"
 #include        "band-handler.h"
 #include	"channels-table.h"
+#include	"ringbuffer.h"
 
 class	QSettings;
 class	virtualInput;
+class	spectrumViewer;
 /*
  *	GThe main gui object. It inherits from
  *	QDialog and the generated form
@@ -80,6 +82,10 @@ private:
 	QTimer		channelTimer;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
+	RingBuffer<std::complex<float>>  *spectrumBuffer;
+	RingBuffer<std::complex<float>>  *iqBuffer;
+
+	spectrumViewer	*my_spectrumViewer;
 	std::vector<int>	tii_Value;
 	void		TerminateProcess	(void);
 	void		startScanning		(void);
@@ -104,14 +110,17 @@ public slots:
 	void		show_tii		(int);
 	void		set_CorrectorDisplay	(int);
 	void		show_ficSuccess		(bool);
+	void            showSpectrum            (int);
+        void            showIQ                  (int);
+        void            showQuality             (float);
+
 //	Somehow, these must be connected to the GUI
 private slots:
 	void		selectDevice		(QString);
 	void		handle_startcontrolledButton 	(void);
 	void		handle_continuousButton	(void);
 	void		reset			(void);
-signals:
-	void		set_quality		(int);
+	void		set_spectrumSwitch	(void);
 };
 #endif
 

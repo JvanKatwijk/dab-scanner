@@ -94,7 +94,7 @@ QString transmitters = QString ("");
 	                  snr,
 	                  transmitters. toLatin1 (). data ());
 	                
-	fprintf (file_P, "\nAudio services\nprogram name;country;serviceId;subchannelId;start address;length (CU); bit rate;DAB/DAB+; prot level; code rate; language; program type\n\n");
+	fprintf (file_P, "\nAudio services\nprogram name;country;serviceId;subchannelId;start address;length (CU); bit rate;DAB/DAB+; prot level; code rate; language; program type;alt fm freq\n\n");
 	for (QString& audioService: Services) {
 	   for (i = 0; i < 5; i ++) {
 	      audiodata d;
@@ -105,8 +105,10 @@ QString transmitters = QString ("");
 	                                              d. protLevel);
 	      QString codeRate	= getCodeRate (d. shortForm, 
 	                                       d. protLevel);
-	      countryId = (d. serviceId >> 12) & 0xF;
-	      fprintf (file_P, "%s;%s;%X;%d;%d;%d;%d;%s;%s;%s;%s;%s;\n",
+	      countryId		= (d. serviceId >> 12) & 0xF;
+	      QString fmFreq	= d. fmFrequency == -1 ? "  " :
+	                            QString (d. fmFrequency);
+	      fprintf (file_P, "%s;%s;%X;%d;%d;%d;%d;%s;%s;%s;%s;%s;%s\n",
 	                            audioService. toUtf8(). data(),
 	                     code_to_string (ecc_byte, countryId). toUtf8(). data(),
 	                     d. serviceId,
@@ -118,7 +120,8 @@ QString transmitters = QString ("");
 	                     protL. toUtf8(). data(),
 	                     codeRate. toUtf8(). data(),
 	                     theMapper. get_programm_language_string (d. language),
-	                     theMapper. get_programm_type_string (d. programType) );
+	                     theMapper. get_programm_type_string (d. programType),
+	                     fmFreq. toLatin1 (). data () );
 	   }
 	}
 

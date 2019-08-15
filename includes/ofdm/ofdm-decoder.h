@@ -47,7 +47,8 @@ Q_OBJECT
 public:
 		ofdmDecoder		(RadioInterface *,
 	                                 uint8_t,
-	                                 int16_t);
+	                                 int16_t,
+	                                 RingBuffer<std::complex <float>> *);
 
 		~ofdmDecoder		(void);
 	void	processBlock_0		(std::vector<std::complex<float> >);
@@ -75,6 +76,10 @@ private:
         phaseTable      *phasetable;
         int32_t         blockIndex;
 	int16_t		maxSignal;
+
+signals:
+	void		showIQ		(int);
+	void		showQuality	(float);
 };
 
 #endif

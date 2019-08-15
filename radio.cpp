@@ -39,7 +39,7 @@
 #include        <QMouseEvent>
 #include	"radio.h"
 #include	"band-handler.h"
-
+#include	"spectrum-viewer.h"
 #ifdef	HAVE_RTLSDR
 #include	"rtlsdr-handler.h"
 #endif
@@ -87,8 +87,10 @@ QString h;
 	                                        QDir::homePath ()). toString ();
 	isSynced	= false;
 	tii_Value. resize  (0);
-///////////////////////////////////////////////////////////////////////////
 
+	spectrumBuffer	= new RingBuffer<std::complex<float>> (2 * 32768);
+	iqBuffer	= new RingBuffer<std::complex<float>> (2 * 1536);
+///////////////////////////////////////////////////////////////////////////
 //	The settings are done, now creation of the GUI parts
 	setupUi (this);
 //
@@ -118,9 +120,6 @@ QString h;
 	   deviceSelector       -> setCurrentIndex (k);
 	}
 
-//	connect (deviceSelector, SIGNAL (activated (QString)),
-//	         this, SLOT (selectDevice (QString)));
-
 	theDevice		= NULL;
 	my_dabProcessor		= NULL;
 	ficBlocks		= 0;
@@ -138,7 +137,12 @@ QString h;
 	         this, SLOT (handle_startcontrolledButton (void)));
 	connect (continuousButton, SIGNAL (clicked (void)),
 	         this, SLOT (handle_continuousButton (void)));
-//
+
+	my_spectrumViewer       = new spectrumViewer (this, dabSettings,
+                                               spectrumBuffer,
+                                               iqBuffer);
+	connect (spectrumSwitch, SIGNAL (clicked (void)),
+                 this, SLOT (set_spectrumSwitch (void)));
 }
 
 	RadioInterface::~RadioInterface (void) {
@@ -305,6 +309,7 @@ void	RadioInterface::TerminateProcess (void) {
 	}
 	if (theDevice != NULL)
 	   delete	theDevice;
+	delete my_spectrumViewer;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
 	channelTable	-> hide ();
 	delete channelTable;
@@ -342,11 +347,14 @@ void	RadioInterface::selectDevice (QString s) {
 	   return;
 	deviceSelector	-> hide ();
 
+	my_spectrumViewer	-> setBitDepth (theDevice -> bitDepth ());
 	my_dabProcessor	= new dabProcessor (this,
 	                                    theDevice,
 	                                    dabMode,
 	                                    threshold,
-	                                    diff_length);
+	                                    diff_length,
+	                                    spectrumBuffer,
+	                                    iqBuffer);
 	connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	         this, SLOT (show_snr (int)));
 	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
@@ -422,7 +430,10 @@ QString reportName;
 	                                    theDevice,
 	                                    dabMode,
 	                                    threshold,
-	                                    diff_length);
+	                                    diff_length,
+	                                    spectrumBuffer,
+                                            iqBuffer);
+
 	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	            this, SLOT (show_snr (int)));
 	   connect (my_dabProcessor, SIGNAL (setSynced (bool)),
@@ -558,7 +569,10 @@ QString	summaryName;
 	                                    theDevice,
 	                                    dabMode,
 	                                    threshold,
-	                                    diff_length);
+	                                    diff_length,
+	                                    spectrumBuffer,
+                                            iqBuffer);
+
 	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	            this, SLOT (show_snr (int)));
 	   connect (my_dabProcessor, SIGNAL (setSynced (bool)),
@@ -646,3 +660,35 @@ QString timeString = QDate::currentDate (). toString ();
 bool	RadioInterface::skipChannel (int channelNumber) {
 	return !channelTable	-> channel (channelNumber);
 }
+
+///////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//   Looking at the spectrum may give some indications on the signal     //
+//   and the setting of the device                                       //
+///////////////////////////////////////////////////////////////////////////
+
+//      signal, received from ofdm_decoder that a buffer is filled
+//      with amount values ready for display
+void    RadioInterface::showIQ  (int amount) {
+        if (running. load())
+           my_spectrumViewer    -> showIQ (amount);
+}
+
+void    RadioInterface::showSpectrum    (int32_t amount) {
+        if (running. load())
+           my_spectrumViewer -> showSpectrum (amount,
+                                            theDevice -> getVFOFrequency());
+}
+
+void    RadioInterface::showQuality     (float q) {
+        if (running. load())
+           my_spectrumViewer    -> showQuality (q);
+}
+
+void    RadioInterface::set_spectrumSwitch() {
+        if (my_spectrumViewer -> isHidden())
+           my_spectrumViewer -> show();
+        else
+           my_spectrumViewer -> hide();
+}
+

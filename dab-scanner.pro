@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.5
+TARGET		= dab-scanner-1.6
 
 QT		+= widgets 
 CONFIG		-= console
@@ -28,7 +28,9 @@ DEPENDPATH += . \
 	      ./src/ofdm \
 	      ./src/protection \
 	      ./src/support \
+	      ./includes/scopes-qwt6 \
 	      ./devices \
+	      ./spectrum-viewer \
 	      ./includes/ofdm \
 	      ./includes/support 
 
@@ -39,7 +41,9 @@ INCLUDEPATH += . \
 	      ./includes/protection \
 	      ./includes/ofdm \
 	      ./includes/support \
-	      ./devices 
+	      ./includes/scopes-qwt6 \
+	      ./devices \
+	      ./spectrum-viewer
 
 # Input
 HEADERS += ./radio.h \
@@ -68,9 +72,13 @@ HEADERS += ./radio.h \
 	   ./includes/support/dab_tables.h \
 	   ./includes/support/charsets.h \
 	   ./includes/support/ensemble-printer.h \
-	   ./devices/device-handler.h 
+	   ./devices/device-handler.h \
+	   ./includes/scopes-qwt6/spectrogramdata.h \
+           ./includes/scopes-qwt6/iqdisplay.h \
+	   ./spectrum-viewer/spectrum-viewer.h 
 
 FORMS	+= ./forms/dabscanner.ui 
+FORMS   += ./spectrum-viewer/scopewidget.ui
 
 SOURCES += ./main.cpp \
 	   ./radio.cpp \
@@ -97,7 +105,11 @@ SOURCES += ./main.cpp \
 	   ./src/support/charsets.cpp \
 	   ./src/support/ensemble-printer.cpp \
 	   ./src/support/text-mapper.cpp \
-	   ./devices/device-handler.cpp
+	   ./devices/device-handler.cpp \
+	   ./src/scopes-qwt6/iqdisplay.cpp \
+	   ./spectrum-viewer/spectrum-viewer.cpp 
+
+
 #
 #	for unix systems this is about it. Adapt when needed for naming
 #	and locating libraries. If you do not need a device as
@@ -117,8 +129,12 @@ isEmpty(GITHASHSTRING) {
 }
 
 INCLUDEPATH	+= /usr/local/include
+INCLUDEPATH     += /usr/local/include /usr/include/qt4/qwt /usr/include/qt5/qwt /usr/include/qt4/qwt /usr/include/qwt /usr/local/qwt-6.1.4-svn/
 LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
 LIBS		+= -lz
+#correct this for the correct path to the qwt6 library on your system
+#LIBS           += -lqwt
+LIBS            += -lqwt-qt5
 
 #
 # comment or uncomment for the devices you want to have support for
@@ -147,7 +163,7 @@ isEmpty(GITHASHSTRING) {
 }
 
 INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
-#INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include/qt5/qwt
+INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include/qt5/qwt
 INCLUDEPATH	+= /mingw32/include
 #INCLUDEPATH	+= /mingw32/include/qwt
 LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
@@ -159,11 +175,11 @@ LIBS 		+= -lstdc++
 LIBS		+= -lws2_32
 LIBS		+= -lusb-1.0
 LIBS		+= -lz
-
+LIBS		+= -lqwt-qt5
 CONFIG		+= airspy
 CONFIG		+= dabstick
 CONFIG		+= sdrplay
-#CONFIG		+= hackrf
+CONFIG		+= hackrf
 
 }
 
