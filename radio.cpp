@@ -149,7 +149,6 @@ QString h;
 }
 //
 void	RadioInterface:: startScanning (void) {
-int	frequency	= theBand -> Frequency (channelNumber);
 
 	if (go_continuously) {
 	   int nrChannels	= theBand -> channels ();
@@ -176,7 +175,7 @@ int	frequency	= theBand -> Frequency (channelNumber);
 	         this, SLOT (nextChannel_withSignal (void)));
 	channelTimer. start (channelDelay -> value () * 1000);
 	
-	my_dabProcessor -> start (frequency);
+	my_dabProcessor -> start (theBand -> Frequency (channelNumber));
 	running. store (true);
 }
 
@@ -536,13 +535,16 @@ void    RadioInterface::show_ficSuccess (bool b) {
 void	RadioInterface::show_tii	(int tii) {
 QString s;
 char buffer [20];
-	sprintf (buffer, " (%d %d) ", tii >> 8, tii & 0xFF);
-	s. append (buffer);
-	tii_Label -> setText (s);
-	for (int i = 0; i < tii_Value. size (); i ++)
+	for (uint i = 0; i < tii_Value. size (); i ++)
 	   if (tii_Value. at (i) == tii)
 	      return;
 	tii_Value. push_back (tii);
+	for (int i = 0; i < tii_Value. size (); i ++) {
+	   sprintf (buffer, "(%d %d) ", tii_Value. at (i) >> 8,
+	                                tii_Value. at (i) & 0xFF);
+	   s. append (buffer);
+	};
+	tii_Label -> setText (s);
 }
 
 void	RadioInterface::handle_continuousButton (void) {

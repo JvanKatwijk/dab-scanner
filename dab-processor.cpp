@@ -51,7 +51,7 @@
 	                                 phaseSynchronizer (mr,
 	                                                    dabMode, 
 	                                                    diff_length),
-	                                 my_TII_Detector (dabMode, 1),
+	                                 my_TII_Detector (dabMode, 4),
 	                                 my_ofdmDecoder (mr,
 	                                                 dabMode,
 	                                                 theDevice -> bitDepth (),

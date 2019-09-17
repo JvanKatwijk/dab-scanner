@@ -172,8 +172,8 @@ toBitsLabel:
 	   float ab1	= jan_abs (r1);
 //	split the real and the imaginary part and scale it
 //	we make the bits into softbits in the range -127 .. 127
-	   ibits [i]		=  - real (r1) / ab1 * 127.0;
-	   ibits [carriers + i] =  - imag (r1) / ab1 * 127.0;
+	   ibits [i]		=  - real (r1) / ab1 * 2047.0;
+	   ibits [carriers + i] =  - imag (r1) / ab1 * 2047.0;
 	}
 	memcpy (phaseReference. data (), fft_buffer,
 	                            T_u * sizeof (std::complex<float>));
