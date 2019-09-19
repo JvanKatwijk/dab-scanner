@@ -149,10 +149,11 @@ QString h;
 }
 //
 void	RadioInterface:: startScanning (void) {
-
+	
 	if (go_continuously) {
 	   int nrChannels	= theBand -> channels ();
 	   int skipCount	= 0;
+	   channelNumber. store (0);
 	   if (channelNumber. load () < nrChannels) {
 	      while  (go_continuously &&
 	                      skipChannel (channelNumber. load ())) {
@@ -247,7 +248,9 @@ int	frequency;
 //	end of cycle
 	if (channelNumber. load () >= theBand -> channels ()) {
 	   channelNumber . store (0);
-	   if (!go_continuously) {
+	   if (go_continuously)
+	      startScanning ();
+	   else {
 	      nrCycles -> setValue (nrCycles -> value () - 1);
 	      if (nrCycles -> value () < 1) {
 	         running. store (false);
@@ -257,6 +260,7 @@ int	frequency;
 	         return;
 	      }
 	   }
+	   return;
 	}
 	
 	frequency	= theBand -> Frequency (channelNumber);
@@ -642,7 +646,7 @@ QString timeString = QDate::currentDate (). toString ();
 	QString theTime	= localTimeDisplay -> text ();
 	theTime. replace (":", "-");
 	QString suggestedFileName = dirName;
-	suggestedFileName. append ("/dab-scanner-");
+	suggestedFileName. append ("./dab-scanner-");
 	suggestedFileName. append (theTime);
 	suggestedFileName. append (".txt");
 	fprintf (stderr, "suggested filename = %s\n",
