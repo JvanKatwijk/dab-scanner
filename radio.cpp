@@ -70,7 +70,7 @@ QString h;
 
 	dabSettings		= Si;
 	this	-> theBand	= theBand;
-	channelTable		= new channelsTable (Si, this, theBand);
+	channelTable		= NULL;
 	running. store (false);
 	threshold	=
 	           dabSettings -> value ("threshold", 3). toInt ();
@@ -133,6 +133,13 @@ QString h;
 	channelTimer. setSingleShot (true);
 	channelTimer. setInterval   (channelDelay -> value () * 1000);
 	channelNumber		= 0;
+
+	channelFileName		= 
+	              dabSettings -> value ("channelFile", ""). toString ();
+	fprintf (stderr, "channel file = %s\n",
+	                      channelFileName . toLatin1 (). data ());
+	connect (countrySelector, SIGNAL (clicked (void)),
+	         this, SLOT (handle_countrySelect ()));
 	connect (startButton, SIGNAL (clicked (void)),
 	         this, SLOT (handle_startcontrolledButton (void)));
 	connect (continuousButton, SIGNAL (clicked (void)),
@@ -146,6 +153,13 @@ QString h;
 }
 
 	RadioInterface::~RadioInterface (void) {
+	if (channelTable != NULL) {
+	   if (channelFileName != "") {
+	      channelTable -> saveTable (channelFileName);
+	      dabSettings -> setValue ("channelFile", channelFileName);
+	      dabSettings -> sync ();
+	   }
+	}
 }
 //
 void	RadioInterface:: startScanning (void) {
@@ -305,6 +319,15 @@ void	RadioInterface::TerminateProcess (void) {
 	running. store (false);
 	if (theDevice != NULL) 
 	   theDevice	-> stopReader ();
+	if (channelTable != NULL) {
+	   channelTable	-> hide ();
+           if (channelFileName != "") {
+              channelTable -> saveTable (channelFileName);
+              dabSettings -> setValue ("channelFile", channelFileName);
+              dabSettings -> sync ();
+           }
+        }
+
 	if (my_dabProcessor != NULL) {
 	   my_dabProcessor	-> stop ();		// definitely concurrent
 //	everything should be halted by now
@@ -312,10 +335,11 @@ void	RadioInterface::TerminateProcess (void) {
 	}
 	if (theDevice != NULL)
 	   delete	theDevice;
+	if (channelTable != NULL)
+	   delete channelTable;
 	delete my_spectrumViewer;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
-	channelTable	-> hide ();
-	delete channelTable;
+	dabSettings	-> sync ();
 	close ();
 	fprintf (stderr, ".. end the radio silences\n");
 }
@@ -412,6 +436,7 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 void	RadioInterface::handle_startcontrolledButton (void) {
 QString reportName;
 
+
 	if (theDevice == NULL) {	// initialize first
 	   if (deviceSelector -> currentText () == "select device") {
 	      QMessageBox::warning (this, tr ("Warning"),
@@ -419,12 +444,16 @@ QString reportName;
 	      return;
 	   }
 
-	   theDevice	= setDevice (deviceSelector -> currentText ());
 	   if (theDevice == NULL) {
 	      QMessageBox::warning (this, tr ("Warning"),
                                           tr ("Select a connected device"));
 	      return;
 	   }
+
+	   countrySelector -> hide ();
+	   channelTable		= new channelsTable (this,
+                                                     theBand,
+                                                     channelFileName);
 
 	   deviceSelector	-> hide ();
 //
@@ -543,7 +572,7 @@ char buffer [20];
 	   if (tii_Value. at (i) == tii)
 	      return;
 	tii_Value. push_back (tii);
-	for (int i = 0; i < tii_Value. size (); i ++) {
+	for (uint i = 0; i < tii_Value. size (); i ++) {
 	   sprintf (buffer, "(%d %d) ", tii_Value. at (i) >> 8,
 	                                tii_Value. at (i) & 0xFF);
 	   s. append (buffer);
@@ -568,6 +597,11 @@ QString	summaryName;
 	                               tr ("select a connected device\n"));
 	      return;
 	   }
+
+	   countrySelector	-> hide ();
+	   channelTable         = new channelsTable (this,
+                                                     theBand,
+                                                     channelFileName);
 	   deviceSelector	-> hide ();
 //
 //	here we really start
@@ -696,5 +730,16 @@ void    RadioInterface::set_spectrumSwitch() {
            my_spectrumViewer -> show();
         else
            my_spectrumViewer -> hide();
+}
+
+void	RadioInterface::handle_countrySelect () {
+	QString file   = QFileDialog::getSaveFileName (this,
+                                                       tr ("Open file ..."),
+                                                       QDir::homePath(),
+                                                       tr ("XML files (*.xml)"), 0, QFileDialog::DontConfirmOverwrite);
+	if (file == QString ("")) {
+	   return;
+	}
+	channelFileName         = QDir::toNativeSeparators (file);
 }
 

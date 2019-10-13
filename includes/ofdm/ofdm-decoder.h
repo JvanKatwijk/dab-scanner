@@ -54,7 +54,8 @@ public:
 	void	processBlock_0		(std::vector<std::complex<float> >);
 	void	decode			(std::vector<std::complex<float> >,
                                          int32_t n, int16_t *);
-
+	void	decode_2		(std::vector<std::complex<float> >,
+                                         int32_t n, int16_t *);
 	void	stop			(void);
 	void	reset			(void);
 private:

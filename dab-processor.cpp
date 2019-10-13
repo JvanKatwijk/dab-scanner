@@ -205,7 +205,7 @@ SyncOnPhase:
 	                  (T_u - startIndex) * sizeof (std::complex<float>));
 	   ofdmBufferIndex	= T_u - startIndex;
 
-Block_0:
+//Block_0:
 /**
   *	Block 0 is special in that it is used for fine time synchronization,
   *	for coarse frequency synchronization
@@ -234,7 +234,7 @@ Block_0:
 /**
   *	after block 0, we will just read in the other (params -> L - 1) blocks
   */
-Data_blocks:
+//Data_blocks:
 /**
   *	The first ones are the FIC blocks. We immediately
   *	start with building up an average of the phase difference
@@ -253,12 +253,12 @@ Data_blocks:
 
 	      if (ofdmSymbolCount < 4) {
 	         my_ofdmDecoder. decode (ofdmBuffer,
-	                                ofdmSymbolCount, ibits. data ());
+	                                 ofdmSymbolCount, ibits. data ());
 	         my_ficHandler. process_ficBlock (ibits, ofdmSymbolCount);
 	      }
 	   }
 
-NewOffset:
+//NewOffset:
 //	we integrate the newly found frequency error with the
 //	existing frequency error.
 	   fineOffset += 0.1 * arg (FreqCorr) / (2 * M_PI) * carrierDiff;
@@ -295,7 +295,7 @@ NewOffset:
 	            std::vector <int> transmitterIds =
 	                              my_TII_Detector. processNULL();
 	            if (transmitterIds . size ()> 0) 
-	               for (int i = 0; i <  transmitterIds. size (); i ++)
+	               for (uint i = 0; i <  transmitterIds. size (); i ++)
 	                  show_tii (transmitterIds. at (i));
 	            tii_counter = 0;
 	            my_TII_Detector. reset();
@@ -317,7 +317,7 @@ NewOffset:
 	      coarseOffset -= carrierDiff;
 	      fineOffset += carrierDiff;
 	   }
-ReadyForNewFrame:
+//ReadyForNewFrame:
 ///	and off we go, up to the next frame
 	   goto Check_endofNULL;
 	}

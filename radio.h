@@ -95,10 +95,12 @@ private:
 	QString		find_fileName		(void);
 	bool		skipChannel		(int);
 	void		process_nextChannel	(void);
+	QString		channelFileName;
 protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 
 public slots:
+	void		handle_countrySelect	(void);
 	void		nextChannel_withSignal	(void);
 	void		nextChannel_noSignal	(void);
 	void		addtoEnsemble		(const QString &);

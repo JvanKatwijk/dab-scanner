@@ -39,6 +39,7 @@
 int32_t	i;
 float	Phi_k;
 
+	(void)mr;
 	this	-> threshold	= threshold;
 	this	-> diff_length	= 55;
 	this	-> T_u		= params. get_T_u ();
@@ -51,7 +52,9 @@ float	Phi_k;
 	framesperSecond		= 2048000 / params. get_T_F ();
 	displayCounter		= 0;
 
-	memset (refTable. data (), 0, sizeof (std::complex<float>) * T_u);
+	for (i = 0; i < T_u; i ++)
+	   refTable [i] = std::complex<float> (0, 0);
+//	memset (refTable. data (), 0, sizeof (std::complex<float>) * T_u);
 
 	for (i = 1; i <= params. get_carriers () / 2; i ++) {
 	   Phi_k =  get_Phi (i);
@@ -85,7 +88,6 @@ int32_t	phaseReference::findIndex (std::vector <std::complex<float>> v,
 	                           int threshold) {
 int32_t	i;
 int32_t	maxIndex	= -1;
-int32_t	oldIndex	= -1;
 float	sum		= 0;
 float	Max		= -1000;
 float	lbuf [T_u];
@@ -138,9 +140,7 @@ float	lbuf [T_u];
 #define	SEARCH_RANGE	(2 * 35)
 int16_t	phaseReference::estimate_CarrierOffset (std::vector<std::complex<float>> v) {
 int16_t	i, j, index = 100;
-float	diff;
 float	computedDiffs [SEARCH_RANGE + diff_length + 1];
-int	index_1	= 0;
 
 	memcpy (fft_buffer, v. data (), T_u * sizeof (std::complex<float>));
 	my_fftHandler. do_FFT ();
@@ -176,7 +176,7 @@ int	index_1	= 0;
 //	on the fly
 #define	LLENGTH	100
 float	phaseReference::estimate_FrequencyOffset (std::vector <std::complex<float>> v) {
-int16_t	i, j;
+int16_t	i;
 float pd	= 0;
 
 	for (i = - LLENGTH / 2 ; i < LLENGTH / 2; i ++) {

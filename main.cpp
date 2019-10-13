@@ -62,7 +62,6 @@ void    	setTranslator (QString Language);
 int     main (int argc, char **argv) {
 QString initFileName	= fullPathfor (QString (DEFAULT_INI), ".ini");
 RadioInterface  *MyRadioInterface;
-virtualInput	*theDevice;
 // Default values
 QSettings       *dabSettings;           // ini file
 int     opt;

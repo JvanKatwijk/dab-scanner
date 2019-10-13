@@ -1,4 +1,38 @@
 
+---------------------------------------------------------------------
+DAB-SCANNER 1.7
+---------------------------------------------------------------------
+
+New in version 1.7
+
+In earlier versions a "skip table" was introduced, allowing a specification
+of which channels could/should be skipped during the scan process.
+In this version, the support for such a skip table is extended.
+It is now possible to create different skip tables for different
+"scanning occasions".
+
+To support this, an additional button in installed on the GUI,
+touching this button will show a menu with which a skip file
+can be selected. The data of the file is transferred to
+the table showing up near the main widget, and at the end of
+the session (presumably by clicking the top right "x" in the 
+main widget) the data is written back to the specified file name.
+
+The name of the file used will be maintained in the ".ini" file,
+and will be used as a default name the next invocation of
+the program.
+
+![dab scanner](/dab-scanner-1.7.png?raw=true)
+
+Note that if no skip file is specified (either explicitly or 
+implicitly), the data from the GUI will not be saved.
+Note that is a non-existent file is selected, the file will
+be created.
+
+Note further that as soon as the start button is activated and a
+valid device is detected, the button to select a "skip file"
+is made invisible.
+
 ----------------------------------------------------------------------
 DAB-SCANNER 1.6
 ----------------------------------------------------------------------

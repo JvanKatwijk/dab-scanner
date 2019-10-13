@@ -5,9 +5,9 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.6
+TARGET		= dab-scanner-1.7
 
-QT		+= widgets 
+QT		+= widgets xml
 CONFIG		-= console
 QMAKE_CXXFLAGS	+= -std=c++11
 #QMAKE_CFLAGS	+=  -lfto -ffast-math

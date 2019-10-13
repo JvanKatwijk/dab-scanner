@@ -24,53 +24,103 @@
 #include	"band-handler.h"
 #include	<QHeaderView>
 #include	<QString>
+#include <QDomDocument>
 #include	<QMessageBox>
 #include	"radio.h"
 
-	channelsTable::channelsTable	(QSettings *si,
-	                                 RadioInterface *theRadio,
-	                                 bandHandler	*theBand):
+	channelsTable::channelsTable	(RadioInterface *theRadio,
+	                                 bandHandler	*theBand,
+	                                 QString	fileName
+	                                 ):
 	                                    theTable (NULL) {
-	this	-> theSettings	= si;
+QDomDocument xml_bestand;
 	this	-> myRadioInterface	= theRadio;
 	this	-> theBand	= theBand;
 
+	
 	theTable. setColumnCount (2);
 	QStringList header;
 	header	<< tr ("channel") << tr ("scan");
 	theTable. setHorizontalHeaderLabels (header);
 	theTable. verticalHeader() -> hide ();
 	theTable. setShowGrid (true);
-	theSettings -> beginGroup ("Channels");
 	for (int i = 0; i < theBand -> channels (); i ++) {
 	   theTable. insertRow (i);
 	   theTable. setItem (i, 0, new QTableWidgetItem (theBand -> channel (i)));
-	   QString s1 = theSettings -> value (theBand -> channel (i), "+").
-	                                                 toString ();
+	   QString s1 =  "+";
 	   theTable. setItem (i, 1, new QTableWidgetItem (s1));
 	}
-	theSettings -> endGroup ();
+
+	QFile f (fileName);
+	if (f. open (QIODevice::ReadOnly)) {
+	   xml_bestand. setContent (&f);
+	   QDomElement root	= xml_bestand. documentElement ();
+	   QDomElement component	= root. firstChild (). toElement ();
+	   while (!component. isNull ()) {
+	      if (component. tagName () == "BAND_ELEMENT") {
+	         QString channel = component. attribute ("CHANNEL", "???");
+	         QString skipItem = component. attribute ("VALUE", "+");
+	         if (channel != "???")
+	            update (channel, skipItem);
+	      }
+	      component = component. nextSibling (). toElement ();
+	   }
+	}
 	connect (&theTable, SIGNAL (cellDoubleClicked (int, int)),
 	         this, SLOT (cellSelected (int, int)));
 	isVisible	= false;
 }
 
 	channelsTable::~channelsTable () {
+}
+
+void	channelsTable::saveTable	(QString fileName) {
+QDomDocument skipList;
+QDomElement root;
+
 	if (isVisible)
 	   theTable. hide ();
 
-	theSettings	-> beginGroup ("Channels");
+	if (fileName == "")
+	   return;
+	root	= skipList. createElement ("skipList");
+	skipList. appendChild (root);
+
 	for (int i = 0; i < theBand -> channels (); i ++) {
-	   theSettings -> setValue (theBand -> channel (i),
-	                       theTable. item (i, 1) -> text ());
+	   QString channel = theTable. item (i, 0) -> text ();
+	   QString theValue = theTable. item (i, 1) -> text ();
+	   QDomElement skipElement = skipList.
+	                                createElement ("BAND_ELEMENT");
+	   skipElement. setAttribute ("CHANNEL", channel);
+	   skipElement. setAttribute ("VALUE", theValue);
+	   root. appendChild (skipElement);
 	}
-	theSettings	-> endGroup ();
+	QFile file (fileName);
+        if (!file. open (QIODevice::WriteOnly | QIODevice::Text))
+           return;
+
+        QTextStream stream (&file);
+        stream << skipList. toString ();
+        file. close ();
+}
+
+void	channelsTable::update (QString channel, QString value) {
+	if ((value != "+") && (value != "-"))
+	   return;
+
+	for (int i = 0; i < theBand -> channels (); i ++) {
+	   if (theTable. item (i, 0) -> text () == channel) {
+	      theTable. item (i, 1) -> setText (value);
+	      break;
+	   }
+	}
 }
 
 void    channelsTable::cellSelected (int row, int column) {
         QString s1 = theTable. item (row, 0) ->text ();
         QString s2 = theTable. item (row, 1) ->text ();
 	int	amount_P	= 0;
+	(void)column;
 	for (int i = 0; i < theBand -> channels (); i ++)
 	   if (theTable. item (i, 1) -> text () == "+")
 	      amount_P ++;

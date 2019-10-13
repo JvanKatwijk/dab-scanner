@@ -25,6 +25,9 @@
 
 #include	<QSettings>
 #include	<QTableWidget>
+#include	<QtXml>
+#include	<QFile>
+#include	<QString>
 #include	<QObject>
 #include	"band-handler.h"
 
@@ -33,9 +36,10 @@ class	RadioInterface;
 class	channelsTable: public QObject {
 Q_OBJECT
 public:
-	channelsTable	(QSettings *si,
-	                 RadioInterface *, bandHandler	*theBand);
+	channelsTable	(RadioInterface *,
+	                 bandHandler *, QString);
 	~channelsTable	();
+void	saveTable	(QString);
 void	show		();
 void	hide		();
 bool	channel		(int);
@@ -49,6 +53,7 @@ private:
 	bandHandler	*theBand;
 	QTableWidget	theTable;
 	bool		isVisible;
+	void		update		(QString, QString);
 };
 
 #endif
