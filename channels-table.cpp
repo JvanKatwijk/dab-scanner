@@ -34,6 +34,7 @@
 	                                 ):
 	                                    theTable (NULL) {
 QDomDocument xml_bestand;
+	this	-> theName		= fileName;
 	this	-> myRadioInterface	= theRadio;
 	this	-> theBand	= theBand;
 
@@ -72,16 +73,13 @@ QDomDocument xml_bestand;
 }
 
 	channelsTable::~channelsTable () {
-}
-
-void	channelsTable::saveTable	(QString fileName) {
 QDomDocument skipList;
 QDomElement root;
 
 	if (isVisible)
 	   theTable. hide ();
 
-	if (fileName == "")
+	if (theName == "")
 	   return;
 	root	= skipList. createElement ("skipList");
 	skipList. appendChild (root);
@@ -95,13 +93,17 @@ QDomElement root;
 	   skipElement. setAttribute ("VALUE", theValue);
 	   root. appendChild (skipElement);
 	}
-	QFile file (fileName);
+	QFile file (theName);
         if (!file. open (QIODevice::WriteOnly | QIODevice::Text))
            return;
 
         QTextStream stream (&file);
         stream << skipList. toString ();
         file. close ();
+}
+
+QString	channelsTable::FileName	() {
+	return theName;
 }
 
 void	channelsTable::update (QString channel, QString value) {

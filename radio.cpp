@@ -82,6 +82,9 @@ QString h;
 	if ((dabMode != 1) && (dabMode != 2))
 	   dabMode = 1;
 //
+	channelFileName		= 
+	              dabSettings -> value ("channelFile", ""). toString ();
+
 //	we maintain the name of the directory of the last selection
 	dirName		= dabSettings -> value ("dirName",
 	                                        QDir::homePath ()). toString ();
@@ -93,6 +96,7 @@ QString h;
 ///////////////////////////////////////////////////////////////////////////
 //	The settings are done, now creation of the GUI parts
 	setupUi (this);
+	skipfileName -> setText (channelFileName);
 //
 //	... and the device selector
 
@@ -134,10 +138,6 @@ QString h;
 	channelTimer. setInterval   (channelDelay -> value () * 1000);
 	channelNumber		= 0;
 
-	channelFileName		= 
-	              dabSettings -> value ("channelFile", ""). toString ();
-	fprintf (stderr, "channel file = %s\n",
-	                      channelFileName . toLatin1 (). data ());
 	connect (countrySelector, SIGNAL (clicked (void)),
 	         this, SLOT (handle_countrySelect ()));
 	connect (startButton, SIGNAL (clicked (void)),
@@ -153,21 +153,14 @@ QString h;
 }
 
 	RadioInterface::~RadioInterface (void) {
-	if (channelTable != NULL) {
-	   if (channelFileName != "") {
-	      channelTable -> saveTable (channelFileName);
-	      dabSettings -> setValue ("channelFile", channelFileName);
-	      dabSettings -> sync ();
-	   }
-	}
 }
 //
 void	RadioInterface:: startScanning (void) {
 	
+	channelNumber. store (0);
 	if (go_continuously) {
 	   int nrChannels	= theBand -> channels ();
 	   int skipCount	= 0;
-	   channelNumber. store (0);
 	   if (channelNumber. load () < nrChannels) {
 	      while  (go_continuously &&
 	                      skipChannel (channelNumber. load ())) {
@@ -208,6 +201,13 @@ void	RadioInterface::stopScanning (void) {
 	continuousButton	-> setText ("start continuous");
 	continuousButton	-> show ();
 	nrCycles		-> show ();
+	if (go_continuously && (channelTable != 0)) {
+	   channelTable -> hide ();
+           dabSettings -> setValue ("channelFile", channelTable -> FileName ());
+           dabSettings -> sync ();
+	   delete channelTable;
+	   channelTable	= NULL;
+	}
 }
 
 void	RadioInterface::nextChannel_noSignal (void) {
@@ -246,7 +246,8 @@ int	frequency;
 	channelNumber . store (channelNumber. load () + 1);
 	int skipCount	= 0;
 	if (channelNumber. load () < nrChannels) {
-	   while  (go_continuously && skipChannel (channelNumber. load ())) {
+	   while  (go_continuously &&
+	                   skipChannel (channelNumber. load ())) {
 	      fprintf (stderr, "skipping channel %d\n", channelNumber. load ());
 	      if (++skipCount >= nrChannels) {       
 	         QMessageBox::warning (this, tr ("Warning"),
@@ -267,10 +268,7 @@ int	frequency;
 	   else {
 	      nrCycles -> setValue (nrCycles -> value () - 1);
 	      if (nrCycles -> value () < 1) {
-	         running. store (false);
-	         fclose (fileP);
-	         startButton		-> setText ("start controlled");
-	         continuousButton	-> show ();
+	         stopControlled ();
 	         return;
 	      }
 	   }
@@ -319,24 +317,20 @@ void	RadioInterface::TerminateProcess (void) {
 	running. store (false);
 	if (theDevice != NULL) 
 	   theDevice	-> stopReader ();
-	if (channelTable != NULL) {
+	if ((channelTable != NULL) && go_continuously) {
 	   channelTable	-> hide ();
-           if (channelFileName != "") {
-              channelTable -> saveTable (channelFileName);
-              dabSettings -> setValue ("channelFile", channelFileName);
-              dabSettings -> sync ();
-           }
+           dabSettings -> setValue ("channelFile", channelTable -> FileName ());
+           dabSettings -> sync ();
+	   delete channelTable;
         }
 
 	if (my_dabProcessor != NULL) {
-	   my_dabProcessor	-> stop ();		// definitely concurrent
+	   my_dabProcessor	-> stop ();	// definitely concurrent
 //	everything should be halted by now
 	   delete	my_dabProcessor;
 	}
 	if (theDevice != NULL)
 	   delete	theDevice;
-	if (channelTable != NULL)
-	   delete channelTable;
 	delete my_spectrumViewer;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
 	dabSettings	-> sync ();
@@ -436,7 +430,6 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 void	RadioInterface::handle_startcontrolledButton (void) {
 QString reportName;
 
-
 	if (theDevice == NULL) {	// initialize first
 	   if (deviceSelector -> currentText () == "select device") {
 	      QMessageBox::warning (this, tr ("Warning"),
@@ -444,27 +437,25 @@ QString reportName;
 	      return;
 	   }
 
+	   theDevice	= setDevice (deviceSelector -> currentText ());
+
 	   if (theDevice == NULL) {
 	      QMessageBox::warning (this, tr ("Warning"),
                                           tr ("Select a connected device"));
 	      return;
 	   }
 
-	   countrySelector -> hide ();
-	   channelTable		= new channelsTable (this,
-                                                     theBand,
-                                                     channelFileName);
-
+	   countrySelector	-> hide ();
 	   deviceSelector	-> hide ();
 //
 //	here we really start
 	   my_dabProcessor	= new dabProcessor (this,
-	                                    theDevice,
-	                                    dabMode,
-	                                    threshold,
-	                                    diff_length,
-	                                    spectrumBuffer,
-                                            iqBuffer);
+	                                            theDevice,
+	                                            dabMode,
+	                                            threshold,
+	                                            diff_length,
+	                                            spectrumBuffer,
+                                                    iqBuffer);
 
 	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	            this, SLOT (show_snr (int)));
@@ -476,29 +467,36 @@ QString reportName;
 
 	if (nrCycles -> value () < 1)
 	   return;
-	if (!running. load ()) {
-	   continuousButton	-> hide ();
-	   reportName	= find_fileName ();
-	   fileP	= fopen (reportName. toUtf8(). data(), "w");
-	   if (fileP == nullptr) {
-	      fprintf (stderr, "Could not open file %s\n",
+	continuousButton	-> hide ();
+	reportName	= find_fileName ();
+	fileP	= fopen (reportName. toUtf8(). data(), "w");
+	if (fileP == nullptr) {
+	   fprintf (stderr, "Could not open file %s\n",
 	                              reportName. toUtf8(). data());
-	      continuousButton	-> show ();
-	      return;
-	   }
-	   startButton -> setText ("stop");
-	   operationsLabel	-> setText ("running controlled");
-	   go_continuously	= false;
-	   startScanning ();
+	   continuousButton	-> show ();
 	   return;
 	}
-//
-//	handling stop
+	startButton -> setText ("stop");
+	disconnect (startButton, SIGNAL (clicked ()),
+	            this, SLOT (handle_startcontrolledButton ()));
+	connect (startButton, SIGNAL (clicked ()),
+	         this, SLOT (stopControlled ()));
+	operationsLabel	-> setText ("running controlled");
+	go_continuously	= false;
+	startScanning ();
+	running. store (true);
+}
+
+void	RadioInterface::stopControlled () {
 	fclose (fileP);
 	stopScanning ();
 	startButton		-> setText ("start controlled");
 	operationsLabel		-> setText ("");
 	continuousButton	-> show ();
+	disconnect (startButton, SIGNAL (clicked ()),
+	            this, SLOT (stopControlled ()));
+	connect (startButton, SIGNAL (clicked ()),
+	         this, SLOT (handle_startcontrolledButton ()));
 }
 
 void	RadioInterface::showEnsembleData	(int snr,
@@ -598,10 +596,6 @@ QString	summaryName;
 	      return;
 	   }
 
-	   countrySelector	-> hide ();
-	   channelTable         = new channelsTable (this,
-                                                     theBand,
-                                                     channelFileName);
 	   deviceSelector	-> hide ();
 //
 //	here we really start
@@ -621,54 +615,67 @@ QString	summaryName;
 	            this, SLOT (show_tii (int)));
 	}
 
-	if (!running. load ()) {
-	   startButton	-> hide ();
-	   nrCycles	-> hide ();
-	   reportName = find_fileName ();
-	   fileP        = fopen (reportName. toUtf8(). data(), "w");
-	   if (fileP == nullptr) {
-	      fprintf (stderr, "Could not open file %s\n",
-	                              reportName. toUtf8(). data());
-	      startButton	-> show ();
-	      nrCycles		-> show ();
-	      return;
-	   }
-
-	   summaryName	= reportName;
-	   if (summaryName. indexOf ("dab-scanner") != -1)
-	      summaryName. replace ("dab-scanner", "dab-summary");
-	   else
-	      summaryName. append ("-summary.txt");
-	   fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
-	   summaryP	= fopen (summaryName. toUtf8(). data(), "w");
-	   if (summaryP == nullptr) {
-	      fprintf (stderr, "Could not open  summary file %s\n",
-	                              summaryName. toUtf8(). data());
-	      fclose (fileP);
-	      startButton       -> show ();
-	      nrCycles          -> show ();
-	      return;
-	   }
-	   
-	   channelTable		-> show ();
-	   operationsLabel	-> setText ("running continuously");
-	   continuousButton	-> setText ("stop");
-	   go_continuously	= true;
-	   startScanning ();	
-	   running. store (true);
+	startButton	-> hide ();
+	nrCycles	-> hide ();
+	reportName = find_fileName ();
+	fileP        = fopen (reportName. toUtf8(). data(), "w");
+	if (fileP == nullptr) {
+	   fprintf (stderr, "Could not open file %s\n",
+	                           reportName. toUtf8(). data());
+	   startButton	-> show ();
+	   nrCycles		-> show ();
 	   return;
 	}
-//	and in case we need to stop:
+
+	summaryName	= reportName;
+	if (summaryName. indexOf ("dab-scanner") != -1)
+	   summaryName. replace ("dab-scanner", "dab-summary");
+	else
+	   summaryName. append ("-summary.txt");
+	fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
+	summaryP	= fopen (summaryName. toUtf8(). data(), "w");
+	if (summaryP == nullptr) {
+	   fprintf (stderr, "Could not open  summary file %s\n",
+	                           summaryName. toUtf8(). data());
+	   fclose (fileP);
+	   startButton       -> show ();
+	   nrCycles          -> show ();
+	   return;
+	}
+	   
+	countrySelector	-> hide ();
+	channelTable         = new channelsTable (this,
+                                                     theBand,
+                                                     channelFileName);
+	channelTable		-> show ();
+	operationsLabel	-> setText ("running continuously");
+	continuousButton	-> setText ("stop");
+	disconnect (continuousButton, SIGNAL (clicked ()),
+	            this, SLOT (handle_continuousButton ()));
+	connect (continuousButton, SIGNAL (clicked ()),
+	         this, SLOT (stopContinuous ()));
+	go_continuously	= true;
+	startScanning ();	
+	running. store (true);
+}
+
+void	RadioInterface::stopContinuous () {
 	go_continuously = false;
 	stopScanning ();
 	operationsLabel	-> setText ("");
 	fclose (fileP);
 	fclose (summaryP);
 	running. store (false);
-	startButton	-> show ();
-	nrCycles	-> show ();
-	channelTable	-> hide ();
+	if (channelTable != NULL) {	// should not happen
+	   channelTable	-> hide ();
+	   delete channelTable;
+	   channelTable = NULL;
+	}
 	continuousButton -> setText ("start continuous");
+	disconnect (continuousButton, SIGNAL (clicked ()),
+	            this, SLOT (stopContinuous ()));
+	connect (continuousButton, SIGNAL (clicked ()),
+	         this, SLOT (handle_continuousButton ()));
 }
 
 QString	RadioInterface::find_fileName () {
@@ -698,6 +705,8 @@ QString timeString = QDate::currentDate (). toString ();
 }
 
 bool	RadioInterface::skipChannel (int channelNumber) {
+	if (channelTable == NULL)	// should not happen
+	   return false;
 	return !channelTable	-> channel (channelNumber);
 }
 
@@ -741,5 +750,6 @@ void	RadioInterface::handle_countrySelect () {
 	   return;
 	}
 	channelFileName         = QDir::toNativeSeparators (file);
+	skipfileName	-> setText (channelFileName);
 }
 

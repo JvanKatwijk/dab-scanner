@@ -123,6 +123,9 @@ private slots:
 	void		handle_continuousButton	(void);
 	void		reset			(void);
 	void		set_spectrumSwitch	(void);
+
+	void		stopControlled		(void);
+	void		stopContinuous		(void);
 };
 #endif
 

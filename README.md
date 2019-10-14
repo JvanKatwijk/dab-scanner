@@ -7,31 +7,40 @@ New in version 1.7
 
 In earlier versions a "skip table" was introduced, allowing a specification
 of which channels could/should be skipped during the scan process.
-In this version, the support for such a skip table is extended.
-It is now possible to create different skip tables for different
+In version 1.7 of the dab scanner the possibility is created
+to work with different "skip tables" for different
 "scanning occasions".
 
-To support this, an additional button in installed on the GUI,
-touching this button will show a menu with which a skip file
-can be selected. The data of the file is transferred to
-the table showing up near the main widget, and at the end of
-the session (presumably by clicking the top right "x" in the 
-main widget) the data is written back to the specified file name.
+An additional button - labeled "select skipFile" - is added to the
+main widget of the GUI. Touching this this button will show a menu
+with which a skip file can be selected.
+The data in that file is used to select the channels that will be
+skipped while scanning in continuous mode.
+Modifications to the skip table will be recorded in that file.
+If the specified file does not exist (yet), it will be created.
 
-The name of the file used will be maintained in the ".ini" file,
-and will be used as a default name the next invocation of
-the program.
+The (path)name of the file is shown at the bottom of the main
+widget of the GUI. The name will be saved between successive
+program invocations. So, if a name is specified, it will be
+used as the default name for the skip file at the next program
+invocation.
 
 ![dab scanner](/dab-scanner-1.7.png?raw=true)
 
 Note that if no skip file is specified (either explicitly or 
-implicitly), the data from the GUI will not be saved.
-Note that is a non-existent file is selected, the file will
-be created.
+implicitly), i.e. the bottom line of the GUI does not
+show a pathname, the skip data will not be stored.
 
 Note further that as soon as the start button is activated and a
 valid device is detected, the button to select a "skip file"
 is made invisible.
+
+Note further that a skip table only has effect when running
+in continuous mode, running in controlled mode does not affect the
+skip table, and no table is shown.
+
+![dab scanner](/dab-scanner-1.7.1.png?raw=true)
+
 
 ----------------------------------------------------------------------
 DAB-SCANNER 1.6

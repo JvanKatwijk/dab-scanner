@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>441</width>
-    <height>284</height>
+    <width>443</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -352,7 +352,7 @@
      <rect>
       <x>30</x>
       <y>220</y>
-      <width>281</width>
+      <width>201</width>
       <height>19</height>
      </rect>
     </property>
@@ -382,8 +382,24 @@
       <height>31</height>
      </rect>
     </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A skipfile is a file (xml format) specifying for each channel in the selected band whether&lt;/p&gt;&lt;p&gt;or not it should be a part of the scan when running in continuous mode.&lt;/p&gt;&lt;p&gt;At the start of the program, one may choose a file. If the file does not exist it will&lt;/p&gt;&lt;p&gt;be created upon program exit.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
     <property name="text">
-     <string>select channelset</string>
+     <string>select skiptable</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="skipfileName">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>260</y>
+      <width>401</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

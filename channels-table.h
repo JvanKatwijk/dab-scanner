@@ -39,7 +39,7 @@ public:
 	channelsTable	(RadioInterface *,
 	                 bandHandler *, QString);
 	~channelsTable	();
-void	saveTable	(QString);
+QString	FileName	();
 void	show		();
 void	hide		();
 bool	channel		(int);
@@ -48,6 +48,7 @@ public	slots:
        void            cellSelected            (int, int);
 
 private:
+	QString		theName;
 	QSettings	*theSettings;
 	RadioInterface	*myRadioInterface;
 	bandHandler	*theBand;
