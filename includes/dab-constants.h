@@ -92,8 +92,8 @@ bool	isInfinite (float x) {
 }
 
 static inline
-std::complex<float> cmul (std::complex<float> x, float y) {
-	return std::complex<float> (real (x) * y, imag (x) * y);
+std::complex<double> cmul (std::complex<double> x, float y) {
+	return std::complex<double> (real (x) * y, imag (x) * y);
 }
 
 static inline

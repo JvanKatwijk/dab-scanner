@@ -120,8 +120,8 @@ int16_t	i;
 	window. resize 		(T_u);
 	for (i = 0; i < T_u; i ++)
 	   window [i]  = (0.42 -
-	            0.5 * cos (2 * M_PI * (float)i / T_u) +
-	            0.08 * cos (4 * M_PI * (float)i / T_u));
+	            0.5 * cos (2 * M_PI * (double)i / T_u) +
+	            0.08 * cos (4 * M_PI * (double)i / T_u));
 
 	for (i = 0; i < 256; ++i)
 	    invTable [i] =  -1;
@@ -132,15 +132,14 @@ int16_t	i;
 		TII_Detector::~TII_Detector() {
 }
 
-
 void	TII_Detector::reset() {
 	for (int i = 0; i < T_u; i ++)
-	   theBuffer [i] = std::complex<float> (0, 0);
+	   theBuffer [i] = std::complex<double> (0, 0);
 }
 
 //	To eliminate (reduce?) noise in the input signal, we might
 //	add a few spectra before computing (up to the user)
-void	TII_Detector::addBuffer (std::vector<std::complex<float>> v) {
+void	TII_Detector::addBuffer (std::vector<std::complex<double>> v) {
 int	i;
 
 	for (i = 0; i < T_u; i ++)
@@ -152,7 +151,7 @@ int	i;
 	                    cmul (fft_buffer [i], 0.1);
 }
 
-void	TII_Detector::collapse (std::complex<float> *inVec, float *outVec) {
+void	TII_Detector::collapse (std::complex<double> *inVec, double *outVec) {
 int	i;
 
 	for (i = 0; i < carriers / 8; i ++) {
@@ -181,11 +180,11 @@ uint8_t bits [] = {0x80, 0x40, 0x20, 0x10 , 0x08, 0x04, 0x02, 0x01};
 #define	GROUPSIZE	24
 std::vector <int>	TII_Detector::processNULL() {
 int i, j;
-float	hulpTable	[NUM_GROUPS * GROUPSIZE];
-float	C_table		[GROUPSIZE];	// contains the values
+double	hulpTable	[NUM_GROUPS * GROUPSIZE];
+double	C_table		[GROUPSIZE];	// contains the values
 int	D_table		[GROUPSIZE];	// count of indices in C_table with data
-float	avgTable	[NUM_GROUPS];
-float	minTable	[NUM_GROUPS];
+double	avgTable	[NUM_GROUPS];
+double	minTable	[NUM_GROUPS];
 std::vector<int> results;
 
 	results. resize (0);
@@ -201,7 +200,7 @@ std::vector<int> results;
 //	may differ, we compute an average for each of the
 //	NUM_GROUPS GROUPSIZE-value groups. 
 
-	memset (avgTable, 0, NUM_GROUPS * sizeof (float));
+	memset (avgTable, 0, NUM_GROUPS * sizeof (double));
 	for (i = 0; i < NUM_GROUPS; i ++) {
 	   minTable [i] = hulpTable [i * GROUPSIZE + 0];
 	   avgTable [i] = 0;
@@ -227,7 +226,7 @@ std::vector<int> results;
 //	and "raise" the threshold. However, that might be
 //	too  much for 8-bit incoming values
 	memset (D_table, 0, GROUPSIZE * sizeof (int));
-	memset (C_table, 0, GROUPSIZE * sizeof (float));
+	memset (C_table, 0, GROUPSIZE * sizeof (double));
 //
 	for (j = 0; j < NUM_GROUPS; j ++) {
 	   for (i = 0; i < GROUPSIZE; i ++) {
@@ -245,7 +244,7 @@ std::vector<int> results;
 //	we extract from this result the highest values that
 //	meet the constraint of 4 values being sufficiently high
 //	up to "depth"  values.
-	float	maxTable [depth];
+	double	maxTable [depth];
 	int	maxIndex [depth];
 	uint16_t pattern [depth];
 	
@@ -273,14 +272,14 @@ std::vector<int> results;
 //	elements of the NUM_GROUPS groups
 //
 	for (j = 0; (j < depth) && (maxIndex [j] >= 0); j ++) {
-	   float x [NUM_GROUPS];
+	   double x [NUM_GROUPS];
 	   for (i = 0; i < NUM_GROUPS; i ++) {
 	      x [i] = hulpTable [maxIndex [j] + GROUPSIZE * i];
 	   }
 //
 //	we extract the four max values (it is known that they exist)
 	   for (i = 0; i < 4; i ++) {
-	      float	mmax	= 0;
+	      double	mmax	= 0;
 	      int ind	= -1;
 	      for (int k = 0; k < NUM_GROUPS; k ++) {
 	         if (x [k] > mmax) {

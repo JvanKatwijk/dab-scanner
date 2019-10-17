@@ -48,7 +48,7 @@
 	ofdmDecoder::ofdmDecoder	(RadioInterface *mr,
 	                                 uint8_t	dabMode,
 	                                 int16_t	bitDepth,
-	                                 RingBuffer<std::complex<float>> *iqBuffer):
+	                                 RingBuffer<std::complex<double>> *iqBuffer):
 	                                    params (dabMode),
 	                                    my_fftHandler (dabMode),
 	                                    myMapper (dabMode) {
@@ -57,8 +57,8 @@
 	(void)bitDepth;
         connect (this, SIGNAL (showIQ (int)),
                  myRadioInterface, SLOT (showIQ (int)));
-        connect (this, SIGNAL (showQuality (float)),
-                 myRadioInterface, SLOT (showQuality (float)));
+        connect (this, SIGNAL (showQuality (double)),
+                 myRadioInterface, SLOT (showQuality (double)));
 
 	this	-> T_s			= params. get_T_s ();
 	this	-> T_u			= params. get_T_u ();
@@ -82,39 +82,39 @@ void    ofdmDecoder::reset      (void) {
 
 /**
   */
-void	ofdmDecoder::processBlock_0 (std::vector <std::complex<float> > buffer) {
-	memcpy (fft_buffer, buffer. data (),
-	                             T_u * sizeof (std::complex<float>));
+void	ofdmDecoder::processBlock_0 (std::vector <std::complex<double> > buffer) {
+	for (int i = 0; i < T_u; i ++)
+	   fft_buffer [i] = buffer [i];
 
 	my_fftHandler. do_FFT ();
 /**
   *	we are now in the frequency domain, and we keep the carriers
   *	as coming from the FFT as phase reference.
   */
-	memcpy (phaseReference. data (), fft_buffer,
-	                   T_u * sizeof (std::complex<float>));
+	for (int i = 0; i < T_u; i ++)
+	   phaseReference [i] = fft_buffer [i];
 }
 //
 //	Just interested. In the ideal case the constellation of the
 //	decoded symbols is precisely in the four points 
 //	k * (1, 1), k * (1, -1), k * (-1, -1), k * (-1, 1)
 //	To ease computation, we map all incoming values onto quadrant 1
-float	ofdmDecoder::computeQuality (std::complex<float> *v) {
+double	ofdmDecoder::computeQuality (std::complex<double> *v) {
 int16_t i;
-std::complex<float>	avgPoint	= std::complex<float> (0, 0);
-std::complex<float>	x [T_u];
-float	avg	= 0;
-float	S	= 0;
+std::complex<double>	avgPoint	= std::complex<double> (0, 0);
+std::complex<double>	x [T_u];
+double	avg	= 0;
+double	S	= 0;
 
 	for (i = 0; i < carriers; i ++) {
 	   x [i]	= std::complex<float> (abs (real (v [T_u / 2 - carriers / 2 + i])), abs (imag (v [T_u / 2 - carriers / 2 + i])));
 	   avgPoint	+= x [i];
 	}
 
-	avg	= arg (avgPoint * conj (std::complex<float> (1, 1)));
+	avg	= arg (avgPoint * conj (std::complex<double> (1, 1)));
 
 	for (i = 0; i < carriers; i ++) {
-	   float f = arg (x [i] * conj (std::complex<float> (1, 1))) - avg;
+	   float f = arg (x [i] * conj (std::complex<double> (1, 1))) - avg;
 	   f = f / M_PI * 360;
 	   S += f * f;
 	}
@@ -132,13 +132,13 @@ float	S	= 0;
   */
 
 static	int	cnt	= 0;
-void	ofdmDecoder::decode (std::vector <std::complex<float>> buffer,
+void	ofdmDecoder::decode (std::vector <std::complex<double>> buffer,
 	                     int32_t blkno, int16_t *ibits) {
 int16_t	i;
-	memcpy (fft_buffer, &((buffer. data ()) [T_g]),
-	                               T_u * sizeof (std::complex<float>));
-std::complex<float> conjVector [T_u];
+std::complex<double> conjVector [T_u];
 
+	for (i = 0; i < T_u; i ++)
+	   fft_buffer [i] = buffer [T_g + i];
 
 //fftlabel:
 /**
@@ -165,17 +165,19 @@ std::complex<float> conjVector [T_u];
   *	The carrier of a block is the reference for the carrier
   *	on the same position in the next block
   */
-	   std::complex<float>	r1 = fft_buffer [index] *
+	   std::complex<double>	r1 = fft_buffer [index] *
 	                                    conj (phaseReference [index]);
 	   conjVector [index] = r1;
-	   float ab1	= jan_abs (r1);
+	   double ab1	= abs (r1);
 //	split the real and the imaginary part and scale it
 //	we make the bits into softbits in the range -127 .. 127
-	   ibits [i]		=  - real (r1) / ab1 * 2047.0;
-	   ibits [carriers + i] =  - imag (r1) / ab1 * 2047.0;
+	   ibits [i]		= (int16_t)( - real (r1) / ab1 * 1024.0);
+	   ibits [carriers + i] = (int16_t)( - imag (r1) / ab1 * 1024.0);
 	}
-	memcpy (phaseReference. data (), fft_buffer,
-	                            T_u * sizeof (std::complex<float>));
+
+	for (i = 0; i < T_u; i ++)
+	   phaseReference [i] = fft_buffer [i];
+
 //	From time to time we show the constellation of symbol 2.
         if (blkno == 2) {
            if (++cnt > 7) {

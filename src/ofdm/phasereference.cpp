@@ -37,7 +37,7 @@
 	                                     params (dabMode),
 	                                     my_fftHandler (dabMode) {
 int32_t	i;
-float	Phi_k;
+double	Phi_k;
 
 	(void)mr;
 	this	-> threshold	= threshold;
@@ -53,22 +53,21 @@ float	Phi_k;
 	displayCounter		= 0;
 
 	for (i = 0; i < T_u; i ++)
-	   refTable [i] = std::complex<float> (0, 0);
-//	memset (refTable. data (), 0, sizeof (std::complex<float>) * T_u);
+	   refTable [i] = std::complex<double> (0, 0);
 
 	for (i = 1; i <= params. get_carriers () / 2; i ++) {
 	   Phi_k =  get_Phi (i);
-	   refTable [i] = std::complex<float> (cos (Phi_k), sin (Phi_k));
+	   refTable [i] = std::complex<double> (cos (Phi_k), sin (Phi_k));
 	   Phi_k = get_Phi (-i);
-	   refTable [T_u - i] = std::complex<float> (cos (Phi_k), sin (Phi_k));
+	   refTable [T_u - i] = std::complex<double> (cos (Phi_k), sin (Phi_k));
 	}
 //
 //	prepare a table for the coarse frequency synchronization
 //	can be a static one, actually, we are only interested in
 //	the ones with a null
-	for (i = 1; i <= diff_length; i ++) 
-	   phaseDifferences [i - 1] = abs (arg (refTable [(T_u + i) % T_u] *
-                                 conj (refTable [(T_u + i + 1) % T_u])));
+	for (i = 0; i < diff_length; i ++) 
+	   phaseDifferences [i] = abs (arg (refTable [(T_u + i) % T_u] *
+                                       conj (refTable [(T_u + i + 1) % T_u])));
 }
 
 	phaseReference::~phaseReference (void) {
@@ -84,15 +83,17 @@ float	Phi_k;
   *	looking for.
   */
 
-int32_t	phaseReference::findIndex (std::vector <std::complex<float>> v,
+int32_t	phaseReference::findIndex (std::vector <std::complex<double>> v,
 	                           int threshold) {
 int32_t	i;
 int32_t	maxIndex	= -1;
-float	sum		= 0;
-float	Max		= -1000;
-float	lbuf [T_u];
+double	sum		= 0;
+double	Max		= -1000;
+double	lbuf [T_u];
 
-	memcpy (fft_buffer, v. data (), T_u * sizeof (std::complex<float>));
+	for (i = 0; i < T_u; i ++)
+	   fft_buffer [i] = v [i];
+
 	my_fftHandler. do_FFT ();
 //
 //	into the frequency domain, now correlate
@@ -104,7 +105,7 @@ float	lbuf [T_u];
   *	We compute the average and the max signal values
   */
 	for (i = 0; i < T_u; i ++) {
-	   lbuf [i] = jan_abs (fft_buffer [i]);
+	   lbuf [i] = abs (fft_buffer [i]);
 	   sum	+= lbuf [i];
 	   if (lbuf [i] > Max) {
 	      maxIndex = i;
@@ -137,13 +138,17 @@ float	lbuf [T_u];
 //	In previous versions we looked
 //	at the "weight" of the positive and negative carriers in the
 //	fft, but that did not work too well.
+//
+//	an approach that works fine is to correlate the phasedifferences
+//	between subsequent carriers
 #define	SEARCH_RANGE	(2 * 35)
-int16_t	phaseReference::estimate_CarrierOffset (std::vector<std::complex<float>> v) {
-int16_t	i, j, index = 100;
-float	computedDiffs [SEARCH_RANGE + diff_length + 1];
+int16_t	phaseReference::estimate_CarrierOffset (std::vector<std::complex<double>> v) {
+int16_t	i, j, index_1 = 100, index_2 = 100;
+double	computedDiffs [SEARCH_RANGE + diff_length + 1];
 
-	memcpy (fft_buffer, v. data (), T_u * sizeof (std::complex<float>));
-	my_fftHandler. do_FFT ();
+	for (int i = 0; i < T_u; i ++)
+	   fft_buffer [i] = v [i];
+	my_fftHandler. do_FFT();
 
 	for (i = T_u - SEARCH_RANGE / 2;
 	     i < T_u + SEARCH_RANGE / 2 + diff_length; i ++) 
@@ -151,22 +156,35 @@ float	computedDiffs [SEARCH_RANGE + diff_length + 1];
 	      abs (arg (fft_buffer [i % T_u] * conj (fft_buffer [(i + 1) % T_u])));
 
 	float	Mmin = 1000;
-	for (i = T_u - SEARCH_RANGE /2;
+	float	Mmax = 10;
+	float	avg	= 0;
+	for (i = T_u - SEARCH_RANGE / 2;
 	     i < T_u + SEARCH_RANGE / 2; i ++) {
-	   float sum = 0;
+	   float sum_1 = 0;
+	   float sum_2 = 0;
 
-	   for (j = 1; j < diff_length; j ++)
-	      if (phaseDifferences [j - 1] < 0.1)
-	         sum += computedDiffs [i - (T_u - SEARCH_RANGE / 2) + j];
-	   if (sum < Mmin) {
-	      Mmin = sum;
-	      index = i;
+	   for (j = 0; j < diff_length; j ++)
+	      if (abs (phaseDifferences [j]) < 0.01)
+	         sum_1 += abs (computedDiffs [i - (T_u - SEARCH_RANGE / 2) + j]);
+	   if (sum_1 < Mmin) {
+	      Mmin = sum_1;
+	      index_1 = i;
+	   }
+
+	   for (j = 0; j < diff_length; j ++)
+	      sum_2 += phaseDifferences [j] *
+	               computedDiffs [i - (T_u - SEARCH_RANGE / 2) + j];
+	   avg += sum_2;
+	   if (sum_2 > Mmax) {
+	      Mmax = sum_2;
+	      index_2 = i;
 	   }
 	}
-	
-	return index - T_u; 
+
+//	fprintf (stderr, "index_1 %d, index_2 %d, ratio %f\n",
+//	              index_1 - T_u, index_2 - T_u, Mmax / (avg / SEARCH_RANGE));
+	return index_1 == index_2 ? index_1 - T_u : 100;
 }
-//
 //	NOT USED, just for some tests
 //	An alternative way to compute the small frequency offset
 //	is to look at the phase offset of subsequent carriers
@@ -175,13 +193,13 @@ float	computedDiffs [SEARCH_RANGE + diff_length + 1];
 //	The values are reasonably close to the values computed
 //	on the fly
 #define	LLENGTH	100
-float	phaseReference::estimate_FrequencyOffset (std::vector <std::complex<float>> v) {
+double	phaseReference::estimate_FrequencyOffset (std::vector <std::complex<double>> v) {
 int16_t	i;
-float pd	= 0;
+double pd	= 0;
 
 	for (i = - LLENGTH / 2 ; i < LLENGTH / 2; i ++) {
-	   std::complex<float> a1 = refTable [(T_u + i) % T_u] * conj (refTable [(T_u + i + 1) % T_u]);
-	   std::complex<float> a2 = fft_buffer [(T_u + i) % T_u] * conj (fft_buffer [(T_u + i + 1) % T_u]);
+	   std::complex<double> a1 = refTable [(T_u + i) % T_u] * conj (refTable [(T_u + i + 1) % T_u]);
+	   std::complex<double> a2 = fft_buffer [(T_u + i) % T_u] * conj (fft_buffer [(T_u + i + 1) % T_u]);
 	   pd += arg (a2) - arg (a1);
 	}
 	return pd / LLENGTH;

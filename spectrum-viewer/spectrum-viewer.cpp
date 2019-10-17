@@ -27,8 +27,8 @@
 
 	spectrumViewer::spectrumViewer	(RadioInterface	*mr,
 	                                 QSettings	*dabSettings,
-	                                 RingBuffer<std::complex<float>> *sbuffer,
-	                                 RingBuffer<std::complex<float>>* ibuffer) {
+	                                 RingBuffer<std::complex<double>> *sbuffer,
+	                                 RingBuffer<std::complex<double>>* ibuffer) {
 int16_t	i;
 QString	colorString	= "black";
 QColor	displayColor;
@@ -57,10 +57,10 @@ QColor	curveColor;
 	displayBuffer. resize (displaySize);
 	memset (displayBuffer. data(), 0, displaySize * sizeof (double));
 	this	-> spectrumSize	= 4 * displaySize;
-	spectrum		= (std::complex<float> *)fftwf_malloc (sizeof (fftwf_complex) * spectrumSize);
-        plan    = fftwf_plan_dft_1d (spectrumSize,
-                                    reinterpret_cast <fftwf_complex *>(spectrum),
-                                    reinterpret_cast <fftwf_complex *>(spectrum),
+	spectrum		= (std::complex<double> *)fftw_malloc (sizeof (fftw_complex) * spectrumSize);
+        plan    = fftw_plan_dft_1d (spectrumSize,
+                                    reinterpret_cast <fftw_complex *>(spectrum),
+                                    reinterpret_cast <fftw_complex *>(spectrum),
                                     FFTW_FORWARD, FFTW_ESTIMATE);
 	
 	plotgrid		= dabScope;
@@ -106,8 +106,8 @@ QColor	curveColor;
 }
 
 	spectrumViewer::~spectrumViewer() {
-	fftwf_destroy_plan (plan);
-	fftwf_free	(spectrum);
+	fftw_destroy_plan (plan);
+	fftw_free	(spectrum);
 	myFrame		-> hide();
 	delete		Marker;
 	delete		ourBrush;
@@ -146,7 +146,7 @@ int16_t	averageCount	= 5;
 	for (i = 0; i < spectrumSize; i ++)
 	   spectrum [i] = cmul (spectrum [i], Window [i]);
 
-	fftwf_execute (plan);
+	fftw_execute (plan);
 //
 //	and map the spectrumSize values onto displaySize elements
 	for (i = 0; i < displaySize / 2; i ++) {
@@ -234,7 +234,7 @@ bool	spectrumViewer::isHidden() {
 }
 
 void	spectrumViewer::showIQ	(int amount) {
-std::complex<float> Values [amount];
+std::complex<double> Values [amount];
 int16_t	i;
 int16_t	t;
 double	avg	= 0;
@@ -254,8 +254,8 @@ int	scopeWidth	= scopeSlider -> value();
 	myIQDisplay -> DisplayIQ (Values, scopeWidth / avg);
 }
 
-void	spectrumViewer:: showQuality (float q) {
+void	spectrumViewer:: showQuality (double q) {
 	if (!myFrame -> isHidden())
-	   quality_display -> display (q);
+	   quality_display -> display ((float)q);
 }
 

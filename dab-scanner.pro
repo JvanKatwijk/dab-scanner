@@ -130,7 +130,7 @@ isEmpty(GITHASHSTRING) {
 
 INCLUDEPATH	+= /usr/local/include
 INCLUDEPATH     += /usr/local/include /usr/include/qt4/qwt /usr/include/qt5/qwt /usr/include/qt4/qwt /usr/include/qwt /usr/local/qwt-6.1.4-svn/
-LIBS		+= -lfftw3f  -lusb-1.0 -ldl  #
+LIBS		+= -lfftw3  -lusb-1.0 -ldl  #
 LIBS		+= -lz
 #correct this for the correct path to the qwt6 library on your system
 #LIBS           += -lqwt

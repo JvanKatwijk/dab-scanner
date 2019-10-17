@@ -41,28 +41,28 @@ Q_OBJECT
 public:
 			sampleReader	(RadioInterface *mr,
 	                   	 deviceHandler *theRig,
-	                           RingBuffer<std::complex<float>> *spectrumBuffer);
+	                           RingBuffer<std::complex<double>> *spectrumBuffer);
 
 			~sampleReader		(void);
 		void	setRunning	(bool b);
-		float	get_sLevel	(void);
-		std::complex<float> getSample	(int32_t);
-	  void	getSamples	(std::complex<float> *v,
+		double	get_sLevel	(void);
+		std::complex<double>	getSample	(int32_t);
+	  void	getSamples	(std::complex<double> *v,
 	                           int16_t n, int32_t phase);
 private:
-		RadioInterface	*myRadioInterface;
-		deviceHandler	*theRig;
-	RingBuffer<std::complex<float>> *spectrumBuffer;
-	std::vector<std::complex<float>> localBuffer;
-		int32_t		localCounter;
-		int32_t		bufferSize;
-		int32_t		currentPhase;
-		std::complex<float>	*oscillatorTable;
-		std::atomic<bool>	running;
-		int32_t		bufferContent;
-		float		sLevel;
-		int32_t		sampleCount;
-	  int32_t		corrector;
+	RadioInterface	*myRadioInterface;
+	deviceHandler	*theRig;
+	RingBuffer<std::complex<double>> *spectrumBuffer;
+	std::vector<std::complex<double>> localBuffer;
+	int32_t		localCounter;
+	int32_t		bufferSize;
+	int32_t		currentPhase;
+	std::complex<double>	*oscillatorTable;
+	std::atomic<bool>	running;
+	int32_t		bufferContent;
+	double		sLevel;
+	int32_t		sampleCount;
+	int32_t		corrector;
 signals:
 	void		show_Corrector	(int);
 	void		show_Spectrum	(int);

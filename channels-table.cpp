@@ -24,7 +24,7 @@
 #include	"band-handler.h"
 #include	<QHeaderView>
 #include	<QString>
-#include <QDomDocument>
+#include	<QDomDocument>
 #include	<QMessageBox>
 #include	"radio.h"
 

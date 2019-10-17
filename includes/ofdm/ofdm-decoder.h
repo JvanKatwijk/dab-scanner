@@ -48,13 +48,13 @@ public:
 		ofdmDecoder		(RadioInterface *,
 	                                 uint8_t,
 	                                 int16_t,
-	                                 RingBuffer<std::complex <float>> *);
+	                                 RingBuffer<std::complex <double>> *);
 
 		~ofdmDecoder		(void);
-	void	processBlock_0		(std::vector<std::complex<float> >);
-	void	decode			(std::vector<std::complex<float> >,
+	void	processBlock_0		(std::vector<std::complex<double> >);
+	void	decode			(std::vector<std::complex<double> >,
                                          int32_t n, int16_t *);
-	void	decode_2		(std::vector<std::complex<float> >,
+	void	decode_2		(std::vector<std::complex<double> >,
                                          int32_t n, int16_t *);
 	void	stop			(void);
 	void	reset			(void);
@@ -64,23 +64,23 @@ private:
         fftHandler      my_fftHandler;
         interLeaver     myMapper;
 
-        RingBuffer<std::complex<float>> *iqBuffer;
-        float           computeQuality  (std::complex<float> *);
+        RingBuffer<std::complex<double>> *iqBuffer;
+        double		computeQuality  (std::complex<double> *);
         int32_t         T_s;
         int32_t         T_u;
         int32_t         T_g;
         int32_t         nrBlocks;
         int32_t         carriers;
-        std::vector<complex<float>>     phaseReference;
+        std::vector<complex<double>>     phaseReference;
         std::vector<int16_t>            ibits;
-        std::complex<float>     *fft_buffer;
+        std::complex<double>     *fft_buffer;
         phaseTable      *phasetable;
         int32_t         blockIndex;
 	int16_t		maxSignal;
 
 signals:
 	void		showIQ		(int);
-	void		showQuality	(float);
+	void		showQuality	(double);
 };
 
 #endif

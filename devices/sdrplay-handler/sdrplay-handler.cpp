@@ -517,6 +517,8 @@ int	lnaState	= lnaGainSetting -> value();
 	if (err != mir_sdr_Success)
 	   fprintf (stderr, "error = %s\n",
 	                errorCodes (err). toLatin1(). data());
+	err		= my_mir_sdr_DCoffsetIQimbalanceControl (1, 0);
+	
 	running. store (true);
 	return true;
 }

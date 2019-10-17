@@ -38,7 +38,7 @@ class phaseTable {
 public:
 		phaseTable 	(int16_t);
 		~phaseTable	(void);
-	float	get_Phi		(int32_t);
+	double	get_Phi		(int32_t);
 private:
 
 	struct phasetableElement	*currentTable;

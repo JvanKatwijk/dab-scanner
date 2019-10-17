@@ -34,12 +34,12 @@ public:
 		TII_Detector	(uint8_t dabMode, int16_t);
 		~TII_Detector();
 	void	reset();
-	void	addBuffer	(std::vector<std::complex<float>>);
+	void	addBuffer	(std::vector<std::complex<double>>);
 	std::vector<int>	processNULL();
 
 private:
-	void			collapse	(std::complex<float> *,
-	                                         float *);
+	void			collapse	(std::complex<double> *,
+	                                         double *);
 	int16_t			depth;
 	uint8_t			invTable [256];
 	dabParams		params;
@@ -47,9 +47,9 @@ private:
 	int16_t			T_u;
 	int16_t			carriers;
 	bool			ind;
-	std::complex<float>	*fft_buffer;
-	std::vector<complex<float> >	theBuffer;
-	std::vector<float>	window;
+	std::complex<double>	*fft_buffer;
+	std::vector<complex<double> >	theBuffer;
+	std::vector<double>	window;
 	int16_t		fillCount;
 };
 

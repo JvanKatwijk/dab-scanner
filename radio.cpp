@@ -91,8 +91,8 @@ QString h;
 	isSynced	= false;
 	tii_Value. resize  (0);
 
-	spectrumBuffer	= new RingBuffer<std::complex<float>> (2 * 32768);
-	iqBuffer	= new RingBuffer<std::complex<float>> (2 * 1536);
+	spectrumBuffer	= new RingBuffer<std::complex<double>> (2 * 32768);
+	iqBuffer	= new RingBuffer<std::complex<double>> (2 * 1536);
 ///////////////////////////////////////////////////////////////////////////
 //	The settings are done, now creation of the GUI parts
 	setupUi (this);
@@ -136,7 +136,7 @@ QString h;
 //	timer for channel settings
 	channelTimer. setSingleShot (true);
 	channelTimer. setInterval   (channelDelay -> value () * 1000);
-	channelNumber		= 0;
+	channelNumber. store (0);
 
 	connect (countrySelector, SIGNAL (clicked (void)),
 	         this, SLOT (handle_countrySelect ()));
@@ -156,7 +156,6 @@ QString h;
 }
 //
 void	RadioInterface:: startScanning (void) {
-	
 	channelNumber. store (0);
 	if (go_continuously) {
 	   int nrChannels	= theBand -> channels ();
@@ -729,7 +728,7 @@ void    RadioInterface::showSpectrum    (int32_t amount) {
                                             theDevice -> getVFOFrequency());
 }
 
-void    RadioInterface::showQuality     (float q) {
+void    RadioInterface::showQuality     (double q) {
         if (running. load())
            my_spectrumViewer    -> showQuality (q);
 }

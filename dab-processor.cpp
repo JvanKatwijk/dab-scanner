@@ -39,9 +39,9 @@
 	                                 uint8_t	dabMode,
 	                                 int16_t	threshold,
 	                                 int16_t	diff_length,
-	                                 RingBuffer<std::complex<float>> *
+	                                 RingBuffer<std::complex<double>> *
                                                                  spectrumBuffer,
-                                         RingBuffer<std::complex<float>> *
+                                         RingBuffer<std::complex<double>> *
                                                                  iqBuffer):
 	                                 params (dabMode),
 	                                 myReader (mr,
@@ -112,7 +112,7 @@ int32_t		startIndex;
 int32_t		i;
 int		attempts;
 
-std::complex<float>	FreqCorr;
+std::complex<double>	FreqCorr;
 timeSyncer	myTimeSyncer (&myReader);
 
 	attempts	= 0;
@@ -140,7 +140,7 @@ notSynced:
 	         break;                 // yes, we are ready
 
 	      case NO_DIP_FOUND:
-	         if (++ attempts >= 5) {
+	         if (++ attempts >= 20) {
 	            emit (noSignal_Found ());
 	            attempts = 0;
 	         }
@@ -187,7 +187,7 @@ Check_endofNULL:
 	                   findIndex (ofdmBuffer, 4 * threshold);
 	   if (startIndex < 0) { // no sync, try again
 	      if (!correctionNeeded) {
-	         fprintf (stderr, "%d\n", startIndex);
+//	         fprintf (stderr, "%d\n", startIndex);
 	      }
 	      goto notSynced;
 	   }
@@ -202,7 +202,7 @@ SyncOnPhase:
   */
 	   memmove (ofdmBuffer. data (),
 	            &((ofdmBuffer. data ()) [startIndex]),
-	                  (T_u - startIndex) * sizeof (std::complex<float>));
+	                  (T_u - startIndex) * sizeof (std::complex<double>));
 	   ofdmBufferIndex	= T_u - startIndex;
 
 //Block_0:
@@ -241,7 +241,7 @@ SyncOnPhase:
   *	between the samples in the cyclic prefix and the
   *	corresponding samples in the datapart.
   */
-	   FreqCorr	= std::complex<float> (0, 0);
+	   FreqCorr	= std::complex<double> (0, 0);
 	   for (int ofdmSymbolCount = 1;
 	        ofdmSymbolCount < nrBlocks; ofdmSymbolCount ++) {
 	      std::vector<int16_t> ibits;
@@ -270,12 +270,12 @@ SyncOnPhase:
 	   myReader. getSamples (ofdmBuffer. data (),
 	                         T_null, coarseOffset);
 
-	   float sum    = 0;
+	   double sum    = 0;
 	   for (i = 0; i < T_null; i ++)
 	      sum += abs (ofdmBuffer [i]);
 	   sum /= T_null;
 
-	   static       float snr       = 0;
+	   static    float snr       = 0;
 	   snr = 0.9 * snr +
 	         0.1 * 20 * log10 ((myReader. get_sLevel () + 0.005) / sum);
 	   static int ccc       = 0;

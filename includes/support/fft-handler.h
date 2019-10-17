@@ -24,16 +24,16 @@
 #ifndef _COMMON_FFT
 #define _COMMON_FFT
 
-//  Simple wrapper around fftwf
+//  Simple wrapper around fftw
 #include	"dab-constants.h"
 #include	"dab-params.h"
 
-#define FFTW_MALLOC		fftwf_malloc
-#define FFTW_PLAN_DFT_1D	fftwf_plan_dft_1d
-#define FFTW_DESTROY_PLAN	fftwf_destroy_plan
-#define FFTW_FREE		fftwf_free
-#define FFTW_PLAN		fftwf_plan
-#define FFTW_EXECUTE		fftwf_execute
+#define FFTW_MALLOC		fftw_malloc
+#define FFTW_PLAN_DFT_1D	fftw_plan_dft_1d
+#define FFTW_DESTROY_PLAN	fftw_destroy_plan
+#define FFTW_FREE		fftw_free
+#define FFTW_PLAN		fftw_plan
+#define FFTW_EXECUTE		fftw_execute
 #include    <fftw3.h>
 
 /*
@@ -44,27 +44,14 @@ class   fftHandler {
 public:
 		fftHandler	(uint8_t);
         	~fftHandler	(void);
-        std::complex<float>  *getVector (void);
+        std::complex<double>  *getVector (void);
         void		do_FFT (void);
         void		do_IFFT (void);
     private:
 	dabParams	p;
         int32_t		fftSize;
-        std::complex<float>  *vector;
+        std::complex<double>  *vector;
         FFTW_PLAN   plan;
-};
-
-class   common_ifft {
-public:
-		common_ifft (int32_t);
-        	~common_ifft(void);
-        std::complex<float>  *getVector(void);
-        void	do_IFFT(void);
-    private:
-        int32_t	fft_size;
-        std::complex<float>  *vector;
-        FFTW_PLAN   plan;
-        void        Scale(std::complex<float> *);
 };
 #endif
 

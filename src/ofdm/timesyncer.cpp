@@ -32,27 +32,27 @@
 	timeSyncer::~timeSyncer	(void) {}
 
 int	timeSyncer::sync (int T_null, int T_F) {
-float	cLevel		= 0;
+double	cLevel		= 0;
 int	counter		= 0;
-float	envBuffer       [syncBufferSize];
+double	envBuffer       [syncBufferSize];
 const
 int	syncBufferMask	= syncBufferSize - 1;
 int	i;
 
 	syncBufferIndex = 0;
 	for (i = 0; i < C_LEVEL_SIZE; i ++) {
-	   std::complex<float> sample        = myReader -> getSample (0);
-	   envBuffer [syncBufferIndex]       = jan_abs (sample);
+	   std::complex<double> sample        = myReader -> getSample (0);
+	   envBuffer [syncBufferIndex]       = abs (sample);
 	   cLevel                            += envBuffer [syncBufferIndex];
 	   syncBufferIndex ++;
 	}
 //SyncOnNull:
 	counter      = 0;
 	while (cLevel / C_LEVEL_SIZE  > 0.50 * myReader -> get_sLevel ()) {
-	   std::complex<float> sample        =
+	   std::complex<double> sample        =
 	         myReader -> getSample (0);
 //	         myReader. getSample (coarseOffset + fineCorrector);
-	   envBuffer [syncBufferIndex] = jan_abs (sample);
+	   envBuffer [syncBufferIndex] = abs (sample);
 //      update the levels
 	   cLevel += envBuffer [syncBufferIndex] -
 	        envBuffer [(syncBufferIndex - C_LEVEL_SIZE) & syncBufferMask];
@@ -69,9 +69,9 @@ int	i;
 	counter      = 0;
 //SyncOnEndNull:
 	 while (cLevel / C_LEVEL_SIZE < 0.75 * myReader -> get_sLevel ()) {
-	   std::complex<float> sample =
+	   std::complex<double> sample =
 	           myReader -> getSample (0);
-	   envBuffer [syncBufferIndex] = jan_abs (sample);
+	   envBuffer [syncBufferIndex] = abs (sample);
 //      update the levels
 	   cLevel += envBuffer [syncBufferIndex] -
 	         envBuffer [(syncBufferIndex - C_LEVEL_SIZE) & syncBufferMask];

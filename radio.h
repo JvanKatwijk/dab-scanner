@@ -82,8 +82,8 @@ private:
 	QTimer		channelTimer;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
-	RingBuffer<std::complex<float>>  *spectrumBuffer;
-	RingBuffer<std::complex<float>>  *iqBuffer;
+	RingBuffer<std::complex<double>>  *spectrumBuffer;
+	RingBuffer<std::complex<double>>  *iqBuffer;
 
 	spectrumViewer	*my_spectrumViewer;
 	std::vector<int>	tii_Value;
@@ -114,7 +114,7 @@ public slots:
 	void		show_ficSuccess		(bool);
 	void            showSpectrum            (int);
         void            showIQ                  (int);
-        void            showQuality             (float);
+        void            showQuality             (double);
 
 //	Somehow, these must be connected to the GUI
 private slots:

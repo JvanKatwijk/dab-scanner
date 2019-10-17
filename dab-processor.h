@@ -51,8 +51,8 @@ public:
 	                         uint8_t,
 	                         int16_t,
 	                         int16_t,
-	                         RingBuffer<std::complex<float>> *,
-	                         RingBuffer<std::complex<float>> *);
+	                         RingBuffer<std::complex<double>> *,
+	                         RingBuffer<std::complex<double>> *);
 		~dabProcessor	(void);
 	void		reset			(void);
 	void		start			(int);
@@ -98,7 +98,7 @@ private:
 	int32_t		coarseOffset;
 
 	bool		correctionNeeded;
-	std::vector<std::complex<float>	>ofdmBuffer;
+	std::vector<std::complex<double>	>ofdmBuffer;
 	uint32_t	ofdmBufferIndex;
 	uint32_t	ofdmSymbolCount;
 	phaseReference	phaseSynchronizer;
