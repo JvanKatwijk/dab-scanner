@@ -72,7 +72,8 @@ private:
 	uint8_t		dabBand;
 	uint8_t		dabMode;
 	uint8_t		isSynced;
-	int16_t		threshold;
+	int16_t		threshold_1;
+	int16_t		threshold_2;
 	int16_t		diff_length;
 	bandHandler	*theBand;
 	int		channels;

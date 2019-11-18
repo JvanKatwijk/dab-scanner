@@ -171,8 +171,8 @@ std::complex<double> conjVector [T_u];
 	   double ab1	= abs (r1);
 //	split the real and the imaginary part and scale it
 //	we make the bits into softbits in the range -127 .. 127
-	   ibits [i]		= (int16_t)( - real (r1) / ab1 * 1024.0);
-	   ibits [carriers + i] = (int16_t)( - imag (r1) / ab1 * 1024.0);
+	   ibits [i]		= (int16_t)( - real (r1) / ab1 * 2048.0);
+	   ibits [carriers + i] = (int16_t)( - imag (r1) / ab1 * 2048.0);
 	}
 
 	for (i = 0; i < T_u; i ++)

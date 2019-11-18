@@ -51,6 +51,7 @@ public:
 	                         uint8_t,
 	                         int16_t,
 	                         int16_t,
+	                         int16_t,
 	                         RingBuffer<std::complex<double>> *,
 	                         RingBuffer<std::complex<double>> *);
 		~dabProcessor	(void);
@@ -63,16 +64,16 @@ public:
         int32_t		get_ensembleId          (void);
         QString		get_ensembleName        (void);
 	bool            is_audioService         (QString &s);
-        bool            is_packetService        (QString &s);
-        void            dataforAudioService     (QString &,
-                                                     audiodata *, int16_t);
-        void            dataforPacketService    (QString &,
-                                                     packetdata *, int16_t);
-        void            set_audioChannel        (audiodata *,
-                                                     RingBuffer<int16_t> *);
-        void            set_dataChannel         (packetdata *,
-                                                     RingBuffer<uint8_t> *);
-        uint8_t         get_ecc();
+	bool            is_packetService        (QString &s);
+	void            dataforAudioService     (QString &,
+	                                         audiodata *, int16_t);
+	void            dataforPacketService    (QString &,
+	                                         packetdata *, int16_t);
+//	void            set_audioChannel        (audiodata *,
+//	                                         RingBuffer<int16_t> *);
+//	void            set_dataChannel         (packetdata *,
+//	                                         RingBuffer<uint8_t> *);
+	uint8_t         get_ecc();
 	void		clearEnsemble		(void);
 private:
 	deviceHandler	*theDevice;
@@ -83,8 +84,6 @@ private:
 	RadioInterface	*myRadioInterface;
 	ficHandler	my_ficHandler;
 	int32_t		frequency;
-	int16_t		attempts;
-	int16_t		startFailures;
 	int32_t		T_null;
 	int32_t		T_u;
 	int32_t		T_s;
@@ -94,7 +93,8 @@ private:
 	int32_t		carriers;
 	int32_t		carrierDiff;
 	int16_t		fineOffset;
-	int		threshold;
+	int		threshold_1;
+	int		threshold_2;
 	int32_t		coarseOffset;
 
 	bool		correctionNeeded;

@@ -216,17 +216,20 @@ class	Cluster {
 	   std::vector<uint16_t> services;
 	   bool	inUse;
 	   int	announcing;
+	   int	clusterId;
 	Cluster () {
 	   flags	= 0;
 	   services. resize (0);
 	   inUse	= false;
 	   announcing	= 0;
+	   clusterId	= 0;
 	}
 	~Cluster () {
 	   flags	= 0;
 	   services. resize (0);
 	   inUse	= false;
 	   announcing	= 0;
+	   clusterId	= 0;
 	}
 };
 
@@ -246,11 +249,18 @@ public:
 	   }
 	}
 	Cluster	*getCluster (int16_t clusterId) {
-	   if (clusterTable [clusterId]. inUse)
-	      return &(clusterTable [clusterId]);
+	   for (int i = 0; i < 64; i ++)
+              if ((clusterTable [i]. inUse) &&
+                  (clusterTable [i]. clusterId == clusterId))
+                 return &(clusterTable [i]);
 
-	   clusterTable [clusterId]. inUse	= true;
-	   return &(clusterTable [clusterId]);
+           for (int i = 0; i < 64; i ++) {
+              if (!clusterTable [i]. inUse) {
+                 clusterTable [i]. inUse = true;
+                 clusterTable [i]. clusterId = clusterId;
+                 return &(clusterTable [i]);
+              }
+           }
 	}
 	subChannelDescriptor    subChannels [64];
 	serviceComponentDescriptor      serviceComps [64];

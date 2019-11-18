@@ -37,7 +37,8 @@
 	dabProcessor::dabProcessor	(RadioInterface	*mr,
 	                                 deviceHandler	*theDevice,
 	                                 uint8_t	dabMode,
-	                                 int16_t	threshold,
+	                                 int16_t	threshold_1,
+	                                 int16_t	threshold_2,
 	                                 int16_t	diff_length,
 	                                 RingBuffer<std::complex<double>> *
                                                                  spectrumBuffer,
@@ -59,7 +60,8 @@
 
 	this	-> myRadioInterface	= mr;
 	this	-> theDevice		= theDevice;
-	this	-> threshold		= threshold;
+	this	-> threshold_1		= threshold_1;
+	this	-> threshold_2		= threshold_2;
 	this	-> T_null		= params. get_T_null ();
 	this	-> T_s			= params. get_T_s ();
 	this	-> T_u			= params. get_T_u ();
@@ -75,7 +77,6 @@
 	ofdmSymbolCount			= 0;
 	fineOffset			= 0;	
 	correctionNeeded		= true;
-	attempts			= 0;
 	my_TII_Detector. reset();
 	myReader. setRunning  (false);
 }
@@ -94,7 +95,6 @@
 
 void	dabProcessor::start (int frequency) {
 	this		-> frequency	= frequency;
-	startFailures	= 0;
 	my_ficHandler.  reset ();
 	this -> QThread::start ();
 }
@@ -110,14 +110,20 @@ void	dabProcessor::start (int frequency) {
 void	dabProcessor::run	(void) {
 int32_t		startIndex;
 int32_t		i;
-int		attempts;
+int		false_dipStarts;
+int		false_dipEnds;
+int		false_frameStarts;
 
 std::complex<double>	FreqCorr;
 timeSyncer	myTimeSyncer (&myReader);
+std::vector<int16_t> ibits (2 * params. get_carriers ());
 
-	attempts	= 0;
+
 	theDevice  -> resetBuffer ();
 	theDevice	-> restartReader (frequency);
+	false_dipStarts         = 0;
+        false_dipEnds           = 0;
+        false_frameStarts       = 0;
 	coarseOffset	= 0;
 	fineOffset 	  = 0;
 	correctionNeeded	= true;
@@ -140,31 +146,38 @@ notSynced:
 	         break;                 // yes, we are ready
 
 	      case NO_DIP_FOUND:
-	         if (++ attempts >= 20) {
+	         if (++ false_dipStarts >= 25) {
 	            emit (noSignal_Found ());
-	            attempts = 0;
+	            false_dipStarts	= 0;
+	            false_dipEnds	= 0;
+	            false_frameStarts	= 0;
 	         }
 	         goto notSynced;
 
 	      default:                  // does not happen
 	      case NO_END_OF_DIP_FOUND:
-	         goto notSynced;
+	         if (++ false_dipEnds >= 25) {
+	            emit (noSignal_Found ());
+	            false_dipStarts     = 0;
+                    false_dipEnds       = 0;
+                    false_frameStarts   = 0;
+	            goto notSynced;
+	         }
 	   }
 	  
 
-	myReader. getSamples (ofdmBuffer. data (),
-	                        T_u, coarseOffset + fineOffset);
+	   myReader. getSamples (ofdmBuffer. data (),
+	                         T_u, coarseOffset + fineOffset);
 //
 //	and then, call upon the phase synchronizer to verify/compute
 //	the real "first" sample
-	   startIndex = phaseSynchronizer. findIndex (ofdmBuffer, threshold);
+	   startIndex = phaseSynchronizer. findIndex (ofdmBuffer, threshold_1);
 	   if (startIndex < 0) { // no sync, try again
-	      if (!correctionNeeded) {
-	      }
-	      startFailures ++;
-	      if (startFailures > 5) {
+	      if (++false_frameStarts >= 25) {
 	         emit (noSignal_Found ());
-	         startFailures = 0;
+	         false_dipStarts	= 0;
+	         false_dipEnds		= 0;
+	         false_frameStarts	= 0;
 	      }
 	      goto notSynced;
 	   }
@@ -184,18 +197,19 @@ Check_endofNULL:
   *	correlation is an order higher than it was when not yet synced.
   */
 	   startIndex = phaseSynchronizer.
-	                   findIndex (ofdmBuffer, 4 * threshold);
+	                   findIndex (ofdmBuffer, threshold_2);
 	   if (startIndex < 0) { // no sync, try again
 	      if (!correctionNeeded) {
 //	         fprintf (stderr, "%d\n", startIndex);
 	      }
 	      goto notSynced;
 	   }
-//         goodFrames ++;
 //         fprintf (stderr, "startIndex = %d\n", startIndex);
 
 SyncOnPhase:
-	   startFailures	= 0;
+	   false_dipStarts	= 0;
+	   false_dipEnds	= 0;
+	   false_frameStarts	= 0;
 /**
   *	Once here, we are synchronized, we need to copy the data we
   *	used for synchronization for block 0
@@ -244,8 +258,6 @@ SyncOnPhase:
 	   FreqCorr	= std::complex<double> (0, 0);
 	   for (int ofdmSymbolCount = 1;
 	        ofdmSymbolCount < nrBlocks; ofdmSymbolCount ++) {
-	      std::vector<int16_t> ibits;
-	      ibits. resize (2 * params. get_carriers ());
 	      myReader. getSamples (ofdmBuffer. data (),
 	                              T_s, coarseOffset + fineOffset);
 	      for (i = (int)T_u; i < (int)T_s; i ++)

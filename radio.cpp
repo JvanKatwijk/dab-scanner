@@ -72,7 +72,9 @@ QString h;
 	this	-> theBand	= theBand;
 	channelTable		= NULL;
 	running. store (false);
-	threshold	=
+	threshold_1	=
+	           dabSettings -> value ("threshold", 3). toInt ();
+	threshold_2	=
 	           dabSettings -> value ("threshold", 3). toInt ();
 //
 	diff_length	=
@@ -371,7 +373,8 @@ void	RadioInterface::selectDevice (QString s) {
 	my_dabProcessor	= new dabProcessor (this,
 	                                    theDevice,
 	                                    dabMode,
-	                                    threshold,
+	                                    threshold_1,
+	                                    threshold_2,
 	                                    diff_length,
 	                                    spectrumBuffer,
 	                                    iqBuffer);
@@ -451,7 +454,8 @@ QString reportName;
 	   my_dabProcessor	= new dabProcessor (this,
 	                                            theDevice,
 	                                            dabMode,
-	                                            threshold,
+	                                            threshold_1,
+	                                            threshold_2,
 	                                            diff_length,
 	                                            spectrumBuffer,
                                                     iqBuffer);
@@ -468,6 +472,7 @@ QString reportName;
 	   return;
 	continuousButton	-> hide ();
 	reportName	= find_fileName ();
+	fprintf (stderr, "reportname = %s\n", reportName. toLatin1 (). data ());
 	fileP	= fopen (reportName. toUtf8(). data(), "w");
 	if (fileP == nullptr) {
 	   fprintf (stderr, "Could not open file %s\n",
@@ -601,7 +606,8 @@ QString	summaryName;
 	   my_dabProcessor	= new dabProcessor (this,
 	                                    theDevice,
 	                                    dabMode,
-	                                    threshold,
+	                                    threshold_1,
+	                                    threshold_2,
 	                                    diff_length,
 	                                    spectrumBuffer,
                                             iqBuffer);
@@ -626,11 +632,17 @@ QString	summaryName;
 	   return;
 	}
 
-	summaryName	= reportName;
-	if (summaryName. indexOf ("dab-scanner") != -1)
-	   summaryName. replace ("dab-scanner", "dab-summary");
-	else
-	   summaryName. append ("-summary.txt");
+	QString timeString = QDate::currentDate (). toString ();
+        timeString. append ("-");
+        timeString. append (QTime::currentTime (). toString ());
+        localTimeDisplay        -> setText (timeString);
+        QString theTime = localTimeDisplay -> text ();
+        theTime. replace (":", "-");
+        theTime. replace (" ", "-");
+        summaryName = dirName;
+        summaryName. append ("/dab-summary-");
+        summaryName. append (theTime);
+        summaryName. append (".txt");
 	fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
 	summaryP	= fopen (summaryName. toUtf8(). data(), "w");
 	if (summaryP == nullptr) {
@@ -685,7 +697,9 @@ QString timeString = QDate::currentDate (). toString ();
 	localTimeDisplay	-> setText (timeString);
 	QString theTime	= localTimeDisplay -> text ();
 	theTime. replace (":", "-");
+	theTime. replace (" ", "-");
 	QString suggestedFileName = dirName;
+	fprintf (stderr, "dirName = %s\n", dirName. toLatin1 (). data ());
 	suggestedFileName. append ("./dab-scanner-");
 	suggestedFileName. append (theTime);
 	suggestedFileName. append (".txt");
@@ -695,11 +709,7 @@ QString timeString = QDate::currentDate (). toString ();
 	                                        tr ("Save file ..."),
 	                                        suggestedFileName,
 	                                        tr ("Text (*.txt)"));
-	int ind		= fileName. lastIndexOf ("/");
 	fileName	= QDir::toNativeSeparators (fileName);
-	dirName		= fileName;
-	dirName. remove (ind, 100);
-	dabSettings	-> setValue ("dirName", dirName);
 	return fileName;
 }
 

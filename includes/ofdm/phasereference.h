@@ -50,6 +50,7 @@ private:
 	dabParams	params;
 	fftHandler	my_fftHandler;
 	std::vector<double> phaseDifferences;
+	int		shiftFactor;
 	int16_t		threshold;
 	int16_t		diff_length;
 	int32_t		T_u;
