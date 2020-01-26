@@ -41,7 +41,7 @@
 #include        "band-handler.h"
 #include	"channels-table.h"
 #include	"ringbuffer.h"
-
+#include	"output-table.h"
 class	QSettings;
 class	virtualInput;
 class	spectrumViewer;
@@ -61,6 +61,7 @@ public:
 
 private:
 	QSettings	*dabSettings;
+	outputTable	theTable;
 	FILE		*fileP;
 	FILE		*summaryP;
 	QString		dirName;
@@ -127,6 +128,7 @@ private slots:
 
 	void		stopControlled		(void);
 	void		stopContinuous		(void);
+	void		handle_showTable	(void);
 };
 #endif
 

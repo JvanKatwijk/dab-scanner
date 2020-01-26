@@ -5,7 +5,7 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.7
+TARGET		= dab-scanner-1.75
 
 QT		+= widgets xml
 CONFIG		-= console
@@ -49,6 +49,7 @@ INCLUDEPATH += . \
 HEADERS += ./radio.h \
 	   ./dab-processor.h \
 	   ./channels-table.h \
+	   ./output-table.h \
 	   ./includes/dab-constants.h \
 	   ./includes/country-codes.h \
 	   ./includes/ofdm/timesyncer.h \
@@ -84,6 +85,7 @@ SOURCES += ./main.cpp \
 	   ./radio.cpp \
 	   ./dab-processor.cpp \
 	   ./channels-table.cpp \
+	   ./output-table.cpp \
 	   ./src/ofdm/timesyncer.cpp \
 	   ./src/ofdm/sample-reader.cpp \
 	   ./src/ofdm/ofdm-decoder.cpp \
@@ -167,7 +169,7 @@ INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include/qt5/qwt
 INCLUDEPATH	+= /mingw32/include
 #INCLUDEPATH	+= /mingw32/include/qwt
 LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
-LIBS		+= -lfftw3f
+LIBS		+= -lfftw3
 LIBS		+= -lole32
 LIBS		+= -lwinpthread
 LIBS		+= -lwinmm
@@ -180,7 +182,6 @@ CONFIG		+= airspy
 CONFIG		+= dabstick
 CONFIG		+= sdrplay
 CONFIG		+= hackrf
-
 }
 
 #	devices

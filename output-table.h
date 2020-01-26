@@ -1,10 +1,11 @@
 #
 /*
- *    Copyright (C) 2019, 2020
+ *    Copyright (C) 2019
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
- *    Lazy Chair Computing
+ *    Lazy Chair Programming
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -16,45 +17,36 @@
  *    GNU General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public License
- *    along with dab-scanner; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+#ifndef	__OUTPUT_TABLE__
+#define	__OUTPUT_TABLE__
 
-#ifndef	__CHANNELS_TABLE__
-#define	__CHANNELS_TABLE__
-
-#include	<QSettings>
-#include	<QTableWidget>
-#include	<QtXml>
-#include	<QFile>
-#include	<QString>
+#include	<QWidget>
 #include	<QObject>
-#include	"band-handler.h"
+#include	<QScrollArea>
+#include	<QTableWidget>
+#include	<QStringList>
+#include	<QTableWidgetItem>
+#include	<QObject>
+#include	<QString>
 
 class	RadioInterface;
 
-class	channelsTable: public QObject {
+
+class	outputTable: QObject {
 Q_OBJECT
 public:
-	channelsTable	(RadioInterface *,
-	                 bandHandler *, QString);
-	~channelsTable	();
-QString	FileName	();
-void	show		();
-void	hide		();
-bool	channel		(int);
-bool	isHidden	();
-public	slots:
-       void            cellSelected            (int, int);
-
+		outputTable	(RadioInterface *);
+		~outputTable	();
+	void	show		();
+	void	hide		();
+	void	newEnsemble	(QString, QString, QString, QString, QString);
+	void	add_to_Ensemble	(QString, QString, QString, QString, QString);
 private:
-	QString		theName;
-	QSettings	*theSettings;
-	RadioInterface	*myRadioInterface;
-	bandHandler	*theBand;
-	QTableWidget	theTable;
-	bool		isVisible;
-	void		update		(QString, QString);
+	QScrollArea	*myWidget;
+	QTableWidget	*outputWidget;
+	int16_t		addRow	();
 };
 
 #endif

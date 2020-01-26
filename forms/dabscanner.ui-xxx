@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dabscanner</class>
+ <widget class="QMainWindow" name="dabscanner">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>443</width>
+    <height>325</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>dab-scanner 1.7</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="localTimeDisplay">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>120</y>
+      <width>161</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="syncedLabel">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>10</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>255</red>
+          <green>255</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="WindowText">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>190</red>
+          <green>190</green>
+          <blue>190</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indicator for time synchronization&lt;/p&gt;&lt;p&gt;Green means that the software recognizes that there are DAB frames, not necessarily that the software is able to decode the DAB stream.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="text">
+     <string>Sync</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="motLabel">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>0</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Synchronization indicator. Greem means sync is OK&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="snrDisplay">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>10</y>
+      <width>64</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;SNR display, shows the Signal/Noise ratio in the incoming signal. Measurement is by comparing the signal strength of the full signal to that of the null periods of the DAB signal.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="channelDelay">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>80</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Channel delay. Indicates the amount of time - in seconds - that a channel will be read for ensemble data.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="value">
+     <number>20</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="startButton">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>80</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touching this button will start the processing in &amp;quot;regular&amp;quot; mode. The program will scan for a given number of cycles and then be idle again. The number of cycles can be set by the cycle counter.&lt;br/&gt;&lt;/p&gt;&lt;p&gt;If you select this mode, the button for the &amp;quot;continuous mode&amp;quot; disappears.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>Start controlled</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="channelDisplay">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>170</y>
+      <width>71</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will display the name of the channel currently being investigated.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ensembleDisplay">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>170</y>
+      <width>171</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will show the name of the ensemble in the current channel (if any)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="serviceCountDisplay">
+    <property name="geometry">
+     <rect>
+      <x>330</x>
+      <y>170</y>
+      <width>61</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This field will tell the number of services found in the current ensemble.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="offsetDisplay">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>10</y>
+      <width>71</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Offset display. Shows the offset - in Hz - from the selected frequency needed to establish frequency synchronization.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::NoFrame</enum>
+    </property>
+    <property name="segmentStyle">
+     <enum>QLCDNumber::Flat</enum>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="ficSuccessDisplay">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>40</y>
+      <width>161</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The quality indicator for the decoding of the data in the FIC (&amp;quot;directory&amp;quot;) blocks in the&lt;/p&gt;&lt;p&gt;input stream. 100 is good.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="nrCycles">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>80</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cycle counter. The number here will show the amount of cycles still to be made by the scanning process.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="value">
+     <number>1</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="tii_Label">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>120</y>
+      <width>231</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="deviceSelector">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>6</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select a device. The software will wait until you have selected a device.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <item>
+     <property name="text">
+      <string>select device</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QPushButton" name="continuousButton">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>40</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Touching this button will set the software in &amp;quot;continuous mode&amp;quot;, it will run over the band until the button is touched for a second time or the program is terminated.&lt;/p&gt;&lt;p&gt;If you run this mode, the selector for &amp;quot;regular use&amp;quot; disappears.&lt;/p&gt;&lt;p&gt;In continuous mode, a table is made visible on which you can indicate that certain channels should be skipped in the scan. By double clicking on a table entry, the option will change from + to - and vv&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>start continuous</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="operationsLabel">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>220</y>
+      <width>201</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="spectrumSwitch">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>215</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>spectrum</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="countrySelector">
+    <property name="geometry">
+     <rect>
+      <x>173</x>
+      <y>40</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A skipfile is a file (xml format) specifying for each channel in the selected band whether&lt;/p&gt;&lt;p&gt;or not it should be a part of the scan when running in continuous mode.&lt;/p&gt;&lt;p&gt;At the start of the program, one may choose a file. If the file does not exist it will&lt;/p&gt;&lt;p&gt;be created upon program exit.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>select skiptable</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="skipfileName">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>260</y>
+      <width>401</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="copyrightLabel">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>41</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;DabScanner copyright:&lt;/p&gt;&lt;p&gt;J van Katwijk, Lazy Chair Computing. J.vanKatwijk@gmail.com&lt;/p&gt;&lt;p&gt;Copyright of the Qt toolkit used: the Qt Company&lt;/p&gt;&lt;p&gt;Copyright of the libraries used for SDRplay, rtl-sdr based sticks, AIRspy, limeSDR and Hackrf, portaudio, libsndfile and libsamplerate and libfftw3 to their developers&lt;/p&gt;&lt;p&gt;DabScanner  (an SDR-J program) is free software. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="text">
+     <string>©</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

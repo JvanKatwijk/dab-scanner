@@ -122,6 +122,7 @@ int     opt;
 	qDebug ("It is done\n");
 //	delete MyRadioInterface;
 	delete dabSettings;
+	return 1;
 }
 
 void	setTranslator (QString Language) {

@@ -146,6 +146,10 @@ void	channelsTable::hide () {
 	isVisible	= false;
 }
 
+bool	channelsTable::isHidden () {
+	return theTable. isHidden ();
+}
+
 bool	channelsTable::channel (int chNumber) {
 	QString s1 = theTable. item (chNumber, 1) -> text ();
 	return s1 == "+";

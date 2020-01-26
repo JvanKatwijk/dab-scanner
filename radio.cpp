@@ -40,6 +40,7 @@
 #include	"radio.h"
 #include	"band-handler.h"
 #include	"spectrum-viewer.h"
+#include	"dab_tables.h"
 #ifdef	HAVE_RTLSDR
 #include	"rtlsdr-handler.h"
 #endif
@@ -65,12 +66,13 @@
 	RadioInterface::RadioInterface (QSettings	*Si,
 	                                bandHandler	*theBand,
 	                                QWidget		*parent):
-	                                        QMainWindow (parent) {
+	                                        QMainWindow (parent),
+	                                        theTable (this) {
 QString h;
 
 	dabSettings		= Si;
 	this	-> theBand	= theBand;
-	channelTable		= NULL;
+	channelTable		= nullptr;
 	running. store (false);
 	threshold_1	=
 	           dabSettings -> value ("threshold", 3). toInt ();
@@ -202,7 +204,10 @@ void	RadioInterface::stopScanning (void) {
 	continuousButton	-> setText ("start continuous");
 	continuousButton	-> show ();
 	nrCycles		-> show ();
-	if (go_continuously && (channelTable != 0)) {
+	if (go_continuously && (channelTable != nullptr)) {
+	   disconnect (showTable, SIGNAL (clicked ()),
+	               this, SLOT (handle_showTable ()));
+	   showTable -> hide ();
 	   channelTable -> hide ();
            dabSettings -> setValue ("channelFile", channelTable -> FileName ());
            dabSettings -> sync ();
@@ -273,7 +278,7 @@ int	frequency;
 	         return;
 	      }
 	   }
-	   return;
+//	   return;
 	}
 	
 	frequency	= theBand -> Frequency (channelNumber);
@@ -325,6 +330,7 @@ void	RadioInterface::TerminateProcess (void) {
 	   delete channelTable;
         }
 
+	theTable. hide ();
 	if (my_dabProcessor != NULL) {
 	   my_dabProcessor	-> stop ();	// definitely concurrent
 //	everything should be halted by now
@@ -426,7 +432,7 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 	   } catch (int e) {}
 	}
 #endif
-	return NULL;
+	return nullptr;
 }
 
 void	RadioInterface::handle_startcontrolledButton (void) {
@@ -449,6 +455,7 @@ QString reportName;
 
 	   countrySelector	-> hide ();
 	   deviceSelector	-> hide ();
+	   theTable.		 show ();
 //
 //	here we really start
 	   my_dabProcessor	= new dabProcessor (this,
@@ -480,6 +487,7 @@ QString reportName;
 	   continuousButton	-> show ();
 	   return;
 	}
+
 	startButton -> setText ("stop");
 	disconnect (startButton, SIGNAL (clicked ()),
 	            this, SLOT (handle_startcontrolledButton ()));
@@ -503,6 +511,18 @@ void	RadioInterface::stopControlled () {
 	         this, SLOT (handle_startcontrolledButton ()));
 }
 
+QString extractTransmitters (std::vector<int> tiiValue) {
+QString transmitters;
+
+	for (int i = 0; i < tiiValue. size (); i ++) {
+           char buffer [20];
+           sprintf (buffer, " (%d %d)",
+	                   tiiValue. at (i) >> 8, tiiValue. at (i) & 0xFF);
+           transmitters. append (buffer);
+        }
+	return transmitters;
+}
+
 void	RadioInterface::showEnsembleData	(int snr,
 	                                         std::vector<int> tiiValue) {
 QString currentChannel	= theBand -> channel (channelNumber);
@@ -513,6 +533,30 @@ ensemblePrinter	my_Printer;
 	if (!running. load())
 	   return;
 
+	if (!go_continuously && (nrCycles -> value () == 1)) {
+	   QString transmitters = extractTransmitters (tiiValue);
+	   theTable. newEnsemble (currentChannel,
+	                          ensembleDisplay -> text (),
+	                          QString::number (frequency / 1000),
+	                          QString::number (snr),
+	                          transmitters);
+	   for (QString& audioService: Services) {
+	      audiodata d;
+	      my_dabProcessor -> dataforAudioService (audioService, &d, 0);
+	      if (!d. defined)
+	         continue;
+	      QString bitRate	= QString::number (d. bitRate);
+	      QString protL     = getProtectionLevel (d. shortForm,
+	                                              d. protLevel);
+	      QString codeRate  = getCodeRate (d. shortForm,
+	                                       d. protLevel);
+	      theTable.
+	          add_to_Ensemble (audioService, 
+	                           d. ASCTy == 077 ? "DAB+" : "DAB",
+	                           bitRate, protL, codeRate);
+	   }
+	}
+	   
 	my_Printer. showEnsembleData (currentChannel,
 	                              frequency,
 	                              snr,
@@ -601,7 +645,7 @@ QString	summaryName;
 	   }
 
 	   deviceSelector	-> hide ();
-//
+	   theTable. hide ();
 //	here we really start
 	   my_dabProcessor	= new dabProcessor (this,
 	                                    theDevice,
@@ -622,8 +666,8 @@ QString	summaryName;
 
 	startButton	-> hide ();
 	nrCycles	-> hide ();
-	reportName = find_fileName ();
-	fileP        = fopen (reportName. toUtf8(). data(), "w");
+	reportName	= find_fileName ();
+	fileP		= fopen (reportName. toUtf8(). data(), "w");
 	if (fileP == nullptr) {
 	   fprintf (stderr, "Could not open file %s\n",
 	                           reportName. toUtf8(). data());
@@ -656,8 +700,8 @@ QString	summaryName;
 	   
 	countrySelector	-> hide ();
 	channelTable         = new channelsTable (this,
-                                                     theBand,
-                                                     channelFileName);
+                                                  theBand,
+                                                  channelFileName);
 	channelTable		-> show ();
 	operationsLabel	-> setText ("running continuously");
 	continuousButton	-> setText ("stop");
@@ -665,6 +709,9 @@ QString	summaryName;
 	            this, SLOT (handle_continuousButton ()));
 	connect (continuousButton, SIGNAL (clicked ()),
 	         this, SLOT (stopContinuous ()));
+	showTable	-> show ();
+	connect (showTable, SIGNAL (clicked ()),
+	         this, SLOT (handle_showTable ()));
 	go_continuously	= true;
 	startScanning ();	
 	running. store (true);
@@ -682,6 +729,10 @@ void	RadioInterface::stopContinuous () {
 	   delete channelTable;
 	   channelTable = NULL;
 	}
+
+	showTable	-> hide ();
+	disconnect (showTable, SIGNAL (clicked ()),
+	            this, SLOT (handle_showTable ()));
 	continuousButton -> setText ("start continuous");
 	disconnect (continuousButton, SIGNAL (clicked ()),
 	            this, SLOT (stopContinuous ()));
@@ -760,5 +811,13 @@ void	RadioInterface::handle_countrySelect () {
 	}
 	channelFileName         = QDir::toNativeSeparators (file);
 	skipfileName	-> setText (channelFileName);
+}
+
+void	RadioInterface::handle_showTable	() {
+	if (go_continuously && (channelTable != nullptr))
+	   if (channelTable -> isHidden ())
+	      channelTable -> show ();
+	   else
+	      channelTable -> hide ();
 }
 
