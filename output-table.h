@@ -43,6 +43,7 @@ public:
 	void	hide		();
 	void	newEnsemble	(QString, QString, QString, QString, QString);
 	void	add_to_Ensemble	(QString, QString, QString, QString, QString);
+	void	clear		();
 private:
 	QScrollArea	*myWidget;
 	QTableWidget	*outputWidget;

@@ -20,7 +20,7 @@ int16_t i;
 int16_t rows    = outputWidget -> rowCount ();
 
         for (i = rows; i > 0; i --)
-           outputWidget -> removeRow (i);
+           outputWidget -> removeRow (i - 1);
         delete  outputWidget;
         delete  myWidget;
 }
@@ -58,6 +58,13 @@ int16_t row     = outputWidget -> rowCount ();
         outputWidget    -> setItem (row, 4, item4);
 	return row;
 }
+
+void	outputTable::clear		() {
+	for (int i = outputWidget -> rowCount (); i > 0; i --) 
+	   outputWidget -> removeRow (i - 1);
+}
+
+
 
 void	outputTable::newEnsemble	(QString currentChannel,
 	                                 QString ensembleName,

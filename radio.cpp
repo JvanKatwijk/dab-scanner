@@ -161,6 +161,8 @@ QString h;
 //
 void	RadioInterface:: startScanning (void) {
 	channelNumber. store (0);
+	theTable. clear ();
+	theTable. hide ();
 	if (go_continuously) {
 	   int nrChannels	= theBand -> channels ();
 	   int skipCount	= 0;
@@ -179,6 +181,8 @@ void	RadioInterface:: startScanning (void) {
 	      }
 	   }
 	}
+	else
+	   theTable. show ();
 	channelDisplay -> setText (theBand -> channel (channelNumber));
 	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
 	         this, SLOT (nextChannel_noSignal (void)));
@@ -207,12 +211,13 @@ void	RadioInterface::stopScanning (void) {
 	if (go_continuously && (channelTable != nullptr)) {
 	   disconnect (showTable, SIGNAL (clicked ()),
 	               this, SLOT (handle_showTable ()));
-	   showTable -> hide ();
+	   theTable.       hide ();
 	   channelTable -> hide ();
-           dabSettings -> setValue ("channelFile", channelTable -> FileName ());
+           dabSettings	-> setValue ("channelFile",
+	                                  channelTable -> FileName ());
            dabSettings -> sync ();
 	   delete channelTable;
-	   channelTable	= NULL;
+	   channelTable	= nullptr;
 	}
 }
 
@@ -485,6 +490,7 @@ QString reportName;
 	   fprintf (stderr, "Could not open file %s\n",
 	                              reportName. toUtf8(). data());
 	   continuousButton	-> show ();
+	   theTable. hide ();
 	   return;
 	}
 
@@ -709,7 +715,7 @@ QString	summaryName;
 	            this, SLOT (handle_continuousButton ()));
 	connect (continuousButton, SIGNAL (clicked ()),
 	         this, SLOT (stopContinuous ()));
-	showTable	-> show ();
+	channelTable	-> show ();
 	connect (showTable, SIGNAL (clicked ()),
 	         this, SLOT (handle_showTable ()));
 	go_continuously	= true;
