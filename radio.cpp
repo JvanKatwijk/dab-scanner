@@ -461,7 +461,6 @@ QString reportName;
 	   countrySelector	-> hide ();
 	   deviceSelector	-> hide ();
 	   theTable.		 show ();
-//
 //	here we really start
 	   my_dabProcessor	= new dabProcessor (this,
 	                                            theDevice,
@@ -520,7 +519,7 @@ void	RadioInterface::stopControlled () {
 QString extractTransmitters (std::vector<int> tiiValue) {
 QString transmitters;
 
-	for (int i = 0; i < tiiValue. size (); i ++) {
+	for (uint16_t i = 0; i < tiiValue. size (); i ++) {
            char buffer [20];
            sprintf (buffer, " (%d %d)",
 	                   tiiValue. at (i) >> 8, tiiValue. at (i) & 0xFF);
@@ -708,7 +707,6 @@ QString	summaryName;
 	channelTable         = new channelsTable (this,
                                                   theBand,
                                                   channelFileName);
-	channelTable		-> show ();
 	operationsLabel	-> setText ("running continuously");
 	continuousButton	-> setText ("stop");
 	disconnect (continuousButton, SIGNAL (clicked ()),
@@ -820,10 +818,11 @@ void	RadioInterface::handle_countrySelect () {
 }
 
 void	RadioInterface::handle_showTable	() {
-	if (go_continuously && (channelTable != nullptr))
+	if (go_continuously && (channelTable != nullptr)) {
 	   if (channelTable -> isHidden ())
 	      channelTable -> show ();
 	   else
 	      channelTable -> hide ();
+	}
 }
 
