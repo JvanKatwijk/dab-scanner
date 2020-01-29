@@ -61,13 +61,12 @@ public:
 
 private:
 	QSettings	*dabSettings;
-	outputTable	theTable;
+	outputTable	*displayTable;
 	FILE		*fileP;
 	FILE		*summaryP;
 	QString		dirName;
 	channelsTable	*channelTable;
 	std::atomic<int>	channelNumber;
-	bool		go_continuously;
 	int		serviceCount;
         QStringList     Services;
 	uint8_t		dabBand;
@@ -78,7 +77,7 @@ private:
 	int16_t		diff_length;
 	bandHandler	*theBand;
 	int		channels;
-	std::atomic<bool>	running;
+	std::atomic<uint8_t>	running;
 	deviceHandler	*theDevice;
 	dabProcessor	*my_dabProcessor;
 	QTimer		channelTimer;
@@ -102,9 +101,13 @@ protected:
         bool    eventFilter (QObject *obj, QEvent *event);
 
 public slots:
-	void		handle_countrySelect	(void);
-	void		nextChannel_withSignal	(void);
-	void		nextChannel_noSignal	(void);
+	void		handle_skipTableSelect	(void);
+	void		nextcontrolled_withSignal	(void);
+	void		nextcontrolled_noSignal	(void);
+	void		nextcontrolled		();
+	void		nextcontinuous_withSignal	(void);
+	void		nextcontinuous_noSignal	(void);
+	void		nextcontinuous		();
 	void		addtoEnsemble		(const QString &);
 	void		nameofEnsemble		(int, const QString &);
 	void		setSynced		(bool);
@@ -121,7 +124,7 @@ public slots:
 //	Somehow, these must be connected to the GUI
 private slots:
 	void		selectDevice		(QString);
-	void		handle_startcontrolledButton 	(void);
+	void		handle_controlledButton	(void);
 	void		handle_continuousButton	(void);
 	void		reset			(void);
 	void		set_spectrumSwitch	(void);

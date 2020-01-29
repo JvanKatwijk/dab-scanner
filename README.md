@@ -1,10 +1,16 @@
 
 --------------------------------------------------------------------
-DAB-SCANNER 1.75 (Experimental)
+DAB-SCANNER 1.8 (Experimental)
 --------------------------------------------------------------------
 
-A minor addition to the 1.7 version is the addition of a button for
-showing/hiding the "skiptable" if running continuous
+While there are no visible differences between this and the previous
+version, the "control" software changed.
+Started with a simple version 1.0, stepwise functionality was added,
+each leading to changes in the control program. 
+Many of these changes had impact on the implementation of
+already existing functionality.
+This finally lead to the need to rewrite the control part of the
+program.
 
 ---------------------------------------------------------------------
 DAB-SCANNER 1.7

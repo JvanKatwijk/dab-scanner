@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>dab-scanner 1.75</string>
+   <string>dab-scanner 1.8</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -240,7 +240,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="countrySelector">
+         <widget class="QPushButton" name="skipTableSelect">
           <property name="toolTip">
            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;A skipfile is a file (xml format) specifying for each channel in the selected band whether&lt;/p&gt;&lt;p&gt;or not it should be a part of the scan when running in continuous mode.&lt;/p&gt;&lt;p&gt;At the start of the program, one may choose a file. If the file does not exist it will&lt;/p&gt;&lt;p&gt;be created upon program exit.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>

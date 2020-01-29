@@ -5,16 +5,16 @@
 ######################################################################
 
 TEMPLATE	= app
-TARGET		= dab-scanner-1.75
+TARGET		= dab-scanner-1.8
 
 QT		+= widgets xml
 CONFIG		-= console
 QMAKE_CXXFLAGS	+= -std=c++11
-#QMAKE_CFLAGS	+=  -lfto -ffast-math
-#QMAKE_CXXFLAGS	+=  -lfto -ffast-math
-QMAKE_CFLAGS	+=  -g
-QMAKE_CXXFLAGS	+=  -g
-QMAKE_LFLAGS	+=  -g
+QMAKE_CFLAGS	+=  -lfto -ffast-math
+QMAKE_CXXFLAGS	+=  -lfto -ffast-math
+#QMAKE_CFLAGS	+=  -g
+#QMAKE_CXXFLAGS	+=  -g
+#QMAKE_LFLAGS	+=  -g
 QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
 RC_ICONS	=  dab-scanner.ico
 RESOURCES	+= resources.qrc
