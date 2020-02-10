@@ -175,8 +175,10 @@ uint32_t                ndev;
 	threadRuns. store (false);
 
 	Handle			= fetchLibrary ();
-	if (Handle == nullptr)
+	if (Handle == nullptr) {
+	   fprintf (stderr, "Fetching library failed\n");
 	   throw (21);
+	}
 //	load the functions
 	bool success	= loadFunctions ();
 	if (!success) {
@@ -184,7 +186,6 @@ uint32_t                ndev;
 	   emit set_runFlag (false);
            throw (23);
         }
-	fprintf (stderr, "functions loaded\n");
 
 //	try to open the API
 	err	= sdrplay_api_Open ();
@@ -281,7 +282,7 @@ uint32_t                ndev;
                                        sdrplay_api_GetErrorString (err));
 	   goto unlockDevice_closeAPI;
 	}
-//
+
 //	Let the parent display the values
 	setDeviceData (devs [0]. SerNo, devs [0]. hwVer, apiVersion);
 

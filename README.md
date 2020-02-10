@@ -1,5 +1,28 @@
 
 --------------------------------------------------------------------
+Latest development
+-------------------------------------------------------------------
+
+As known (at least by the owners/users of amy of the SDRplay devices)
+for the SDRplay version 3 of the support library was issued,
+based on a different approach than the 2.xx series of libraries.
+
+The most recent version of the dab-scanner now supports SDRplay devices
+using the 2.xx and the 3.06 library. 
+
+Support for both are included in the windows installer.
+The GUI shows two entries in the device table, one for the v2 and
+one for the v3 support library of SDRplay devices.
+Of course using the v3 version requires the v3 library to be installed.
+
+For the Linux user, the ".pro" files contains lines
+
+	CONFIG += sdrplay_v2
+	CONFIG += sdrplay_v3
+
+that can be (de)selected.
+
+--------------------------------------------------------------------
 DAB-SCANNER 1.8 (Experimental)
 --------------------------------------------------------------------
 

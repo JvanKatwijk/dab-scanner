@@ -9,6 +9,7 @@ TARGET		= dab-scanner-1.8
 
 QT		+= widgets xml
 CONFIG		-= console
+#CONFIG		+= console
 QMAKE_CXXFLAGS	+= -std=c++11
 QMAKE_CFLAGS	+=  -lfto -ffast-math
 QMAKE_CXXFLAGS	+=  -lfto -ffast-math
@@ -168,6 +169,7 @@ isEmpty(GITHASHSTRING) {
 INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include
 INCLUDEPATH += /usr/i686-w64-mingw32/sys-root/mingw/include/qt5/qwt
 INCLUDEPATH	+= /mingw32/include
+INCLUDEPATH	+=/usr/local/include
 #INCLUDEPATH	+= /mingw32/include/qwt
 LIBS		+= -L/usr/i686-w64-mingw32/sys-root/mingw/lib
 LIBS		+= -lfftw3
@@ -179,9 +181,12 @@ LIBS		+= -lws2_32
 LIBS		+= -lusb-1.0
 LIBS		+= -lz
 LIBS		+= -lqwt-qt5
+#
+#	devices
 CONFIG		+= airspy
 CONFIG		+= dabstick
 CONFIG		+= sdrplay_v2
+CONFIG		+= sdrplay_v3
 CONFIG		+= hackrf
 }
 
