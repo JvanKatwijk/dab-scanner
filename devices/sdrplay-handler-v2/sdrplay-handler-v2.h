@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -18,10 +19,12 @@
  *    You should have received a copy of the GNU General Public License
  *    along with dab-scanner; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *	This version is for library version 2.13
  */
 
-#ifndef __SDRPLAY_HANDLER__
-#define	__SDRPLAY_HANDLER__
+#ifndef __SDRPLAY_HANDLER_V2__
+#define	__SDRPLAY_HANDLER_V2__
 
 #include	<QObject>
 #include	<QFrame>
@@ -30,7 +33,7 @@
 #include	"dab-constants.h"
 #include	"ringbuffer.h"
 #include	"device-handler.h"
-#include	"ui_sdrplay-widget.h"
+#include	"ui_sdrplay-widget-v2.h"
 #include	"mirsdrapi-rsp.h"
 
 typedef void (*mir_sdr_StreamCallback_t)(int16_t	*xi,
@@ -88,22 +91,23 @@ typedef mir_sdr_ErrT (*pfn_mir_sdr_SetDeviceIdx) (unsigned int);
 typedef mir_sdr_ErrT (*pfn_mir_sdr_ReleaseDeviceIdx) (unsigned int);
 
 ///////////////////////////////////////////////////////////////////////////
-class	sdrplayHandler: public deviceHandler, public Ui_sdrplayWidget {
+class	sdrplayHandler_v2: public deviceHandler,
+	                               public Ui_sdrplayWidget_V2 {
 Q_OBJECT
 public:
-			sdrplayHandler		(QSettings *);
-			~sdrplayHandler();
+			sdrplayHandler_v2	(QSettings *);
+			~sdrplayHandler_v2	();
 	void		setVFOFrequency		(int32_t);
-	int32_t		getVFOFrequency();
-	int32_t		defaultFrequency();
+	int32_t		getVFOFrequency		();
+	int32_t		defaultFrequency	();
 
 	bool		restartReader		(int);
-	void		stopReader();
+	void		stopReader		();
 	int32_t		getSamples		(std::complex<float> *,
 	                                                          int32_t);
-	int32_t		Samples();
-	void		resetBuffer();
-	int16_t		bitDepth();
+	int32_t		Samples			();
+	void		resetBuffer		();
+	int16_t		bitDepth		();
 //
 //	The buffer should be visible by the callback function
 	RingBuffer<std::complex<float>>	*_I_Buffer;

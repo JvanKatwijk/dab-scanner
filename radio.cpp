@@ -44,8 +44,11 @@
 #ifdef	HAVE_RTLSDR
 #include	"rtlsdr-handler.h"
 #endif
-#ifdef	HAVE_SDRPLAY
-#include	"sdrplay-handler.h"
+#ifdef	HAVE_SDRPLAY_V2
+#include	"sdrplay-handler-v2.h"
+#endif
+#ifdef	HAVE_SDRPLAY_V3
+#include	"sdrplay-handler-v3.h"
 #endif
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
@@ -112,8 +115,11 @@ QString h;
 #ifdef	HAVE_RTLSDR
 	deviceSelector	-> addItem ("rtlsdr");
 #endif
-#ifdef	HAVE_SDRPLAY
-	deviceSelector	-> addItem ("sdrplay");
+#ifdef	HAVE_SDRPLAY_V2
+	deviceSelector	-> addItem ("sdrplay v2");
+#endif
+#ifdef	HAVE_SDRPLAY_V3
+	deviceSelector	-> addItem ("sdrplay v3");
 #endif
 #ifdef	HAVE_AIRSPY
 	deviceSelector	-> addItem ("airspy");
@@ -617,10 +623,19 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 	}
 	else
 #endif
-#ifdef	HAVE_SDRPLAY
-	if (s == "sdrplay") {
+#ifdef	HAVE_SDRPLAY_V2
+	if (s == "sdrplay v2") {
 	   try {
-	      return  new sdrplayHandler (dabSettings);
+	      return  new sdrplayHandler_v2 (dabSettings);
+	   } catch (int e) {}
+	}
+	else
+#endif
+#ifdef	HAVE_SDRPLAY_V3
+	if (s == "sdrplay v3") {
+	   try {
+	      QString temp = "dab-scanner";
+	      return  new sdrplayHandler_v3 (dabSettings, temp);
 	   } catch (int e) {}
 	}
 	else

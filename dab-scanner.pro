@@ -142,7 +142,8 @@ LIBS            += -lqwt-qt5
 # comment or uncomment for the devices you want to have support for
 # (you obviously have libraries installed for the selected ones)
 CONFIG		+= dabstick
-CONFIG		+= sdrplay
+CONFIG		+= sdrplay_v2
+CONFIG		+= sdrplay_v3
 CONFIG		+= airspy
 CONFIG		+= hackrf
 CONFIG		+= lime
@@ -180,7 +181,7 @@ LIBS		+= -lz
 LIBS		+= -lqwt-qt5
 CONFIG		+= airspy
 CONFIG		+= dabstick
-CONFIG		+= sdrplay
+CONFIG		+= sdrplay_v2
 CONFIG		+= hackrf
 }
 
@@ -198,18 +199,33 @@ dabstick {
         FORMS           += ./devices/rtlsdr-handler/rtlsdr-widget.ui
 }
 #
-#	the SDRplay
+#	the SDRplay: using the "old" v2.13 library
 #
-sdrplay {
-	DEFINES         += HAVE_SDRPLAY
-        DEPENDPATH      += ./devices/sdrplay-handler
-        INCLUDEPATH     += ./devices/sdrplay-handler
-        HEADERS         += ./devices/sdrplay-handler/sdrplay-handler.h \
-                           ./devices/sdrplay-handler/sdrplayselect.h
-        SOURCES         += ./devices/sdrplay-handler/sdrplay-handler.cpp \
-                           ./devices/sdrplay-handler/sdrplayselect.cpp
-        FORMS           += ./devices/sdrplay-handler/sdrplay-widget.ui
+sdrplay_v2 {
+	DEFINES         += HAVE_SDRPLAY_V2
+        DEPENDPATH      += ./devices/sdrplay-handler-v2
+        INCLUDEPATH     += ./devices/sdrplay-handler-v2
+        HEADERS         += ./devices/sdrplay-handler-v2/sdrplay-handler-v2.h \
+                           ./devices/sdrplay-handler-v2/sdrplayselect.h
+        SOURCES         += ./devices/sdrplay-handler-v2/sdrplay-handler-v2.cpp \
+                           ./devices/sdrplay-handler-v2/sdrplayselect.cpp
+        FORMS           += ./devices/sdrplay-handler-v2/sdrplay-widget-v2.ui
 }
+#
+#	the SDRplay: using the new v3.xx library
+sdrplay_v3 {
+        DEFINES         += HAVE_SDRPLAY_V3
+        DEPENDPATH      += ./devices/sdrplay-handler-v3
+        INCLUDEPATH     += ./devices/sdrplay-handler-v3
+        HEADERS         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.h \
+                           ./devices/sdrplay-handler-v3/control-queue.h \
+                           ./devices/sdrplay-handler-v3/sdrplay-controller.h
+        SOURCES         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.cpp \
+                           ./devices/sdrplay-handler-v3/control-queue.cpp \
+                           ./devices/sdrplay-handler-v3/sdrplay-controller.cpp
+        FORMS           += ./devices/sdrplay-handler-v3/sdrplay-widget-v3.ui
+}
+
 #
 # airspy support
 #
