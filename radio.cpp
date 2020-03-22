@@ -376,7 +376,7 @@ void	RadioInterface::handle_continuousButton  () {
         summaryName. append ("/dab-summary-");
         summaryName. append (theTime);
         summaryName. append (".txt");
-	fprintf (stderr, "summaryName = %s\n", summaryName. toLatin1 (). data ());
+	fprintf (stderr, "summaryName = %s\n", summaryName. toUtf8 (). data ());
 	summaryP	= fopen (summaryName. toUtf8(). data(), "w");
 	if (summaryP == nullptr) {
 	   fprintf (stderr, "Could not open  summary file %s\n",
@@ -547,7 +547,8 @@ void	RadioInterface::TerminateProcess (void) {
 	   theDevice	-> stopReader ();
 	if (channelTable != nullptr) {
 	   channelTable	-> hide ();
-           dabSettings -> setValue ("channelFile", channelTable -> FileName ());
+           dabSettings -> setValue ("channelFile",
+	                             channelTable -> FileName ());
            dabSettings -> sync ();
 	   delete channelTable;
         }
@@ -787,21 +788,25 @@ QString timeString = QDate::currentDate (). toString ();
 	timeString. append ("-");
 	timeString. append (QTime::currentTime (). toString ());
 	localTimeDisplay	-> setText (timeString);
-	QString theTime	= localTimeDisplay -> text ();
+	QString theTime		= localTimeDisplay -> text ();
 	theTime. replace (":", "-");
 	theTime. replace (" ", "-");
 	QString suggestedFileName = dirName;
-	fprintf (stderr, "dirName = %s\n", dirName. toLatin1 (). data ());
+	fprintf (stderr, "dirName = %s\n", dirName. toUtf8 (). data ());
 	suggestedFileName. append ("./dab-scanner-");
 	suggestedFileName. append (theTime);
 	suggestedFileName. append (".txt");
 	fprintf (stderr, "suggested filename = %s\n",
-	             suggestedFileName. toLatin1 (). data ());
+	             suggestedFileName. toUtf8 (). data ());
 	QString fileName = QFileDialog::getSaveFileName (this,
 	                                        tr ("Save file ..."),
 	                                        suggestedFileName,
 	                                        tr ("Text (*.txt)"));
-	fileName	= QDir::toNativeSeparators (fileName);
+	int ind         = fileName. lastIndexOf ("/");
+        fileName        = QDir::toNativeSeparators (fileName);
+        dirName         = fileName;
+	dirName. remove (ind, 100); 
+	dabSettings     -> setValue ("dirName", dirName);
 	return fileName;
 }
 
@@ -862,6 +867,4 @@ void	RadioInterface::handle_showTable	() {
 	      channelTable -> hide ();
 	}
 }
-
-
 
