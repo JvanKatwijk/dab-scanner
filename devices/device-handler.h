@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -33,17 +34,17 @@
 
 class	deviceHandler: public QThread {
 public:
-			deviceHandler ();
-virtual			~deviceHandler ();
-virtual		void	setVFOFrequency	(int32_t);
-virtual		int32_t	getVFOFrequency();
-virtual		int32_t	defaultFrequency();
-virtual		bool	restartReader(int);
-virtual		void	stopReader();
-virtual		int32_t	getSamples	(std::complex<float> *, int32_t);
-virtual		int32_t	Samples();
-virtual		void	resetBuffer();
-virtual		int16_t	bitDepth() { return 10;}
+			deviceHandler		();
+virtual			~deviceHandler		();
+virtual		void	setVFOFrequency		(int32_t);
+virtual		int32_t	getVFOFrequency		();
+virtual		int32_t	defaultFrequency	();
+virtual		bool	restartReader		(int);
+virtual		void	stopReader		();
+virtual		int32_t	getSamples		(std::complex<float> *, int32_t);
+virtual		int32_t	Samples			();
+virtual		void	resetBuffer		();
+virtual		int16_t	bitDepth		() { return 10;}
 //
 protected:
 		int32_t	lastFrequency;

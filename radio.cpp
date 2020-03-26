@@ -635,8 +635,7 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 #ifdef	HAVE_SDRPLAY_V3
 	if (s == "sdrplay v3") {
 	   try {
-	      QString temp = "dab-scanner";
-	      return  new sdrplayHandler_v3 (dabSettings, temp);
+	      return  new sdrplayHandler_v3 (dabSettings);
 	   } catch (int e) {}
 	}
 	else

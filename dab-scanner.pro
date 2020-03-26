@@ -223,11 +223,8 @@ sdrplay_v3 {
         DEPENDPATH      += ./devices/sdrplay-handler-v3
         INCLUDEPATH     += ./devices/sdrplay-handler-v3
         HEADERS         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.h \
-                           ./devices/sdrplay-handler-v3/control-queue.h \
-                           ./devices/sdrplay-handler-v3/sdrplay-controller.h
-        SOURCES         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.cpp \
-                           ./devices/sdrplay-handler-v3/control-queue.cpp \
-                           ./devices/sdrplay-handler-v3/sdrplay-controller.cpp
+                           ./devices/sdrplay-handler-v3/sdrplay-commands.h
+        SOURCES         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.cpp
         FORMS           += ./devices/sdrplay-handler-v3/sdrplay-widget-v3.ui
 }
 

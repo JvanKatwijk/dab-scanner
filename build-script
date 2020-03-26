@@ -4,37 +4,15 @@
    sudo apt-get install zlib1g-dev rtl-sdr libusb-1.0-0-dev mesa-common-dev
    sudo apt-get install libgl1-mesa-dev libqt5opengl5-dev libsamplerate0-dev
    sudo apt-get install qtbase5-dev libqwt-qt5-dev
-   sudo apt-get install build-essential cmake libusb-1.0-0-dev pkg-config
+   sudo apt-get install build-essential libusb-1.0-0-dev pkg-config
 
-   git clone git://git.osmocom.org/rtl-sdr.git
-   cd rtl-sdr/
-   mkdir build
-   cd build
-   cmake ../ -DINSTALL_UDEV_RULES=ON -DDETACH_KERNEL_DRIVER=ON
-   make
-   sudo make install
-   sudo ldconfig
-   cd ..
-   rm -rf build
-   cd ..
-
-   wget https://github.com/airspy/host/archive/master.zip
-   unzip master.zip
-   cd airspyone_host-master
-   mkdir build
-   cd build
-   cmake ../ -DINSTALL_UDEV_RULES=ON
-   make
-   sudo make install
-   sudo ldconfig
-   cd ../
-   rm -rf build
-   cd ..
    git clone https://github.com/JvanKatwijk/dab-scanner.git
-   cd dabradio
+   cd dab-scanner
    mkdir build
    cd build
-   cmake .. -DRTLSDR=ON -DAIRSPY=ON -DSDRPLAY=ON
+   cmake .. -DSDRPLAY=ON
    make
+   make install
+
 
 
