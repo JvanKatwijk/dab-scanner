@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=dab-scanner
+Exec=dab-scanner
+Icon=dab-scanner
+Type=Application
+Categories=AudioVideo;
+Comment=A scanner for DAB using Qt and C++

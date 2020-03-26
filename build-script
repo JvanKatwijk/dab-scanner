@@ -12,7 +12,7 @@
    cd build
    cmake .. -DSDRPLAY=ON
    make
-   make install
+   sudo make install
 
 
 
