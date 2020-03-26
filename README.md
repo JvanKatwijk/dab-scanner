@@ -1,3 +1,4 @@
+# dab-scanner-1.8 [![Build Status](https://travis-ci.org/JvanKatwijk/dab-scanner.svg?branch=master)](https://travis-ci.org/JvanKatwijk/dab-scanner)
 
 --------------------------------------------------------------------
 Latest development
