@@ -48,7 +48,7 @@ after_success:
   - squashfs-root/usr/bin/appimagetool $(readlink -f ./appdir/)
   - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
   - ls -l
-  - curl --upload-file ./dab-scanner*.AppImage https://transfer.sh/dab-scanner.$(git rev-parse --short HEAD)-x86_64.AppImage
+  - curl --upload-file ./dabScanner*.AppImage https://transfer.sh/dabScanner.$(git rev-parse --short HEAD)-x86_64.AppImage
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
-  - bash ./upload.sh ./dab-scanner*.AppImage
+  - bash ./upload.sh ./dabScanner*.AppImage
 
