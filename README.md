@@ -1,30 +1,8 @@
 # dab-scanner-1.8 [![Build Status](https://travis-ci.org/JvanKatwijk/dab-scanner.svg?branch=master)](https://travis-ci.org/JvanKatwijk/dab-scanner)
 
---------------------------------------------------------------------
-Latest development
--------------------------------------------------------------------
-
-As known (at least by the owners/users of amy of the SDRplay devices)
-for the SDRplay version 3 of the support library was issued,
-based on a different approach than the 2.xx series of libraries.
-
-The most recent version of the dab-scanner now supports SDRplay devices
-using the 2.xx and the 3.06 library. 
-
-Support for both are included in the windows installer.
-The GUI shows two entries in the device table, one for the v2 and
-one for the v3 support library of SDRplay devices.
-Of course using the v3 version requires the v3 library to be installed.
-
-For the Linux user, the ".pro" files contains lines
-
-	CONFIG += sdrplay_v2
-	CONFIG += sdrplay_v3
-
-that can be (de)selected.
 
 --------------------------------------------------------------------
-DAB-SCANNER 1.8 (Experimental)
+DAB-SCANNER 1.8 
 --------------------------------------------------------------------
 
 While there are no visible differences between this and the previous
@@ -211,6 +189,23 @@ variety of devices:
 * the AIRspy
 * the good old "RT2832" based dabsticks
 
+Comment out (or uncomment) the line
+
+	CONFIG += XXXX
+
+where XXXX stands for the devicename, in the ".pro" file to include
+or exclude the device in the configuration.
+
+Support for the SDRplay can be condigured for both the 2.13 and the 3.06
+library.
+For support of the 2.14 library, uncomment
+
+	CONFIG += sdrplay_v2
+
+For support of the 3.06 library, uncomment
+
+	CONFIG += sdrplay_v3
+
 As mentioned, a device should be selected prior to touching the start button.
 
 ----------------------------------------------------------------------------
@@ -248,11 +243,20 @@ lines could be packed in a script and executed
 Obviously assuming that the driver libraries for the device (or devices) to
 be used are installed.
 
------------------------------------------------------------------------------------------------------------------------
-Copyrights
------------------------------------------------------------------------------------------------------------------------
+The releases section now contains an "appImage". The appImage
+is an executable, containing the required libraries *apart from those
+for supporting the devices*.
 
-  	Copyright (C)  2013, 2014, 2015, 2016, 2017, 2018, 2019
+Change the mode of the file to executable.
+
+Note that the appImage is configured for SDRplay (library 2.13), AIRspy
+and dabsticks.
+
+------------------------------------------------------------------------------
+Copyrights
+------------------------------------------------------------------------------
+
+  	Copyright (C)  2018 .. 2020
         Jan van Katwijk (J.vanKatwijk@gmail.com)
         Lazy Chair Computing
 

@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -32,13 +33,12 @@
 	                                 bandHandler	*theBand,
 	                                 QString	fileName
 	                                 ):
-	                                    theTable (NULL) {
+	                                    theTable (nullptr) {
 QDomDocument xml_bestand;
 	this	-> theName		= fileName;
 	this	-> myRadioInterface	= theRadio;
-	this	-> theBand	= theBand;
+	this	-> theBand		= theBand;
 
-	
 	theTable. setColumnCount (2);
 	QStringList header;
 	header	<< tr ("channel") << tr ("scan");
