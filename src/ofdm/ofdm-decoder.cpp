@@ -82,7 +82,8 @@ void    ofdmDecoder::reset      (void) {
 
 /**
   */
-void	ofdmDecoder::processBlock_0 (std::vector <std::complex<double> > buffer) {
+void	ofdmDecoder::
+	       processBlock_0 (std::vector <std::complex<double> > buffer) {
 	for (int i = 0; i < T_u; i ++)
 	   fft_buffer [i] = buffer [i];
 

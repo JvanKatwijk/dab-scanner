@@ -46,7 +46,7 @@
 	                                uint8_t dabMode):
 	                                    params (dabMode),
 	                                    fibDecoder (mr),
-	                                    myViterbi (768) {
+	                                    myViterbi (768, true) {
 int16_t	i, j, k;
 int	local	= 0;
 

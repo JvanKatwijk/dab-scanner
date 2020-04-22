@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -26,11 +27,11 @@
 #ifndef	__FIC_HANDLER__
 #define	__FIC_HANDLER__
 
+#include	<QObject>
 #include	<stdio.h>
 #include	<stdint.h>
 #include	<vector>
-#include	"viterbi-handler.h"
-#include	<QObject>
+#include	"viterbi-spiral.h"
 #include	"fib-decoder.h"
 #include	"dab-params.h"
 
@@ -47,7 +48,7 @@ public:
 	void	reset			(void);
 private:
 	dabParams	params;
-	viterbiHandler	myViterbi;
+	viterbiSpiral	myViterbi;
 	uint8_t		bitBuffer_out	[768];
         int16_t		ofdm_input	[2304];
 	bool		punctureTable	[3072 + 24];

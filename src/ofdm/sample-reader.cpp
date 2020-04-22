@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -150,7 +151,7 @@ std::complex<float> temp [n];
 	   currentPhase	= (currentPhase + INPUT_RATE) % INPUT_RATE;
 	   sLevel	= 0.00001 * abs (temp [i]) + (1 - 0.00001) * sLevel;
 	   v [i]	= temp [i];
-	   v [i]	*=  oscillatorTable [currentPhase];
+	   v [i]	*= oscillatorTable [currentPhase];
 	}
 	sampleCount	+= n;
 	if (sampleCount > INPUT_RATE / N) {

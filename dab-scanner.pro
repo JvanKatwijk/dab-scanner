@@ -29,11 +29,14 @@ DEPENDPATH += . \
 	      ./src/ofdm \
 	      ./src/protection \
 	      ./src/support \
+	      ./src/support/viterbi-spiral \
 	      ./includes/scopes-qwt6 \
 	      ./devices \
 	      ./spectrum-viewer \
 	      ./includes/ofdm \
-	      ./includes/support 
+	      ./includes/support \
+	      ./includes/support/viterbi-spiral
+	
 
 INCLUDEPATH += . \
 	      ./ \
@@ -42,6 +45,7 @@ INCLUDEPATH += . \
 	      ./includes/protection \
 	      ./includes/ofdm \
 	      ./includes/support \
+	      ./includes/support/viterbi-spiral \
 	      ./includes/scopes-qwt6 \
 	      ./devices \
 	      ./spectrum-viewer
@@ -63,10 +67,9 @@ HEADERS += ./radio.h \
 	   ./includes/ofdm/fib-decoder.h  \
 	   ./includes/ofdm/tii_detector.h \
 	   ./includes/protection/protTables.h \
-	   ./includes/protection/protection.h \
-           ./includes/protection/eep-protection.h \
-           ./includes/protection/uep-protection.h \
-	   ./includes/support/viterbi-handler.h \
+#	   ./includes/protection/protection.h \
+#	   ./includes/protection/eep-protection.h \
+#	   ./includes/protection/uep-protection.h \
            ./includes/support/fft-handler.h \
 	   ./includes/support/ringbuffer.h \
 	   ./includes/support/dab-params.h \
@@ -74,6 +77,7 @@ HEADERS += ./radio.h \
 	   ./includes/support/dab_tables.h \
 	   ./includes/support/charsets.h \
 	   ./includes/support/ensemble-printer.h \
+	   ./includes/support/viterbi-spiral/viterbi-spiral.h \
 	   ./devices/device-handler.h \
 	   ./includes/scopes-qwt6/spectrogramdata.h \
            ./includes/scopes-qwt6/iqdisplay.h \
@@ -97,10 +101,10 @@ SOURCES += ./main.cpp \
 	   ./src/ofdm/fib-decoder.cpp  \
 	   ./src/ofdm/tii_detector.cpp \
 	   ./src/protection/protTables.cpp \
-           ./src/protection/protection.cpp \
-           ./src/protection/eep-protection.cpp \
-           ./src/protection/uep-protection.cpp \
-	   ./src/support/viterbi-handler.cpp \
+#	   ./src/protection/protection.cpp \
+#	   ./src/protection/eep-protection.cpp \
+#	   ./src/protection/uep-protection.cpp \
+	   ./src/support/viterbi-spiral/viterbi-spiral.cpp \
            ./src/support/fft-handler.cpp \
 	   ./src/support/dab-params.cpp \
 	   ./src/support/band-handler.cpp \
@@ -148,6 +152,10 @@ CONFIG		+= sdrplay_v3
 CONFIG		+= airspy
 CONFIG		+= hackrf
 CONFIG		+= lime
+#For x64 linux system uncomment SSE
+#For any other system comment SSE out and uncomment NO_SSE
+#CONFIG += SSE
+CONFIG  += NO_SSE
 }
 #
 # an attempt to have it run under W32 through cross compilation
@@ -188,6 +196,7 @@ CONFIG		+= dabstick
 CONFIG		+= sdrplay_v2
 CONFIG		+= sdrplay_v3
 CONFIG		+= hackrf
+CONFIG		+= NO_SSE
 }
 
 #	devices
@@ -264,5 +273,15 @@ lime  {
         HEADERS         += ./devices/lime-handler/lime-handler.h
         SOURCES         += ./devices/lime-handler/lime-handler.cpp
         FORMS           += ./devices/lime-handler/lime-widget.ui
+}
+NO_SSE  {
+        HEADERS         += ./src/support/viterbi-spiral/spiral-no-sse.h
+        SOURCES         += ./src/support/viterbi-spiral/spiral-no-sse.c
+}
+
+SSE     {
+        DEFINES         += SSE_AVAILABLE
+        HEADERS         += ./src/support/viterbi-spiral/spiral-sse.h
+        SOURCES         += ./src/support/viterbi-spiral/spiral-sse.c
 }
 

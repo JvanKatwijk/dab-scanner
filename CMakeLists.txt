@@ -32,7 +32,6 @@ else ()
    add_definitions ("-DGITHASH=\"       \"")
 endif()
 
-
 ########################################################################
 # select the release build type by default to get optimization flags
 ########################################################################
@@ -75,6 +74,10 @@ endif ()
 
 if(DEFINED LIMESDR)
    set(LIMESDR true)
+endif ()
+
+if (DEFINED VITERBI_SSE)
+   set(VITERBI_SSE true)
 endif ()
 
 #
@@ -132,6 +135,7 @@ endif ()
 	           ./includes/ofdm
 	           ./includes/protection
 	           ./includes/support
+	           ./includes/support/viterbi-spiral
 	           ./includes/scopes-qwt6
 	           ./devices
 	           ./spectrum-viewer
@@ -156,10 +160,9 @@ endif ()
 	     ./includes/ofdm/fic-handler.h
 	     ./includes/ofdm/tii_detector.h
 	     ./includes/protection/protTables.h
-	     ./includes/protection/protection.h
-	     ./includes/protection/uep-protection.h
-	     ./includes/protection/eep-protection.h
-	     ./includes/support/viterbi-handler.h 
+#	     ./includes/protection/protection.h
+#	     ./includes/protection/uep-protection.h
+#	     ./includes/protection/eep-protection.h
              ./includes/support/fft-handler.h 
 	     ./includes/support/ringbuffer.h 
 	     ./includes/support/dab-params.h 
@@ -167,6 +170,7 @@ endif ()
 	     ./includes/support/dab_tables.h 
 	     ./includes/support/charsets.h 
 	     ./includes/support/ensemble-printer.h 
+	     ./includes/support/viterbi-spiral/viterbi-spiral.h
 	     ./devices/device-handler.h 
 	     ./includes/scopes-qwt6/spectrogramdata.h 
              ./includes/scopes-qwt6/iqdisplay.h 
@@ -190,16 +194,16 @@ endif ()
 	     ./src/ofdm/fib-decoder.cpp  
 	     ./src/ofdm/tii_detector.cpp 
 	     ./src/protection/protTables.cpp 
-             ./src/protection/protection.cpp 
-             ./src/protection/eep-protection.cpp 
-             ./src/protection/uep-protection.cpp 
-	     ./src/support/viterbi-handler.cpp 
+#	     ./src/protection/protection.cpp 
+#	     ./src/protection/eep-protection.cpp 
+#	     ./src/protection/uep-protection.cpp 
              ./src/support/fft-handler.cpp 
 	     ./src/support/dab-params.cpp 
 	     ./src/support/band-handler.cpp 
 	     ./src/support/dab_tables.cpp 
 	     ./src/support/charsets.cpp 
 	     ./src/support/ensemble-printer.cpp 
+	     ./src/support/viterbi-spiral/viterbi-spiral.cpp
 	     ./src/support/text-mapper.cpp 
 	     ./devices/device-handler.cpp 
 	     ./src/scopes-qwt6/iqdisplay.cpp 
@@ -235,6 +239,28 @@ endif ()
 	set (${objectName}_SRCS
 	        ${${objectName}_SRCS} ./radio.cpp)
 
+
+
+	if(VITERBI_SSE)
+	   set ($(objectName)_HDRS
+	        ${${objectName}_HDRS}
+	        ./src/support/viterbi-spiral/spiral-sse.h
+	   )
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS}
+	        ./src/support/viterbi-spiral/spiral-sse.c
+	   )
+	   add_definitions (-DSSE_AVAILABLE)
+	else (VITERBI_SSE)
+	   set ($(objectName)_HDRS
+	        ${${objectName}_HDRS}
+	        ./src/support/viterbi-spiral/spiral-no-sse.h
+	   )
+	   set (${objectName}_SRCS
+	        ${${objectName}_SRCS}
+	        ./src/support/viterbi-spiral/spiral-no-sse.c
+	   )
+	endif (VITERBI_SSE)
 
 #########################################################################
 #	The devices

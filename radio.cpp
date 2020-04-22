@@ -84,7 +84,7 @@ QString h;
 	threshold_1	=
 	           dabSettings -> value ("threshold", 3). toInt ();
 	threshold_2	=
-	           dabSettings -> value ("threshold", 3). toInt ();
+	           dabSettings -> value ("threshold_2", 5). toInt ();
 //
 	diff_length	=
 	           dabSettings	-> value ("diff_length", DIFF_LENGTH). toInt ();
@@ -177,7 +177,7 @@ QString h;
 ////////////////////////////////////////////////////////////////////////
 
 void	RadioInterface::handle_controlledButton (void) {
-	if (theDevice == NULL) {	// initialize first
+	if (theDevice == nullptr) {	// initialize first
 	   if (deviceSelector -> currentText () == "select device") {
 	      QMessageBox::warning (this, tr ("Warning"),
 	                               tr ("Select a device first\n"));
@@ -186,7 +186,7 @@ void	RadioInterface::handle_controlledButton (void) {
 
 	   theDevice	= setDevice (deviceSelector -> currentText ());
 
-	   if (theDevice == NULL) {
+	   if (theDevice == nullptr) {
 	      QMessageBox::warning (this, tr ("Warning"),
                                           tr ("Select a connected device"));
 	      return;
@@ -324,7 +324,7 @@ int	frequency;
 //////////////////////////////////////////////////////////////////////////
 
 void	RadioInterface::handle_continuousButton  () {
-	if (theDevice == NULL) {	// initialize first
+	if (theDevice == nullptr) {	// initialize first
 	   if (deviceSelector -> currentText () == "select device") {
 	      QMessageBox::warning (this, tr ("Warning"),
 	                               tr ("Select a device first\n"));
@@ -333,7 +333,7 @@ void	RadioInterface::handle_continuousButton  () {
 
 	   theDevice	= setDevice (deviceSelector -> currentText ());
 
-	   if (theDevice == NULL) {
+	   if (theDevice == nullptr) {
 	      QMessageBox::warning (this, tr ("Warning"),
                                           tr ("Select a connected device"));
 	      return;
@@ -545,7 +545,7 @@ void	RadioInterface::show_snr		(int s) {
 
 void	RadioInterface::TerminateProcess (void) {
 	running. store (false);
-	if (theDevice != NULL) 
+	if (theDevice != nullptr) 
 	   theDevice	-> stopReader ();
 	if (channelTable != nullptr) {
 	   channelTable	-> hide ();
@@ -556,12 +556,13 @@ void	RadioInterface::TerminateProcess (void) {
         }
 
 	delete displayTable;
-	if (my_dabProcessor != NULL) {
+	if (my_dabProcessor != nullptr) {
 	   my_dabProcessor	-> stop ();	// definitely concurrent
 //	everything should be halted by now
 	   delete	my_dabProcessor;
 	}
-	if (theDevice != NULL)
+
+	if (theDevice != nullptr)
 	   delete	theDevice;
 	delete my_spectrumViewer;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
@@ -596,7 +597,7 @@ bool	RadioInterface::eventFilter (QObject *obj, QEvent *event) {
 //	per program invocation
 void	RadioInterface::selectDevice (QString s) {
 	theDevice	= setDevice (s);
-	if (theDevice == NULL)
+	if (theDevice == nullptr)
 	   return;
 	deviceSelector	-> hide ();
 
@@ -804,15 +805,15 @@ QString timeString = QDate::currentDate (). toString ();
 	                                        suggestedFileName,
 	                                        tr ("Text (*.txt)"));
 	int ind         = fileName. lastIndexOf ("/");
-        fileName        = QDir::toNativeSeparators (fileName);
+        QString result	= QDir::toNativeSeparators (fileName);
         dirName         = fileName;
 	dirName. remove (ind, 100); 
 	dabSettings     -> setValue ("dirName", dirName);
-	return fileName;
+	return result;
 }
 
 bool	RadioInterface::skipChannel (int channelNumber) {
-	if (channelTable == NULL)	// should not happen
+	if (channelTable == nullptr)	// should not happen
 	   return false;
 	return !channelTable	-> channel (channelNumber);
 }
