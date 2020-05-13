@@ -324,13 +324,11 @@ int32_t	r;
 void	rtlsdrHandler::stopReader() {
 	if (workerHandle == nullptr)
 	   return;
-	if (workerHandle != nullptr) { // we are running
-	   this -> rtlsdr_cancel_async (device);
-	   if (workerHandle != nullptr) {
-	      while (!workerHandle -> isFinished()) 
-	         usleep (100);
-	      delete	workerHandle;
-	   }
+	this -> rtlsdr_cancel_async (device);
+	if (workerHandle != nullptr) {
+	   while (!workerHandle -> isFinished()) 
+	      usleep (100);
+	   delete	workerHandle;
 	}
 	workerHandle = nullptr;
 }

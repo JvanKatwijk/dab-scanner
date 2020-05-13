@@ -67,9 +67,6 @@ HEADERS += ./radio.h \
 	   ./includes/ofdm/fib-decoder.h  \
 	   ./includes/ofdm/tii_detector.h \
 	   ./includes/protection/protTables.h \
-#	   ./includes/protection/protection.h \
-#	   ./includes/protection/eep-protection.h \
-#	   ./includes/protection/uep-protection.h \
            ./includes/support/fft-handler.h \
 	   ./includes/support/ringbuffer.h \
 	   ./includes/support/dab-params.h \
@@ -101,9 +98,6 @@ SOURCES += ./main.cpp \
 	   ./src/ofdm/fib-decoder.cpp  \
 	   ./src/ofdm/tii_detector.cpp \
 	   ./src/protection/protTables.cpp \
-#	   ./src/protection/protection.cpp \
-#	   ./src/protection/eep-protection.cpp \
-#	   ./src/protection/uep-protection.cpp \
 	   ./src/support/viterbi-spiral/viterbi-spiral.cpp \
            ./src/support/fft-handler.cpp \
 	   ./src/support/dab-params.cpp \
@@ -154,8 +148,8 @@ CONFIG		+= hackrf
 CONFIG		+= lime
 #For x64 linux system uncomment SSE
 #For any other system comment SSE out and uncomment NO_SSE
-#CONFIG += SSE
-CONFIG  += NO_SSE
+CONFIG += SSE
+#CONFIG  += NO_SSE
 }
 #
 # an attempt to have it run under W32 through cross compilation
