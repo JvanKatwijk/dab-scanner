@@ -32,6 +32,9 @@ int16_t res     = 1;
         return res;
 }
 
+static 
+std::complex<float> oscillatorTable [INPUT_RATE];
+
 	sampleReader::sampleReader (RadioInterface *mr,
 	                            deviceHandler   *theRig,
 	                            RingBuffer<std::complex <double>> *spectrumBuffer) {
@@ -50,7 +53,6 @@ int	i;
 	currentPhase	= 0;
 	sLevel		= 0;
 	sampleCount	= 0;
-	oscillatorTable = new std::complex<double> [INPUT_RATE];
         for (i = 0; i < INPUT_RATE; i ++)
            oscillatorTable [i] = std::complex<double>
 	                            (cos (2.0 * M_PI * i / INPUT_RATE),
@@ -61,7 +63,6 @@ int	i;
 }
 
 	sampleReader::~sampleReader (void) {
-	delete[] oscillatorTable;
 }
 
 void	sampleReader::setRunning (bool b) {

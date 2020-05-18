@@ -48,10 +48,6 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake/Modules)
 #
 #####################################################################
 #
-if(DEFINED AIRSPY)
-   set(AIRSPY true)
-endif ()
-
 if(DEFINED SDRPLAY)
    set(SDRPLAY true)
 endif ()
@@ -62,6 +58,14 @@ endif ()
 
 if(DEFINED RTLSDR)
    set(RTLSDR true)
+endif ()
+
+if(DEFINED RTLTCP)
+   set(RTLTCP true)
+endif ()
+
+if(DEFINED AIRSPY)
+   set(AIRSPY true)
 endif ()
 
 if(DEFINED HACKRF)

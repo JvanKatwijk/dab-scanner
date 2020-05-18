@@ -11,11 +11,11 @@ QT		+= widgets xml
 CONFIG		-= console
 #CONFIG		+= console
 QMAKE_CXXFLAGS	+= -std=c++11
-QMAKE_CFLAGS	+=  -lfto -ffast-math
-QMAKE_CXXFLAGS	+=  -lfto -ffast-math
-#QMAKE_CFLAGS	+=  -g
-#QMAKE_CXXFLAGS	+=  -g
-#QMAKE_LFLAGS	+=  -g
+#QMAKE_CFLAGS	+=  -lfto -ffast-math
+#QMAKE_CXXFLAGS	+=  -lfto -ffast-math
+QMAKE_CFLAGS	+=  -g
+QMAKE_CXXFLAGS	+=  -g
+QMAKE_LFLAGS	+=  -g
 QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
 RC_ICONS	=  dab-scanner.ico
 RESOURCES	+= resources.qrc
@@ -140,9 +140,10 @@ LIBS            += -lqwt-qt5
 #
 # comment or uncomment for the devices you want to have support for
 # (you obviously have libraries installed for the selected ones)
-CONFIG		+= dabstick
 CONFIG		+= sdrplay_v2
 CONFIG		+= sdrplay_v3
+CONFIG		+= dabstick
+CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 CONFIG		+= hackrf
 CONFIG		+= lime
@@ -185,28 +186,15 @@ LIBS		+= -lz
 LIBS		+= -lqwt-qt5
 #
 #	devices
-CONFIG		+= airspy
-CONFIG		+= dabstick
 CONFIG		+= sdrplay_v2
 CONFIG		+= sdrplay_v3
+CONFIG		+= dabstick
+CONFIG		+= airspy
 CONFIG		+= hackrf
 CONFIG		+= NO_SSE
 }
 
 #	devices
-#
-#	dabstick
-dabstick {
-	DEFINES         += HAVE_RTLSDR
-        DEPENDPATH      += ./devices/rtlsdr-handler
-        INCLUDEPATH     += ./devices/rtlsdr-handler
-        HEADERS         += ./devices/rtlsdr-handler/rtlsdr-handler.h \
-                           ./devices/rtlsdr-handler/rtl-dongleselect.h
-        SOURCES         += ./devices/rtlsdr-handler/rtlsdr-handler.cpp \
-                           ./devices/rtlsdr-handler/rtl-dongleselect.cpp
-        FORMS           += ./devices/rtlsdr-handler/rtlsdr-widget.ui
-}
-#
 #	the SDRplay: using the "old" v2.13 library
 #
 sdrplay_v2 {
@@ -231,6 +219,28 @@ sdrplay_v3 {
         FORMS           += ./devices/sdrplay-handler-v3/sdrplay-widget-v3.ui
 }
 
+#
+#	dabstick
+dabstick {
+	DEFINES         += HAVE_RTLSDR
+        DEPENDPATH      += ./devices/rtlsdr-handler
+        INCLUDEPATH     += ./devices/rtlsdr-handler
+        HEADERS         += ./devices/rtlsdr-handler/rtlsdr-handler.h \
+                           ./devices/rtlsdr-handler/rtl-dongleselect.h
+        SOURCES         += ./devices/rtlsdr-handler/rtlsdr-handler.cpp \
+                           ./devices/rtlsdr-handler/rtl-dongleselect.cpp
+        FORMS           += ./devices/rtlsdr-handler/rtlsdr-widget.ui
+}
+#
+#
+rtl_tcp {
+        DEFINES         += HAVE_RTL_TCP
+        QT              += network
+        INCLUDEPATH     += ./devices/rtl_tcp
+        HEADERS         += ./devices/rtl_tcp/rtl_tcp_client.h
+        SOURCES         += ./devices/rtl_tcp/rtl_tcp_client.cpp
+        FORMS           += ./devices/rtl_tcp/rtl_tcp-widget.ui
+}
 #
 # airspy support
 #

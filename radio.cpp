@@ -40,16 +40,18 @@
 #include        <QMouseEvent>
 #include	"radio.h"
 #include	"band-handler.h"
-#include	"spectrum-viewer.h"
 #include	"dab_tables.h"
-#ifdef	HAVE_RTLSDR
-#include	"rtlsdr-handler.h"
-#endif
 #ifdef	HAVE_SDRPLAY_V2
 #include	"sdrplay-handler-v2.h"
 #endif
 #ifdef	HAVE_SDRPLAY_V3
 #include	"sdrplay-handler-v3.h"
+#endif
+#ifdef	HAVE_RTLSDR
+#include	"rtlsdr-handler.h"
+#endif
+#ifdef	HAVE_RTL_TCP
+#include	"rtl_tcp_client.h"
 #endif
 #ifdef	HAVE_AIRSPY
 #include	"airspy-handler.h"
@@ -72,14 +74,21 @@
   *	is initiated by gui buttons
   */
 
-	RadioInterface::RadioInterface (QSettings	*Si,
+	RadioInterface::RadioInterface (QSettings	*dabSettings,
 	                                bandHandler	*theBand,
 	                                QWidget		*parent):
-	                                        QMainWindow (parent) {
+	                                        QMainWindow (parent),
+	                                        spectrumBuffer (2 * 32768),
+	                                        iqBuffer (2 * 1536),
+	                                        my_spectrumViewer
+	                                                 (this, dabSettings,
+                                                          &spectrumBuffer,
+                                                          &iqBuffer),
+	                                        displayTable (this) {
 QString h;
 
-	dabSettings		= Si;
-	this	-> theBand	= theBand;
+	this	-> dabSettings		= dabSettings;
+	this	-> theBand		= theBand;
 	running. store (NOT_RUNNING);
 	threshold_1	=
 	           dabSettings -> value ("threshold", 3). toInt ();
@@ -102,25 +111,25 @@ QString h;
 	isSynced	= false;
 	tii_Value. resize  (0);
 
-	spectrumBuffer	= new RingBuffer<std::complex<double>> (2 * 32768);
-	iqBuffer	= new RingBuffer<std::complex<double>> (2 * 1536);
 ///////////////////////////////////////////////////////////////////////////
 //	The settings are done, now creation of the GUI parts
 	setupUi (this);
 	skipfileName		-> setText (channelFileName);
 	channelTable		= nullptr;
-	displayTable		= new outputTable (this);
 //
 //	... and the device selector
 
-#ifdef	HAVE_RTLSDR
-	deviceSelector	-> addItem ("rtlsdr");
-#endif
 #ifdef	HAVE_SDRPLAY_V2
 	deviceSelector	-> addItem ("sdrplay v2");
 #endif
 #ifdef	HAVE_SDRPLAY_V3
 	deviceSelector	-> addItem ("sdrplay v3");
+#endif
+#ifdef	HAVE_RTLSDR
+	deviceSelector	-> addItem ("rtlsdr");
+#endif
+#ifdef	HAVE_RTL_TCP
+	deviceSelector	-> addItem ("rtl_tcp");
 #endif
 #ifdef	HAVE_AIRSPY
 	deviceSelector	-> addItem ("airspy");
@@ -161,9 +170,6 @@ QString h;
 	connect (continuousButton, SIGNAL (clicked (void)),
 	         this, SLOT (handle_continuousButton (void)));
 
-	my_spectrumViewer       = new spectrumViewer (this, dabSettings,
-                                               spectrumBuffer,
-                                               iqBuffer);
 	connect (spectrumSwitch, SIGNAL (clicked (void)),
                  this, SLOT (set_spectrumSwitch (void)));
 	running. store (NOT_RUNNING);
@@ -201,8 +207,8 @@ void	RadioInterface::handle_controlledButton (void) {
 	                                            threshold_1,
 	                                            threshold_2,
 	                                            diff_length,
-	                                            spectrumBuffer,
-                                                    iqBuffer);
+	                                            &spectrumBuffer,
+                                                    &iqBuffer);
 
 	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	            this, SLOT (show_snr (int)));
@@ -221,11 +227,11 @@ void	RadioInterface::handle_controlledButton (void) {
         }
 
 	continuousButton	-> hide ();
-	skipTableSelect	-> hide ();
-	displayTable	-> clear ();
-	displayTable	-> show ();
-	nrCycles	-> show	();
-	showTable	-> hide ();
+	skipTableSelect		-> hide ();
+	displayTable. clear ();
+	displayTable. show ();
+	nrCycles		-> show	();
+	showTable		-> hide ();
 	Services	= QStringList ();
 	channelNumber. store (0);
 	channelDisplay -> setText (theBand -> channel (channelNumber. load ()));
@@ -347,8 +353,8 @@ void	RadioInterface::handle_continuousButton  () {
 	                                            threshold_1,
 	                                            threshold_2,
 	                                            diff_length,
-	                                            spectrumBuffer,
-                                                    iqBuffer);
+	                                            &spectrumBuffer,
+                                                    &iqBuffer);
 
 	   connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	            this, SLOT (show_snr (int)));
@@ -387,7 +393,7 @@ void	RadioInterface::handle_continuousButton  () {
 	   return;
 	}
 
-	displayTable	-> hide ();
+	displayTable. hide ();
 	startButton	-> hide ();
 	nrCycles	-> hide ();
 	skipTableSelect	-> hide ();
@@ -555,7 +561,6 @@ void	RadioInterface::TerminateProcess (void) {
 	   delete channelTable;
         }
 
-	delete displayTable;
 	if (my_dabProcessor != nullptr) {
 	   my_dabProcessor	-> stop ();	// definitely concurrent
 //	everything should be halted by now
@@ -564,7 +569,6 @@ void	RadioInterface::TerminateProcess (void) {
 
 	if (theDevice != nullptr)
 	   delete	theDevice;
-	delete my_spectrumViewer;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
 	dabSettings	-> sync ();
 	close ();
@@ -601,15 +605,15 @@ void	RadioInterface::selectDevice (QString s) {
 	   return;
 	deviceSelector	-> hide ();
 
-	my_spectrumViewer	-> setBitDepth (theDevice -> bitDepth ());
+	my_spectrumViewer. setBitDepth (theDevice -> bitDepth ());
 	my_dabProcessor	= new dabProcessor (this,
 	                                    theDevice,
 	                                    dabMode,
 	                                    threshold_1,
 	                                    threshold_2,
 	                                    diff_length,
-	                                    spectrumBuffer,
-	                                    iqBuffer);
+	                                    &spectrumBuffer,
+	                                    &iqBuffer);
 	connect (my_dabProcessor, SIGNAL (show_snr (int)),
 	         this, SLOT (show_snr (int)));
 	connect (my_dabProcessor, SIGNAL (setSynced (bool)),
@@ -650,6 +654,13 @@ deviceHandler	*RadioInterface::setDevice (QString s) {
 	   } catch (int e) {}
 	}
 	else
+#endif
+#ifdef	HAVE_RTL_TCP
+	if (s == "rtl_tcp") {
+	   try {
+	      return new rtl_tcp_client (dabSettings);
+	   } catch (int e) {}
+	}
 #endif
 #ifdef	HAVE_HACKRF
 	if (s == "hackrf") {
@@ -693,11 +704,11 @@ ensemblePrinter	my_Printer;
 
 	if ((running. load () == CONTROLLED) && (nrCycles -> value () == 1)) {
 	   QString transmitters = extractTransmitters (tiiValue);
-	   displayTable ->  newEnsemble (currentChannel,
-	                          ensembleDisplay -> text (),
-	                          QString::number (frequency / 1000),
-	                          QString::number (snr),
-	                          transmitters);
+	   displayTable. newEnsemble (currentChannel,
+	                              ensembleDisplay -> text (),
+	                              QString::number (frequency / 1000),
+	                              QString::number (snr),
+	                              transmitters);
 	   for (QString& audioService: Services) {
 	      audiodata d;
 	      my_dabProcessor -> dataforAudioService (audioService, &d, 0);
@@ -708,7 +719,7 @@ ensemblePrinter	my_Printer;
 	                                              d. protLevel);
 	      QString codeRate  = getCodeRate (d. shortForm,
 	                                       d. protLevel);
-	      displayTable ->
+	      displayTable.
 	          add_to_Ensemble (audioService, 
 	                           d. ASCTy == 077 ? "DAB+" : "DAB",
 	                           bitRate, protL, codeRate);
@@ -828,25 +839,25 @@ bool	RadioInterface::skipChannel (int channelNumber) {
 //      with amount values ready for display
 void    RadioInterface::showIQ  (int amount) {
         if (running. load())
-           my_spectrumViewer    -> showIQ (amount);
+           my_spectrumViewer. showIQ (amount);
 }
 
 void    RadioInterface::showSpectrum    (int32_t amount) {
         if (running. load())
-           my_spectrumViewer -> showSpectrum (amount,
+           my_spectrumViewer. showSpectrum (amount,
                                             theDevice -> getVFOFrequency());
 }
 
 void    RadioInterface::showQuality     (double q) {
         if (running. load())
-           my_spectrumViewer    -> showQuality (q);
+           my_spectrumViewer. showQuality (q);
 }
 
 void    RadioInterface::set_spectrumSwitch() {
-        if (my_spectrumViewer -> isHidden())
-           my_spectrumViewer -> show();
+        if (my_spectrumViewer. isHidden ())
+           my_spectrumViewer. show ();
         else
-           my_spectrumViewer -> hide();
+           my_spectrumViewer. hide ();
 }
 
 void	RadioInterface::handle_skipTableSelect () {

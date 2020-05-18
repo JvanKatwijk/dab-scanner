@@ -41,6 +41,7 @@
 #include        "band-handler.h"
 #include	"channels-table.h"
 #include	"ringbuffer.h"
+#include        "spectrum-viewer.h"
 #include	"output-table.h"
 class	QSettings;
 class	virtualInput;
@@ -61,7 +62,10 @@ public:
 
 private:
 	QSettings	*dabSettings;
-	outputTable	*displayTable;
+	RingBuffer<std::complex<double>>  spectrumBuffer;
+	RingBuffer<std::complex<double>>  iqBuffer;
+	spectrumViewer	my_spectrumViewer;
+	outputTable	displayTable;
 	FILE		*fileP;
 	FILE		*summaryP;
 	QString		dirName;
@@ -83,10 +87,7 @@ private:
 	QTimer		channelTimer;
 	int16_t		ficBlocks;
 	int16_t		ficSuccess;
-	RingBuffer<std::complex<double>>  *spectrumBuffer;
-	RingBuffer<std::complex<double>>  *iqBuffer;
 
-	spectrumViewer	*my_spectrumViewer;
 	std::vector<int>	tii_Value;
 	void		TerminateProcess	(void);
 	void		startScanning		(void);
