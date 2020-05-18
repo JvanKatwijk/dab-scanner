@@ -60,8 +60,8 @@ if(DEFINED RTLSDR)
    set(RTLSDR true)
 endif ()
 
-if(DEFINED RTLTCP)
-   set(RTLTCP true)
+if(DEFINED RTL_TCP)
+   set(RTL_TCP true)
 endif ()
 
 if(DEFINED AIRSPY)
@@ -70,10 +70,6 @@ endif ()
 
 if(DEFINED HACKRF)
 	set(HACKRF true)
-endif ()
-
-if(DEFINED RTLTCP)
-   set(RTLTCP true)
 endif ()
 
 if(DEFINED LIMESDR)
@@ -242,8 +238,6 @@ endif ()
 
 	set (${objectName}_SRCS
 	        ${${objectName}_SRCS} ./radio.cpp)
-
-
 
 	if(VITERBI_SSE)
 	   set ($(objectName)_HDRS
@@ -460,7 +454,7 @@ endif ()
 	endif()
 
 #
-	if (RTLTCP)
+	if (RTL_TCP)
 	   find_package (Qt5Network REQUIRED)
 	   set (${objectName}_UIS
 	        ${${objectName}_UIS}
@@ -490,19 +484,6 @@ endif ()
 	   set (RTLTCP_lib Qt5::Network)
 	   add_definitions (-DHAVE_RTL_TCP)
 	endif (RTLTCP)
-
-	if (TRY_EPG)
-	   set ($(objectName)_HDRS
-	        ${${objectName}_HDRS}
-	             ./includes/backend/data/epg/epgdec.h
-	   )
-
-	   set (${objectName}_SRCS
-	        ${${objectName}_SRCS}
-	             ./src/backend/data/epg/epgdec.cpp
-	   )
-	   add_definitions (-DTRY_EPG)
-	endif (TRY_EPG)
 
 	if (DATA_STREAMER)
 	   include_directories (

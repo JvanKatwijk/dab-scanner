@@ -116,6 +116,7 @@ QString h;
 	setupUi (this);
 	skipfileName		-> setText (channelFileName);
 	channelTable		= nullptr;
+	displayTable.		hide ();
 //
 //	... and the device selector
 
@@ -232,7 +233,7 @@ void	RadioInterface::handle_controlledButton (void) {
 	displayTable. show ();
 	nrCycles		-> show	();
 	showTable		-> hide ();
-	Services	= QStringList ();
+	Services		= QStringList ();
 	channelNumber. store (0);
 	channelDisplay -> setText (theBand -> channel (channelNumber. load ()));
 	connect (my_dabProcessor, SIGNAL (noSignal_Found (void)),
@@ -346,6 +347,7 @@ void	RadioInterface::handle_continuousButton  () {
 	   }
 
 	   deviceSelector	-> hide ();
+
 //	here we really start
 	   my_dabProcessor	= new dabProcessor (this,
 	                                            theDevice,
@@ -364,7 +366,7 @@ void	RadioInterface::handle_continuousButton  () {
 	            this, SLOT (show_tii (int)));
 	}
 
-	Services	= QStringList ();
+	Services		= QStringList ();
 	QString reportName	= find_fileName ();
 	fileP		= fopen (reportName. toUtf8(). data(), "w");
 	if (fileP == nullptr) {
@@ -571,6 +573,8 @@ void	RadioInterface::TerminateProcess (void) {
 	   delete	theDevice;
 	dabSettings	-> setValue ("device", deviceSelector -> currentText ());
 	dabSettings	-> sync ();
+	my_spectrumViewer. hide ();
+	displayTable. hide ();
 	close ();
 	fprintf (stderr, ".. end the radio silences\n");
 }
