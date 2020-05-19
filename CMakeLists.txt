@@ -106,12 +106,6 @@ endif ()
             message(FATAL_ERROR "please install FFTW3")
         endif ()
 
-        find_package(LibSampleRate)
-        if (NOT LIBSAMPLERATE_FOUND)
-            message(FATAL_ERROR "please install libsamplerate")
-        endif ()
-        list(APPEND extraLibs ${LIBSAMPLERATE_LIBRARY})
-
 	find_library (PTHREADS pthread)
 	if (NOT(PTHREADS))
 	   message (FATAL_ERROR "please install libpthread")
