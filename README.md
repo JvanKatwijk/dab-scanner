@@ -107,6 +107,7 @@ lines could be packed in a script and executed
 	sudo apt-get update
 	sudo apt-get install qt5-qmake build-essential g++ git 
 	sudo apt-get install qt5-default libfftw3-dev 
+	sudo apt-get install libsndfile1-dev
 	sudo apt-get install zlib1g-dev rtl-sdr libusb-1.0-0-dev mesa-common-dev
 	sudo apt-get install libgl1-mesa-dev libqt5opengl5-dev 
 	sudo apt-get install qtbase5-dev libqwt-qt5-dev

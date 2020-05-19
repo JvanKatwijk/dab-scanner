@@ -109,8 +109,6 @@ SOURCES += ./main.cpp \
 	   ./devices/device-handler.cpp \
 	   ./src/scopes-qwt6/iqdisplay.cpp \
 	   ./spectrum-viewer/spectrum-viewer.cpp 
-
-
 #
 #	for unix systems this is about it. Adapt when needed for naming
 #	and locating libraries. If you do not need a device as
@@ -136,7 +134,7 @@ LIBS		+= -lz
 #correct this for the correct path to the qwt6 library on your system
 #LIBS           += -lqwt
 LIBS            += -lqwt-qt5
-
+LIBS		+= -lsndfile
 #
 # comment or uncomment for the devices you want to have support for
 # (you obviously have libraries installed for the selected ones)
@@ -213,6 +211,7 @@ sdrplay_v3 {
         DEFINES         += HAVE_SDRPLAY_V3
         DEPENDPATH      += ./devices/sdrplay-handler-v3
         INCLUDEPATH     += ./devices/sdrplay-handler-v3
+	INCLUDEPATH	+= ./devices/sdrplay-handler-v3/include
         HEADERS         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.h \
                            ./devices/sdrplay-handler-v3/sdrplay-commands.h
         SOURCES         += ./devices/sdrplay-handler-v3/sdrplay-handler-v3.cpp

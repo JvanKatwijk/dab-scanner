@@ -106,6 +106,12 @@ endif ()
             message(FATAL_ERROR "please install FFTW3")
         endif ()
 
+	find_package(LibSndFile)
+        if (NOT LIBSNDFILE_FOUND)
+            message(FATAL_ERROR "please install libsndfile")
+        endif ()
+        list(APPEND extraLibs ${LIBSNDFILE_LIBRARY})
+
 	find_library (PTHREADS pthread)
 	if (NOT(PTHREADS))
 	   message (FATAL_ERROR "please install libpthread")
@@ -477,7 +483,7 @@ endif ()
 
 	   set (RTLTCP_lib Qt5::Network)
 	   add_definitions (-DHAVE_RTL_TCP)
-	endif (RTLTCP)
+	endif (RTL_TCP)
 
 	if (DATA_STREAMER)
 	   include_directories (
