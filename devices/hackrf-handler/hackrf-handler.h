@@ -8,6 +8,7 @@
  *    Fabio Capozzi
  *
  *    This file is part of the  dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -93,11 +94,11 @@ public:
 	int16_t		bitDepth();
 //
 //	The buffer should be visible by the callback function
-	RingBuffer<std::complex<float>>	*_I_Buffer;
+	RingBuffer<std::complex<float>>	_I_Buffer;
 	hackrf_device	*theDevice;
 private:
-
-    bool			load_hackrfFunctions();
+	QFrame			myFrame;
+	bool			load_hackrfFunctions();
 	pfn_hackrf_init		hackrf_init;
 	pfn_hackrf_open		hackrf_open;
 	pfn_hackrf_close	hackrf_close;
@@ -125,7 +126,6 @@ private:
 //	Fine aggiunta
 
 	QSettings	*hackrfSettings;
-	QFrame		*myFrame;
 	int32_t		inputRate;
 	int32_t		vfoFrequency;
 	std::atomic<bool>	running;

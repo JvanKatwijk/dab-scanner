@@ -108,7 +108,9 @@ private slots:
 	void		set_rf_bias();
 	void		show_tab		(int);
 private:
-	bool		load_airspyFunctions();
+	RingBuffer<std::complex<float>> _I_Buffer;
+	QFrame			myFrame;
+	bool			load_airspyFunctions();
 //	The functions to be extracted from the dll/.so file
 	pfn_airspy_init		   my_airspy_init;
 	pfn_airspy_exit		   my_airspy_exit;
@@ -137,7 +139,6 @@ private:
 	HINSTANCE	Handle_usb;
 	HINSTANCE	Handle;
 	bool		libraryLoaded;
-	QFrame		*myFrame;
 	bool		success;
 	std::atomic<bool>	running;
 	bool		lna_agc;
@@ -155,7 +156,6 @@ const	char*		board_id_name();
 	int16_t		mapTable_int   [4 * 512];
 	float		mapTable_float [4 * 512];
 	QSettings	*airspySettings;
-	RingBuffer<std::complex<float>> *theBuffer;
 	int32_t		inputRate;
 	airspyFilter	*filter;
 	bool		filtering;

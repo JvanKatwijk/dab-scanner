@@ -11,11 +11,11 @@ QT		+= widgets xml
 CONFIG		-= console
 #CONFIG		+= console
 QMAKE_CXXFLAGS	+= -std=c++11
-#QMAKE_CFLAGS	+=  -lfto -ffast-math
-#QMAKE_CXXFLAGS	+=  -lfto -ffast-math
-QMAKE_CFLAGS	+=  -g
-QMAKE_CXXFLAGS	+=  -g
-QMAKE_LFLAGS	+=  -g
+QMAKE_CFLAGS	+=  -lfto -ffast-math
+QMAKE_CXXFLAGS	+=  -lfto -ffast-math
+#QMAKE_CFLAGS	+=  -g
+#QMAKE_CXXFLAGS	+=  -g
+#QMAKE_LFLAGS	+=  -g
 QMAKE_CXXFLAGS += -isystem $$[QT_INSTALL_HEADERS]
 RC_ICONS	=  dab-scanner.ico
 RESOURCES	+= resources.qrc
@@ -145,6 +145,7 @@ CONFIG		+= rtl_tcp
 CONFIG		+= airspy
 CONFIG		+= hackrf
 CONFIG		+= lime
+CONFIG		+= pluto
 #For x64 linux system uncomment SSE
 #For any other system comment SSE out and uncomment NO_SSE
 CONFIG += SSE
@@ -189,6 +190,8 @@ CONFIG		+= sdrplay_v3
 CONFIG		+= dabstick
 CONFIG		+= airspy
 CONFIG		+= hackrf
+CONFIG		+= lime
+CONFIG		+= pluto
 CONFIG		+= NO_SSE
 }
 
@@ -277,6 +280,18 @@ lime  {
         SOURCES         += ./devices/lime-handler/lime-handler.cpp
         FORMS           += ./devices/lime-handler/lime-widget.ui
 }
+
+pluto   {
+        DEFINES         += HAVE_PLUTO
+        QT              += network
+        INCLUDEPATH     += ./devices/pluto-handler
+        HEADERS         += ./devices/pluto-handler/dabFilter.h
+        HEADERS         += ./devices/pluto-handler/pluto-handler.h
+        SOURCES         += ./devices/pluto-handler/pluto-handler.cpp
+        FORMS           += ./devices/pluto-handler/pluto-widget.ui
+        LIBS            += -liio
+}
+
 NO_SSE  {
         HEADERS         += ./src/support/viterbi-spiral/spiral-no-sse.h
         SOURCES         += ./src/support/viterbi-spiral/spiral-no-sse.c

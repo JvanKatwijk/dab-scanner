@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -108,12 +109,12 @@ public:
         int16_t         bitDepth();
 
 private:
+	RingBuffer<std::complex<float>> _I_Buffer;
+	QFrame		myFrame;
 	QSettings	*limeSettings;
-	QFrame		*myFrame;
 	std::atomic<bool>	running;
 	lms_device_t	*theDevice;
 	lms_name_t	antennas [10];
-	RingBuffer<std::complex<float>> *theBuffer;
 	bool		load_limeFunctions();
 	HINSTANCE	Handle;
 	bool		libraryLoaded;

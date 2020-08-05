@@ -62,6 +62,9 @@
 #ifdef	HAVE_LIME
 #include	"lime-handler.h"
 #endif
+#ifdef	HAVE_PLUTO
+#include	"pluto-handler.h"
+#endif
 
 #define	NOT_RUNNING	0100
 #define	CONTROLLED	0101
@@ -120,6 +123,9 @@ QString h;
 //
 //	... and the device selector
 
+#ifdef	HAVE_PLUTO
+	deviceSelector	-> addItem ("pluto");
+#endif
 #ifdef	HAVE_SDRPLAY_V2
 	deviceSelector	-> addItem ("sdrplay v2");
 #endif
@@ -627,6 +633,14 @@ void	RadioInterface::selectDevice (QString s) {
 }
 
 deviceHandler	*RadioInterface::setDevice (QString s) {
+#ifdef	HAVE_PLUTO
+	if (s == "pluto") {
+	   try {
+	      return new plutoHandler (dabSettings);
+	   } catch (int e) {}
+	}
+	else
+#endif
 #ifdef	HAVE_AIRSPY
 	if (s == "airspy") {
 	   try {

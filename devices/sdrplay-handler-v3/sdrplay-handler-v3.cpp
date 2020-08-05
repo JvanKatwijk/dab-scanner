@@ -40,6 +40,10 @@ static
 int	RSPduo_Table []	= {0, 6, 12, 18, 20, 26, 32, 38, 57, 62};
 
 static
+int     RSPDx_Table []  = {0, 3, 6, 9, 12, 15, 24,27, 30, 33, 36, 39, 42, 45,
+                           48, 51, 54, 57, 60, 53, 66, 69, 72, 75, 78, 81, 84};
+
+static
 int	get_lnaGRdB (int hwVersion, int lnaState) {
 	switch (hwVersion) {
 	   case 1:
@@ -54,19 +58,21 @@ int	get_lnaGRdB (int hwVersion, int lnaState) {
 
 	   case 3:
 	      return RSPduo_Table [lnaState];
+
+	   case 4:
+	      return RSPDx_Table [lnaState];
 	}
 }
 
 
-	sdrplayHandler_v3::sdrplayHandler_v3  (QSettings *s) {
+	sdrplayHandler_v3::sdrplayHandler_v3  (QSettings *s):
+	                                        _I_Buffer (4 * 1024 * 1024),
+	                                        myFrame (nullptr) {
 	sdrplaySettings			= s;
-	myFrame				= new QFrame (nullptr);
-	setupUi (this -> myFrame);
-	this	-> myFrame	-> show	();
+	setupUi (&myFrame);
+	 myFrame. show	();
 	antennaSelector		-> hide	();
 	tunerSelector		-> hide	();
-	_I_Buffer		= new RingBuffer<
-	                              std::complex<int16_t>>(8 *1024 * 1024);
 	nrBits			= 12;	// default
 	denominator		= 2048;	// default
 
@@ -107,8 +113,17 @@ int	get_lnaGRdB (int hwVersion, int lnaState) {
 	vfoFrequency	= MHz (220);
 	theGain		= -1;
 	debugControl	-> hide ();
+	successFlag	= false;
+	failFlag	= false;
 	start ();
-	usleep (1000);
+	while (!successFlag && !failFlag)
+	   usleep (1000);
+	if (failFlag) {
+	   while (isRunning ())
+	      usleep (1000);
+	   throw (21);
+	}
+	fprintf (stderr, "setup sdrplay-v3 seems successfull\n");
 }
 
 	sdrplayHandler_v3::~sdrplayHandler_v3 () {
@@ -127,10 +142,6 @@ int	get_lnaGRdB (int hwVersion, int lnaState) {
 	                                  agcControl -> isChecked() ? 1 : 0);
 	sdrplaySettings	-> endGroup ();
 	sdrplaySettings	-> sync();
-
-	myFrame	-> hide ();
-	delete	myFrame;
-	delete _I_Buffer;
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -164,21 +175,21 @@ int32_t	sdrplayHandler_v3::getSamples (std::complex<float> *V, int32_t size) {
 std::complex<int16_t> temp [size];
 int	i;
 
-	int amount      = _I_Buffer     -> getDataFromBuffer (temp, size);
+	int amount      = _I_Buffer. getDataFromBuffer (temp, size);
         for (i = 0; i < amount; i ++)
            V [i] = std::complex<float> (real (temp [i]) / (float) denominator,
                                         imag (temp [i]) / (float) denominator);
         return amount;
 
-	return _I_Buffer	-> getDataFromBuffer (V, amount);
+	return _I_Buffer. getDataFromBuffer (V, amount);
 }
 
 int32_t	sdrplayHandler_v3::Samples	() {
-	return _I_Buffer	-> GetRingBufferReadAvailable();
+	return _I_Buffer. GetRingBufferReadAvailable();
 }
 
 void	sdrplayHandler_v3::resetBuffer	() {
-	_I_Buffer	-> FlushRingBuffer();
+	_I_Buffer. FlushRingBuffer();
 }
 
 int16_t	sdrplayHandler_v3::bitDepth	() {
@@ -297,7 +308,7 @@ static int teller	= 0;
 	   std::complex<int16_t> symb = std::complex<int16_t> (xi [i], xq [i]);
 	   localBuf [i] = symb;
 	}
-	p -> _I_Buffer -> putDataIntoBuffer (localBuf, numSamples);
+	p -> _I_Buffer. putDataIntoBuffer (localBuf, numSamples);
 }
 
 static
@@ -373,13 +384,16 @@ uint32_t                ndev;
 	nrBits			= 12;		// default
 
 	Handle			= fetchLibrary ();
-	if (Handle == nullptr)
+	if (Handle == nullptr) {
+	   failFlag	= true;
 	   return;
+	}
 
 //	load the functions
 	bool success	= loadFunctions ();
 	if (!success) {
 	   releaseLibrary ();
+	   failFlag	= true;
 	   return;
         }
 	fprintf (stderr, "functions loaded\n");
@@ -390,6 +404,7 @@ uint32_t                ndev;
 	   fprintf (stderr, "sdrplay_api_Open failed %s\n",
 	                          sdrplay_api_GetErrorString (err));
 	   releaseLibrary ();
+	   failFlag	= true;
 	   return;
 	}
 
@@ -403,7 +418,7 @@ uint32_t                ndev;
 	   goto closeAPI;
         }
 
-        if (apiVersion != SDRPLAY_API_VERSION) {
+        if (apiVersion < (SDRPLAY_API_VERSION - 0.1)) {
            fprintf (stderr, "API versions don't match (local=%.2f dll=%.2f)\n",
                                               SDRPLAY_API_VERSION, apiVersion);
 	   goto closeAPI;
@@ -512,6 +527,13 @@ uint32_t                ndev;
 	      nrBits		= 12;
 	      has_antennaSelect	= false;
 	      break;
+	   case 4:		// RSP-Dx
+	      lna_upperBound	= 26;
+	      deviceName	= "RSP-Dx";
+	      denominator	= 2048;
+	      nrBits		= 14;
+	      has_antennaSelect	= false;
+	      break;
 	   default:
 	   case 255:		// RSP-1A
 	      lna_upperBound	= 9;
@@ -528,6 +550,8 @@ uint32_t                ndev;
 	set_apiVersion_signal	(apiVersion);
 	set_antennaSelect_signal (has_antennaSelect);
 	threadRuns. store (true);	// it seems we can do some work
+
+	successFlag	= true;
 
 	while (threadRuns. load ()) {
 	   while (!serverjobs. tryAcquire (1, 1000))
@@ -707,6 +731,7 @@ normal_exit:
 unlockDevice_closeAPI:
 	sdrplay_api_UnlockDeviceApi	();
 closeAPI:	
+	failFlag	= true;
 	sdrplay_api_ReleaseDevice       (chosenDevice);
         sdrplay_api_Close               ();
 	releaseLibrary	();

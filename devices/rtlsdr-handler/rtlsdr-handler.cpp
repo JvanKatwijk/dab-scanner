@@ -1,10 +1,11 @@
 #
 /*
- *    Copyright (C) 2013 .. 2019
+ *    Copyright (C) 2020
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
- *    This file is part of the dab-scanner
+ *    This file is part of dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -26,8 +27,6 @@
  */
 
 #include	<QThread>
-#include	<QFileDialog>
-#include	<QDir>
 #include	"rtlsdr-handler.h"
 #include	"rtl-dongleselect.h"
 #include	"rtl-sdr.h"
@@ -45,6 +44,26 @@
 //
 //	This is the user-side call back function
 //	ctx is the calling task
+
+static 
+float mapTable [] = {
+ -128 / 128.0 , -127 / 128.0 , -126 / 128.0 , -125 / 128.0 , -124 / 128.0 , -123 / 128.0 , -122 / 128.0 , -121 / 128.0 , -120 / 128.0 , -119 / 128.0 , -118 / 128.0 , -117 / 128.0 , -116 / 128.0 , -115 / 128.0 , -114 / 128.0 , -113 / 128.0 
+, -112 / 128.0 , -111 / 128.0 , -110 / 128.0 , -109 / 128.0 , -108 / 128.0 , -107 / 128.0 , -106 / 128.0 , -105 / 128.0 , -104 / 128.0 , -103 / 128.0 , -102 / 128.0 , -101 / 128.0 , -100 / 128.0 , -99 / 128.0 , -98 / 128.0 , -97 / 128.0 
+, -96 / 128.0 , -95 / 128.0 , -94 / 128.0 , -93 / 128.0 , -92 / 128.0 , -91 / 128.0 , -90 / 128.0 , -89 / 128.0 , -88 / 128.0 , -87 / 128.0 , -86 / 128.0 , -85 / 128.0 , -84 / 128.0 , -83 / 128.0 , -82 / 128.0 , -81 / 128.0 
+, -80 / 128.0 , -79 / 128.0 , -78 / 128.0 , -77 / 128.0 , -76 / 128.0 , -75 / 128.0 , -74 / 128.0 , -73 / 128.0 , -72 / 128.0 , -71 / 128.0 , -70 / 128.0 , -69 / 128.0 , -68 / 128.0 , -67 / 128.0 , -66 / 128.0 , -65 / 128.0 
+, -64 / 128.0 , -63 / 128.0 , -62 / 128.0 , -61 / 128.0 , -60 / 128.0 , -59 / 128.0 , -58 / 128.0 , -57 / 128.0 , -56 / 128.0 , -55 / 128.0 , -54 / 128.0 , -53 / 128.0 , -52 / 128.0 , -51 / 128.0 , -50 / 128.0 , -49 / 128.0 
+, -48 / 128.0 , -47 / 128.0 , -46 / 128.0 , -45 / 128.0 , -44 / 128.0 , -43 / 128.0 , -42 / 128.0 , -41 / 128.0 , -40 / 128.0 , -39 / 128.0 , -38 / 128.0 , -37 / 128.0 , -36 / 128.0 , -35 / 128.0 , -34 / 128.0 , -33 / 128.0 
+, -32 / 128.0 , -31 / 128.0 , -30 / 128.0 , -29 / 128.0 , -28 / 128.0 , -27 / 128.0 , -26 / 128.0 , -25 / 128.0 , -24 / 128.0 , -23 / 128.0 , -22 / 128.0 , -21 / 128.0 , -20 / 128.0 , -19 / 128.0 , -18 / 128.0 , -17 / 128.0 
+, -16 / 128.0 , -15 / 128.0 , -14 / 128.0 , -13 / 128.0 , -12 / 128.0 , -11 / 128.0 , -10 / 128.0 , -9 / 128.0 , -8 / 128.0 , -7 / 128.0 , -6 / 128.0 , -5 / 128.0 , -4 / 128.0 , -3 / 128.0 , -2 / 128.0 , -1 / 128.0 
+, 0 / 128.0 , 1 / 128.0 , 2 / 128.0 , 3 / 128.0 , 4 / 128.0 , 5 / 128.0 , 6 / 128.0 , 7 / 128.0 , 8 / 128.0 , 9 / 128.0 , 10 / 128.0 , 11 / 128.0 , 12 / 128.0 , 13 / 128.0 , 14 / 128.0 , 15 / 128.0 
+, 16 / 128.0 , 17 / 128.0 , 18 / 128.0 , 19 / 128.0 , 20 / 128.0 , 21 / 128.0 , 22 / 128.0 , 23 / 128.0 , 24 / 128.0 , 25 / 128.0 , 26 / 128.0 , 27 / 128.0 , 28 / 128.0 , 29 / 128.0 , 30 / 128.0 , 31 / 128.0 
+, 32 / 128.0 , 33 / 128.0 , 34 / 128.0 , 35 / 128.0 , 36 / 128.0 , 37 / 128.0 , 38 / 128.0 , 39 / 128.0 , 40 / 128.0 , 41 / 128.0 , 42 / 128.0 , 43 / 128.0 , 44 / 128.0 , 45 / 128.0 , 46 / 128.0 , 47 / 128.0 
+, 48 / 128.0 , 49 / 128.0 , 50 / 128.0 , 51 / 128.0 , 52 / 128.0 , 53 / 128.0 , 54 / 128.0 , 55 / 128.0 , 56 / 128.0 , 57 / 128.0 , 58 / 128.0 , 59 / 128.0 , 60 / 128.0 , 61 / 128.0 , 62 / 128.0 , 63 / 128.0 
+, 64 / 128.0 , 65 / 128.0 , 66 / 128.0 , 67 / 128.0 , 68 / 128.0 , 69 / 128.0 , 70 / 128.0 , 71 / 128.0 , 72 / 128.0 , 73 / 128.0 , 74 / 128.0 , 75 / 128.0 , 76 / 128.0 , 77 / 128.0 , 78 / 128.0 , 79 / 128.0 
+, 80 / 128.0 , 81 / 128.0 , 82 / 128.0 , 83 / 128.0 , 84 / 128.0 , 85 / 128.0 , 86 / 128.0 , 87 / 128.0 , 88 / 128.0 , 89 / 128.0 , 90 / 128.0 , 91 / 128.0 , 92 / 128.0 , 93 / 128.0 , 94 / 128.0 , 95 / 128.0 
+, 96 / 128.0 , 97 / 128.0 , 98 / 128.0 , 99 / 128.0 , 100 / 128.0 , 101 / 128.0 , 102 / 128.0 , 103 / 128.0 , 104 / 128.0 , 105 / 128.0 , 106 / 128.0 , 107 / 128.0 , 108 / 128.0 , 109 / 128.0 , 110 / 128.0 , 111 / 128.0 
+, 112 / 128.0 , 113 / 128.0 , 114 / 128.0 , 115 / 128.0 , 116 / 128.0 , 117 / 128.0 , 118 / 128.0 , 119 / 128.0 , 120 / 128.0 , 121 / 128.0 , 122 / 128.0 , 123 / 128.0 , 124 / 128.0 , 125 / 128.0 , 126 / 128.0 , 127 / 128.0 };
+
 static
 void	RTLSDRCallBack (uint8_t *buf, uint32_t len, void *ctx) {
 rtlsdrHandler	*theStick	= (rtlsdrHandler *)ctx;
@@ -52,7 +71,9 @@ rtlsdrHandler	*theStick	= (rtlsdrHandler *)ctx;
 	if ((theStick == nullptr) || (len != READLEN_DEFAULT))
 	   return;
 
-	(void)theStick -> _I_Buffer -> putDataIntoBuffer (buf, len);
+	if (theStick -> isActive)
+	   (void)theStick -> _I_Buffer.
+	             putDataIntoBuffer ((std::complex<uint8_t> *)buf, len / 2);
 }
 //
 //	for handling the events in libusb, we need a controlthread
@@ -66,13 +87,13 @@ public:
 	dll_driver (rtlsdrHandler *d) {
 	theStick	= d;
 	start();
-	}
+}
 
 	~dll_driver() {
-	}
+}
 
 private:
-virtual void	run() {
+void	run () {
 	(theStick -> rtlsdr_read_async) (theStick -> device,
 	                          (rtlsdr_read_async_cb_t)&RTLSDRCallBack,
 	                          (void *)theStick,
@@ -82,7 +103,9 @@ virtual void	run() {
 };
 //
 //	Our wrapper is a simple classs
-	rtlsdrHandler::rtlsdrHandler (QSettings *s) {
+	rtlsdrHandler::rtlsdrHandler (QSettings *s):
+	                                    _I_Buffer (4 * 1024 * 1024),
+	                                    myFrame (nullptr) {
 int16_t	deviceCount;
 int32_t	r;
 int16_t	deviceIndex;
@@ -92,43 +115,32 @@ int	k;
 char	manufac [256], product [256], serial [256];
 
 	rtlsdrSettings		= s;
-	this	-> myFrame	= new QFrame (nullptr);
-	setupUi (this -> myFrame);
-	this	-> myFrame	-> show();
+	setupUi (&myFrame);
+	myFrame. show();
 	inputRate		= 2048000;
-	libraryLoaded		= false;
-	open			= false;
-	_I_Buffer		= nullptr;
 	workerHandle		= nullptr;
-	lastFrequency		= KHz (22000);	// just a dummy
-	gains			= nullptr;
-
-#ifdef	__MINGW32__
 	const char *libraryString = "rtlsdr.dll";
+	isActive		= false;
+#ifdef	__MINGW32__
 	Handle		= LoadLibrary ((wchar_t *)L"rtlsdr.dll");
 	if (Handle == nullptr) {
 	   fprintf (stderr, "failed to open %s (%d)\n", libraryString, GetLastError());
-	   delete myFrame;
 	   throw (20);
 	}
 #else
-	const char *libraryString = "librtlsdr.so";
 	Handle		= dlopen ("librtlsdr.so", RTLD_NOW);
 
 	if (Handle == nullptr) {
 	   fprintf (stderr, "failed to open %s (%s)\n", libraryString, dlerror());
-	   delete myFrame;
 	   throw (20);
 	}
 #endif
-	libraryLoaded	= true;
 	if (!load_rtlFunctions()) {
 #ifdef __MINGW32__
 	   FreeLibrary (Handle);
 #else
 	   dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (21);
 	}
 //
@@ -141,7 +153,6 @@ char	manufac [256], product [256], serial [256];
 #else
 	   dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (22);
 	}
 
@@ -164,15 +175,12 @@ char	manufac [256], product [256], serial [256];
 #else
 	   dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (23);
 	}
 
-	deviceName      -> setText (rtlsdr_get_device_name (deviceIndex));
-
-	open			= true;
-	r			= this -> rtlsdr_set_sample_rate (device,
-	                                                          inputRate);
+	deviceModel	= rtlsdr_get_device_name (deviceIndex);
+	deviceVersion	-> setText (deviceModel);
+	r		= this -> rtlsdr_set_sample_rate (device, inputRate);
 	if (r < 0) {
 	   fprintf (stderr, "Setting samplerate failed\n");
 	   rtlsdr_close (device);
@@ -181,118 +189,100 @@ char	manufac [256], product [256], serial [256];
 #else
 	   dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (24);
 	}
 
-	r			= this -> rtlsdr_get_sample_rate (device);
-	fprintf (stderr, "samplerate set to %d\n", r);
-
-	
 	gainsCount = rtlsdr_get_tuner_gains (device, nullptr);
 	fprintf(stderr, "Supported gain values (%d): ", gainsCount);
-	gains		= new int [gainsCount];
-	gainsCount = rtlsdr_get_tuner_gains (device, gains);
-	for (i = gainsCount; i > 0; i--) {
-	   fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
-	   combo_gain -> addItem (QString::number (gains [i - 1]));
+	{  int gains [gainsCount];
+	   gainsCount	= rtlsdr_get_tuner_gains (device, gains);
+	   for (i = gainsCount; i > 0; i--) {
+	      fprintf(stderr, "%.1f ", gains [i - 1] / 10.0);
+	      gainControl -> addItem (QString::number (gains [i - 1]));
+	   }
+	   fprintf(stderr, "\n");
 	}
-	fprintf(stderr, "\n");
 
 	rtlsdr_set_tuner_gain_mode (device, 1);
 	rtlsdr_set_agc_mode (device, 0);
 
-	_I_Buffer		= new RingBuffer<uint8_t>(8 * 1024 * 1024);
-
-	theGain		= gains [gainsCount / 2];	// default
 //
 //	See what the saved values are and restore the GUI settings
 	rtlsdrSettings	-> beginGroup ("rtlsdrSettings");
-	coarseOffset	= rtlsdrSettings -> value ("rtlsdrOffset", 0). toInt();
 	temp = rtlsdrSettings -> value ("externalGain", "10"). toString();
-	k	= combo_gain -> findText (temp);
-	if (k != -1) {
-	   combo_gain	-> setCurrentIndex (k);
-	   theGain	= temp. toInt();
-	}
+	k	= gainControl -> findText (temp);
+	gainControl	-> setCurrentIndex (k != -1 ? k : gainsCount / 2);
 
-	temp	= rtlsdrSettings -> value ("autogain",
+	temp		= rtlsdrSettings -> value ("autogain",
 	                                      "autogain_on"). toString();
-	k	= combo_autogain -> findText (temp);
-	if (k != -1) 
-	   combo_autogain	-> setCurrentIndex (k);
-	
+	agcControl	-> setChecked (temp == "autogain_on");
 	
 	ppm_correction	-> setValue (rtlsdrSettings -> value ("ppm_correction", 0). toInt());
+	save_gainSettings	=
+		rtlsdrSettings -> value ("save_gainSettings", 1). toInt () != 0;
 	rtlsdrSettings	-> endGroup();
 
 	rtlsdr_get_usb_strings (device, manufac, product, serial);
+	fprintf (stderr, "%s %s %s\n",
+	            manufac, product, serial);
 
 //	all sliders/values are set to previous values, now do the settings
 //	based on these slider values
 	rtlsdr_set_tuner_gain_mode (device,
-	                   combo_autogain -> currentText() == "autogain_on");
-	if (combo_autogain -> currentText() == "autogain_on")
+	                   agcControl -> isChecked ()? 1 : 0);
+	if (agcControl -> isChecked ())
 	   rtlsdr_set_agc_mode (device, 1);
 	else
 	   rtlsdr_set_agc_mode (device, 0);
-	rtlsdr_set_tuner_gain	(device, theGain);
+	rtlsdr_set_tuner_gain	(device, 
+	                         gainControl -> currentText (). toInt ());
 	set_ppmCorrection	(ppm_correction -> value());
 
-	dumping			= false;
 //	and attach the buttons/sliders to the actions
-	connect (combo_gain, SIGNAL (activated (const QString &)),
+	connect (gainControl, SIGNAL (activated (const QString &)),
 	         this, SLOT (set_ExternalGain (const QString &)));
-	connect (combo_autogain, SIGNAL (activated (const QString &)),
-	         this, SLOT (set_autogain (const QString &)));
+	connect (agcControl, SIGNAL (stateChanged (int)),
+	         this, SLOT (set_autogain (int)));
 	connect (ppm_correction, SIGNAL (valueChanged (int)),
 	         this, SLOT (set_ppmCorrection  (int)));
-	connect (dumpButton, SIGNAL (clicked (void)),
-	         this, SLOT (dumpButton_pressed (void)));
+//
+//	and for saving/restoring the gain setting:
+	connect (this, SIGNAL (new_gainIndex (int)),
+	         gainControl, SLOT (setCurrentIndex (int)));
+	connect (this, SIGNAL (new_agcSetting (bool)),
+	         agcControl, SLOT (setChecked (bool)));
 }
 
 	rtlsdrHandler::~rtlsdrHandler() {
 	if (Handle == nullptr) {	// nothing achieved earlier on
-	   delete myFrame;
 	   return;
 	}
-	
-	if (!open) {	
-#ifdef __MINGW32__
-	   FreeLibrary (Handle);
-#else
-	   dlclose (Handle);
-#endif
-	   return;
-	}
-
-	stopReader();
+	this -> rtlsdr_cancel_async (device);
+	while (!workerHandle -> isFinished()) 
+	   usleep (100);
+	_I_Buffer. FlushRingBuffer();
+	delete	workerHandle;
+	workerHandle	= nullptr;
+	stopReader	();
 	rtlsdrSettings	-> beginGroup ("rtlsdrSettings");
-	rtlsdrSettings	-> setValue ("rtlsdrOffset", coarseOffset);
 	rtlsdrSettings	-> setValue ("externalGain",
-	                                      combo_gain -> currentText());
+	                             gainControl -> currentText());
 	rtlsdrSettings	-> setValue ("autogain",
-	                                      combo_autogain -> currentText());
+	                              agcControl -> isChecked () ? "1" : "0");
 	rtlsdrSettings	-> setValue ("ppm_correction",
-	                                      ppm_correction -> value());
+	                              ppm_correction -> value());
 	rtlsdrSettings	-> sync();
 	rtlsdrSettings	-> endGroup();
 	
-	this -> rtlsdr_close (device);
+	this		-> rtlsdr_close (device);
 #ifdef __MINGW32__
 	FreeLibrary (Handle);
 #else
 	dlclose (Handle);
 #endif
-	if (_I_Buffer != nullptr)
-	   delete _I_Buffer;
-	if (gains != nullptr)
-	   delete[] gains;
-	delete	myFrame;
 }
 
 void	rtlsdrHandler::setVFOFrequency	(int32_t f) {
-	lastFrequency	= f;
 	(void)(this -> rtlsdr_set_center_freq (device, f));
 }
 
@@ -300,48 +290,41 @@ int32_t	rtlsdrHandler::getVFOFrequency() {
 	return (int32_t)(this -> rtlsdr_get_center_freq (device));
 }
 //
-//
-bool	rtlsdrHandler::restartReader	(int32_t frequency) {
+bool	rtlsdrHandler::restartReader	(int32_t freq) {
 int32_t	r;
 
-	if (workerHandle != nullptr)
-	   return true;
+	(void)(this -> rtlsdr_set_center_freq (device, freq));
+	if (save_gainSettings)
+	   update_gainSettings (freq / MHz (1));
 
-	lastFrequency	= frequency;
-	_I_Buffer	-> FlushRingBuffer();
-	r = this -> rtlsdr_reset_buffer (device);
-	if (r < 0)
-	   return false;
-
-	this -> rtlsdr_set_center_freq (device, lastFrequency);
-	workerHandle	= new dll_driver (this);
-	rtlsdr_set_agc_mode (device,
-                combo_autogain -> currentText() == "autogain_on" ? 1 : 0);
-	rtlsdr_set_tuner_gain (device, theGain);
+	rtlsdr_set_agc_mode (device, agcControl -> isChecked () ? 1 : 0);
+	rtlsdr_set_tuner_gain (device,
+	                       gainControl -> currentText (). toInt ());
+	if (workerHandle == nullptr) {
+	   r = this -> rtlsdr_reset_buffer (device);
+	   workerHandle	= new dll_driver (this);
+	}
+	isActive	= true;
 	return true;
 }
 
-void	rtlsdrHandler::stopReader() {
-	if (workerHandle == nullptr)
-	   return;
-	this -> rtlsdr_cancel_async (device);
-	if (workerHandle != nullptr) {
-	   while (!workerHandle -> isFinished()) 
-	      usleep (100);
-	   delete	workerHandle;
-	}
-	workerHandle = nullptr;
+void	rtlsdrHandler::stopReader () {
+	isActive	= false;
+	_I_Buffer. FlushRingBuffer();
+	if (save_gainSettings)
+	   record_gainSettings	((int32_t)(this -> rtlsdr_get_center_freq (device)) / MHz (1));
 }
 //
 //	when selecting  the gain from a table, use the table value
 void	rtlsdrHandler::set_ExternalGain	(const QString &gain) {
-	theGain		= gain. toInt();
 	rtlsdr_set_tuner_gain (device, gain. toInt());
 }
 //
-void	rtlsdrHandler::set_autogain	(const QString &autogain) {
-	rtlsdr_set_agc_mode (device, autogain == "autogain_off" ? 0 : 1);
-	rtlsdr_set_tuner_gain (device, theGain);
+void	rtlsdrHandler::set_autogain	(int dummy) {
+	(void)dummy;
+	rtlsdr_set_agc_mode (device, agcControl -> isChecked () ? 1 : 0);
+	rtlsdr_set_tuner_gain (device, 
+	                gainControl -> currentText (). toInt ());
 }
 //
 //	correction is in Hz
@@ -349,27 +332,19 @@ void	rtlsdrHandler::set_ppmCorrection	(int32_t ppm) {
 	this -> rtlsdr_set_freq_correction (device, ppm);
 }
 
-//
-//	The brave old getSamples. For the dab stick, we get
-//	size samples: still in I/Q pairs, but we have to convert the data from
-//	uint8_t to DSPCOMPLEX *
 int32_t	rtlsdrHandler::getSamples (std::complex<float> *V, int32_t size) { 
-int32_t	amount, i;
-uint8_t	*tempBuffer = (uint8_t *)alloca (2 * size * sizeof (uint8_t));
-//
-	amount = _I_Buffer	-> getDataFromBuffer (tempBuffer, 2 * size);
-	if (dumping)
- 	   fwrite (tempBuffer, amount, 1, dumpfilePointer);
+std::complex<uint8_t> temp [size];
+int	amount;
 
-	for (i = 0; i < amount / 2; i ++)
-	    V [i] = std::complex<float>
-	                       ((float (tempBuffer [2 * i] - 128)) / 128.0,
-	                        (float (tempBuffer [2 * i + 1] - 128)) / 128.0);
-	return amount / 2;
+	amount = _I_Buffer. getDataFromBuffer (temp, size);
+	for (int i = 0; i < amount; i ++) 
+	   V [i] = std::complex<float> (mapTable [real (temp [i])],
+	                                mapTable [imag (temp [i])]);
+	return amount;
 }
 
 int32_t	rtlsdrHandler::Samples() {
-	return _I_Buffer	-> GetRingBufferReadAvailable() / 2;
+	return _I_Buffer. GetRingBufferReadAvailable ();
 }
 //
 
@@ -515,39 +490,58 @@ bool	rtlsdrHandler::load_rtlFunctions() {
 }
 
 void	rtlsdrHandler::resetBuffer() {
-	_I_Buffer -> FlushRingBuffer();
-}
-
-int16_t	rtlsdrHandler::maxGain() {
-	return gainsCount;
+	_I_Buffer. FlushRingBuffer();
 }
 
 int16_t	rtlsdrHandler::bitDepth() {
 	return 8;
 }
 
-void	rtlsdrHandler::dumpButton_pressed() {
-	if (!dumping) {
-	   QString file = QFileDialog::getSaveFileName (nullptr,
-	                                                tr ("Save file ..."),
-	                                                QDir::homePath(),
-	                                                tr ("iq file (*.iq)"));
-	   if (file == QString (""))
-	      return;
-	   file		= QDir::toNativeSeparators (file);
-	   if (!file.endsWith (".iq", Qt::CaseInsensitive))
-	      file.append (".iq");
-	   dumpfilePointer = fopen (file. toLatin1(). data(), "w+b");
-	   if (dumpfilePointer == nullptr)
-	      return;
-	   dumpButton -> setText ("WRITING");
-	   dumping = true;
+////////////////////////////////////////////////////////////////////////
+//
+//      the frequency (the MHz component) is used as key
+//
+void    rtlsdrHandler::record_gainSettings (int freq) {
+QString	gain	= gainControl	-> currentText ();
+int	agc	= agcControl	-> isChecked () ? 1 : 0;
+QString theValue        = gain + ":" + QString::number (agc);
+
+        rtlsdrSettings         -> beginGroup ("rtlsdrSettings");
+        rtlsdrSettings         -> setValue (QString::number (freq), theValue);
+        rtlsdrSettings         -> endGroup ();
+}
+
+void	rtlsdrHandler::update_gainSettings (int freq) {
+int	agc;
+QString	theValue	= "";
+
+	rtlsdrSettings	-> beginGroup ("rtlsdrSettings");
+	theValue	= rtlsdrSettings -> value (QString::number (freq), ""). toString ();
+	rtlsdrSettings	-> endGroup ();
+
+	if (theValue == QString (""))
+	   return;		// or set some defaults here
+
+	QStringList result	= theValue. split (":");
+	if (result. size () != 2) 	// should not happen
+	   return;
+
+	QString temp = result. at (0);
+	agc	= result. at (1). toInt ();
+
+	int k	= gainControl -> findText (temp);
+	if (k != -1) {
+	   gainControl	-> blockSignals (true);
+	   new_gainIndex (k);
+	   while (gainControl -> currentText () != temp)
+	      usleep (1000);
+	   gainControl	-> blockSignals (false);
 	}
-	else {
-	   dumping = false;
-	   fclose (dumpfilePointer);
-	   dumpfilePointer = nullptr;
-	   dumpButton -> setText ("write raw bytes");
-	}
+
+	agcControl	-> blockSignals (true);
+	new_agcSetting (agc == 1);
+	while (agcControl -> isChecked () != (agc == 1))
+	   usleep (1000);
+	agcControl	-> blockSignals (false);
 }
 

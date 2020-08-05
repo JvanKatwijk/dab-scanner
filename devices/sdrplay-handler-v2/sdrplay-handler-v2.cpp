@@ -54,7 +54,9 @@ int	get_lnaGRdB (int hwVersion, int lnaState) {
 }
 //
 //	here we start
-	sdrplayHandler_v2::sdrplayHandler_v2  (QSettings *s) {
+	sdrplayHandler_v2::sdrplayHandler_v2  (QSettings *s):
+	                                         _I_Buffer (4 * 1024 * 1024),
+	                                         myFrame (nullptr) {
 mir_sdr_ErrT	err;
 float	ver;
 mir_sdr_DeviceT devDesc [4];
@@ -62,13 +64,11 @@ mir_sdr_GainValuesT gainDesc;
 sdrplaySelect	*sdrplaySelector;
 
 	sdrplaySettings			= s;
-	this	-> myFrame		= new QFrame (nullptr);
-	setupUi (this -> myFrame);
-	this	-> myFrame		-> show();
+	setupUi (&myFrame);
+	myFrame. show();
 	antennaSelector			-> hide();
 	tunerSelector			-> hide();
 	this	-> inputRate		= Khz (2048);
-	_I_Buffer			= nullptr;
 	libraryLoaded			= false;
 
 #ifdef	__MINGW32__
@@ -85,7 +85,6 @@ ULONG APIkeyValue_length = 255;
               fprintf (stderr,
 	           "failed to locate API registry entry, error = %d\n",
 	           (int)GetLastError());
-	      delete myFrame;
 	      throw (21);
 	   }
 
@@ -103,7 +102,6 @@ ULONG APIkeyValue_length = 255;
 	   Handle	= LoadLibrary (x);
 	   if (Handle == nullptr) {
 	      fprintf (stderr, "Failed to open mir_sdr_api.dll\n");
-	      delete myFrame;
 	      throw (22);
 	   }
 	}
@@ -115,7 +113,6 @@ ULONG APIkeyValue_length = 255;
 
 	if (Handle == nullptr) {
 	   fprintf (stderr, "error report %s\n", dlerror());
-	   delete myFrame;
 	   throw (23);
 	}
 #endif
@@ -128,7 +125,6 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (23);
 	}
 
@@ -141,7 +137,6 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (24);
 	}
 	
@@ -152,12 +147,10 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (24);
 	}
 
 	api_version	-> display (ver);
-	_I_Buffer	= new RingBuffer<std::complex<float>>(1024 * 1024);
 	vfoFrequency	= Khz (220000);		// default
 
 //	See if there are settings from previous incarnations
@@ -196,7 +189,6 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (25);
 	}
 
@@ -207,7 +199,6 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (25);
 	}
 
@@ -244,7 +235,6 @@ ULONG APIkeyValue_length = 255;
 #else
            dlclose (Handle);
 #endif
-	   delete myFrame;
 	   throw (25);
 	}
 //
@@ -321,12 +311,9 @@ ULONG APIkeyValue_length = 255;
 	                                  agcControl -> isChecked() ? 1 : 0);
 	sdrplaySettings	-> endGroup();
 	sdrplaySettings	-> sync();
-	delete	myFrame;
 
 	if (numofDevs > 0)
 	   my_mir_sdr_ReleaseDeviceIdx (deviceIndex);
-	if (_I_Buffer != nullptr)
-	   delete _I_Buffer;
 #ifdef __MINGW32__
         FreeLibrary (Handle);
 #else
@@ -453,7 +440,7 @@ std::complex<float> localBuf [numSamples];
 	for (i = 0; i <  (int)numSamples; i ++)
 	   localBuf [i] = std::complex<float> (float (xi [i]) / denominator,
 	                                       float (xq [i]) / denominator);
-	p -> _I_Buffer -> putDataIntoBuffer (localBuf, numSamples);
+	p -> _I_Buffer. putDataIntoBuffer (localBuf, numSamples);
 	(void)	firstSampleNum;
 	(void)	grChanged;
 	(void)	rfChanged;
@@ -539,15 +526,15 @@ mir_sdr_ErrT err;
 //	size still in I/Q pairs
 int32_t	sdrplayHandler_v2::getSamples (std::complex<float> *V,
 	                                               int32_t size) { 
-	return _I_Buffer	-> getDataFromBuffer (V, size);
+	return _I_Buffer. getDataFromBuffer (V, size);
 }
 
 int32_t	sdrplayHandler_v2::Samples () {
-	return _I_Buffer	-> GetRingBufferReadAvailable();
+	return _I_Buffer. GetRingBufferReadAvailable();
 }
 
 void	sdrplayHandler_v2::resetBuffer () {
-	_I_Buffer	-> FlushRingBuffer();
+	_I_Buffer. FlushRingBuffer();
 }
 
 int16_t	sdrplayHandler_v2::bitDepth () {

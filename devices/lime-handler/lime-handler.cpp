@@ -5,6 +5,7 @@
  *    Lazy Chair Computing
  *
  *    This file is part of the dab-scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -27,12 +28,13 @@ static
 float localBuffer [4 * FIFO_SIZE];
 lms_info_str_t limedevices [10];
 
-	limeHandler::limeHandler (QSettings *s) {
+	limeHandler::limeHandler (QSettings *s):
+	                             _I_Buffer (4 * 1024 * 1024),
+	                             myFrame (nullptr) {
 	this	-> limeSettings	= s;
 
-	this	-> myFrame	= new QFrame (nullptr);
-	setupUi (this -> myFrame);
-	this	-> myFrame	-> show();
+	setupUi (&myFrame);
+	myFrame. show();
 
 #ifdef  __MINGW32__
         const char *libraryString = "LimeSuite.dll";
@@ -47,7 +49,6 @@ lms_info_str_t limedevices [10];
 
         if (Handle == nullptr) {
            fprintf (stderr, "failed to open %s\n", libraryString);
-           delete myFrame;
            throw (20);
         }
 
@@ -58,7 +59,6 @@ lms_info_str_t limedevices [10];
 #else
            dlclose (Handle);
 #endif
-           delete myFrame;
            throw (21);
         }
 //
@@ -66,7 +66,6 @@ lms_info_str_t limedevices [10];
 
 	int ndevs	= LMS_GetDeviceList (limedevices);
 	if (ndevs == 0) {	// no devices found
-	   delete myFrame;
 	   throw (21);
 	}
 
@@ -75,21 +74,18 @@ lms_info_str_t limedevices [10];
 
 	int res		= LMS_Open (&theDevice, nullptr, nullptr);
 	if (res < 0) {	// some error
-	   delete myFrame;
 	   throw (22);
 	}
 
 	res		= LMS_Init (theDevice);
 	if (res < 0) {	// some error
 	   LMS_Close (&theDevice);
-	   delete myFrame;
 	   throw (23);
 	}
 
 	res		= LMS_GetNumChannels (theDevice, LMS_CH_RX);
 	if (res < 0) {	// some error
 	   LMS_Close (&theDevice);
-	   delete myFrame;
 	   throw (24);
 	}
 
@@ -98,14 +94,12 @@ lms_info_str_t limedevices [10];
 	res		= LMS_EnableChannel (theDevice, LMS_CH_RX, 0, true);
 	if (res < 0) {	// some error
 	   LMS_Close (theDevice);
-	   delete myFrame;
 	   throw (24);
 	}
 
 	res	= LMS_SetSampleRate (theDevice, 2048000.0, 0);
 	if (res < 0) {
 	   LMS_Close (theDevice);
-	   delete myFrame;
 	   throw (25);
 	}
 
@@ -140,7 +134,6 @@ lms_info_str_t limedevices [10];
 	                                                 0, 220000000.0);
 	if (res < 0) {
 	   LMS_Close (theDevice);
-	   delete myFrame;
 	   throw (26);
 	}
 
@@ -148,15 +141,12 @@ lms_info_str_t limedevices [10];
 	                                               0, 1536000.0);
 	if (res < 0) {
 	   LMS_Close (theDevice);
-	   delete myFrame;
 	   throw (27);
 	}
 
 	LMS_SetGaindB (theDevice, LMS_CH_RX, 0, 50);
 
 	LMS_Calibrate (theDevice, LMS_CH_RX, 0, 2500000.0, 0);
-	
-	theBuffer	= new RingBuffer<std::complex<float>> (64 * 32768);
 	
 	limeSettings	-> beginGroup ("limeSettings");
 	k	= limeSettings	-> value ("gain", 50). toInt();
@@ -177,8 +167,6 @@ lms_info_str_t limedevices [10];
 	limeSettings	-> setValue ("gain", gainSelector -> value());
 	limeSettings	-> endGroup();
 	LMS_Close (theDevice);
-	delete theBuffer;
-	delete myFrame;
 }
 
 void	limeHandler::setVFOFrequency	(int32_t f) {
@@ -236,15 +224,15 @@ void	limeHandler::stopReader() {
 }
 
 int	limeHandler::getSamples		(std::complex<float> *v, int32_t a) {
-	return theBuffer -> getDataFromBuffer (v, a);
+	return _I_Buffer. getDataFromBuffer (v, a);
 }
 
 int	limeHandler::Samples() {
-	return theBuffer -> GetRingBufferReadAvailable();
+	return _I_Buffer. GetRingBufferReadAvailable();
 }
 
 void	limeHandler::resetBuffer() {
-	theBuffer	-> FlushRingBuffer();
+	_I_Buffer. FlushRingBuffer();
 }
 
 int16_t	limeHandler::bitDepth() {
@@ -270,7 +258,7 @@ int	amountRead	= 0;
 	   res = LMS_RecvStream (&stream, localBuffer,
 	                                     FIFO_SIZE,  &meta, 1000);
 	   if (res > 0) {
-	      theBuffer -> putDataIntoBuffer (localBuffer, res);
+	      _I_Buffer. putDataIntoBuffer (localBuffer, res);
 	      amountRead	+= res;
 	      res	= LMS_GetStreamStatus (&stream, &streamStatus);
 	      underruns	+= streamStatus. underrun;

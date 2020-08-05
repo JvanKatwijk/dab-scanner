@@ -63,6 +63,7 @@ variety of devices:
 * the lime SDR
 * the hackrf
 * the AIRspy
+* the Pluto
 * the good old "RT2832" based dabsticks
 
 Comment out (or uncomment) the line
@@ -72,7 +73,7 @@ Comment out (or uncomment) the line
 where XXXX stands for the devicename, in the ".pro" file to include
 or exclude the device in the configuration.
 
-Support for the SDRplay can be condigured for both the 2.13 and the 3.06
+Support for the SDRplay can be configured for both the 2.13 and the 3.06
 library.
 For support of the 2.14 library, uncomment
 
@@ -117,7 +118,8 @@ lines could be packed in a script and executed
 	make
 
 Obviously assuming that the driver libraries for the device (or devices) to
-be used are installed.
+be used are installed. (Note that for the Pluto device one needs to
+have installed libiio.
 
 The releases section now contains an "appImage". The appImage
 is an executable, containing the required libraries *apart from those
@@ -142,7 +144,4 @@ Copyrights
         but WITHOUT ANY WARRANTY; without even the implied warranty of
         MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
         GNU General Public License for more details.
-
-
-
 

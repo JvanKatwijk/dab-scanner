@@ -110,9 +110,10 @@ public:
 	int16_t		bitDepth		();
 //
 //	The buffer should be visible by the callback function
-	RingBuffer<std::complex<float>>	*_I_Buffer;
+	RingBuffer<std::complex<float>>	_I_Buffer;
 	float		denominator;
 private:
+	QFrame			myFrame;
 	pfn_mir_sdr_StreamInit	my_mir_sdr_StreamInit;
 	pfn_mir_sdr_Reinit	my_mir_sdr_Reinit;
 	pfn_mir_sdr_StreamUninit	my_mir_sdr_StreamUninit;
@@ -149,7 +150,6 @@ private:
 	int16_t		deviceIndex;
 	bool		loadFunctions();
 	QSettings	*sdrplaySettings;
-	QFrame		*myFrame;
 	int32_t		inputRate;
 	int32_t		vfoFrequency;
 	bool		libraryLoaded;

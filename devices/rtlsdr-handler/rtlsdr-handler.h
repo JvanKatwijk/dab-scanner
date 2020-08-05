@@ -1,10 +1,11 @@
 #
 /*
- *    Copyright (C) 2014 .. 2019
+ *    Copyright (C) 2014 .. 2017
  *    Jan van Katwijk (J.vanKatwijk@gmail.com)
  *    Lazy Chair Computing
  *
- *    This file is part of the dab-scanner
+ *    This file is part of the dab scanner
+ *
  *    dab-scanner is free software; you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *    the Free Software Foundation; either version 2 of the License, or
@@ -25,7 +26,9 @@
 
 #include	<QObject>
 #include	<QSettings>
+#include	<QString>
 #include	<cstdio>
+#include	<atomic>
 #include	"dab-constants.h"
 #include	"device-handler.h"
 #include	"ringbuffer.h"
@@ -69,36 +72,35 @@ public:
 			rtlsdrHandler	(QSettings *);
 			~rtlsdrHandler();
 	void		setVFOFrequency	(int32_t);
-	int32_t		getVFOFrequency();
+	int32_t		getVFOFrequency	();
 //	interface to the reader
 	bool		restartReader	(int32_t);
-	void		stopReader();
+	void		stopReader	();
 	int32_t		getSamples	(std::complex<float> *, int32_t);
-	int32_t		Samples();
-	void		resetBuffer();
-	int16_t		maxGain();
-	int16_t		bitDepth();
-//
+	int32_t		Samples		();
+	void		resetBuffer	();
+	int16_t		bitDepth	();
+
 //	These need to be visible for the separate usb handling thread
-	RingBuffer<uint8_t>	*_I_Buffer;
+	RingBuffer<std::complex<uint8_t>> _I_Buffer;
 	pfnrtlsdr_read_async	rtlsdr_read_async;
 	struct rtlsdr_dev	*device;
+	bool		isActive;
 private:
-	QFrame		*myFrame;
+	QFrame		myFrame;
 	QSettings	*rtlsdrSettings;
 	int32_t		inputRate;
 	int32_t		deviceCount;
 	HINSTANCE	Handle;
 	dll_driver	*workerHandle;
 	int32_t		lastFrequency;
-	bool		libraryLoaded;
-	bool		open;
-	int		*gains;
 	int16_t		gainsCount;
-	bool		dumping;
-	FILE		*dumpfilePointer;
+	QString		deviceModel;
+	void		record_gainSettings	(int);
+	void		update_gainSettings	(int);
+	bool		save_gainSettings;
 //	here we need to load functions from the dll
-	bool		load_rtlFunctions();
+	bool		load_rtlFunctions	();
 	pfnrtlsdr_open	rtlsdr_open;
 	pfnrtlsdr_close	rtlsdr_close;
 	pfnrtlsdr_get_usb_strings rtlsdr_get_usb_strings;
@@ -118,11 +120,13 @@ private:
 	pfnrtlsdr_get_device_count rtlsdr_get_device_count;
 	pfnrtlsdr_set_freq_correction rtlsdr_set_freq_correction;
 	pfnrtlsdr_get_device_name rtlsdr_get_device_name;
+signals:
+	void		new_gainIndex		(int);
+	void		new_agcSetting		(bool);
 private slots:
 	void		set_ExternalGain	(const QString &);
-	void		set_autogain		(const QString &);
+	void		set_autogain		(int);
 	void		set_ppmCorrection	(int);
-	void		dumpButton_pressed();
 };
 #endif
 

@@ -63,10 +63,11 @@ public:
 
         void            update_PowerOverload (
                                          sdrplay_api_EventParamsT *params);
-	RingBuffer<std::complex<int16_t>>	*_I_Buffer;
+	RingBuffer<std::complex<int16_t>>	_I_Buffer;
         std::atomic<bool>	receiverRuns;
 	int		theGain;
 private:
+	QFrame				myFrame;
 	sdrplay_api_Open_t              sdrplay_api_Open;
         sdrplay_api_Close_t             sdrplay_api_Close;
         sdrplay_api_ApiVersion_t        sdrplay_api_ApiVersion;
@@ -88,7 +89,8 @@ private:
 	sdrplay_api_CallbackFnsT        cbFns;
 	sdrplay_api_RxChannelParamsT    *chParams;
 
-	QFrame			*myFrame;
+	bool			failFlag;
+	bool			successFlag;
 	int			denominator;
         std::atomic<bool>       threadRuns;
 	void			run			();
