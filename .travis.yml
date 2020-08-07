@@ -18,7 +18,15 @@ install:
     - # sudo make install
     - # find /usr/local/qwt-6.1.4-svn/
     - # cd ..
-    
+
+   - git clone https://github.com/analogdevicesinc/libad9361-iio
+   - cd libad9361-iio
+   - mkdir build
+   - cd build
+   - cmake ..
+   - make
+   - sudo make install
+ 
 script:
   - cmake . -DRTLSDR=ON -DAIRSPY=ON -DSDRPLAY=ON -DCMAKE_INSTALL_PREFIX=/usr
   - make -j4

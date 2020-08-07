@@ -8,8 +8,8 @@ TEMPLATE	= app
 TARGET		= dab-scanner-1.8
 
 QT		+= widgets xml
-CONFIG		-= console
 #CONFIG		+= console
+CONFIG		-= console
 QMAKE_CXXFLAGS	+= -std=c++11
 QMAKE_CFLAGS	+=  -lfto -ffast-math
 QMAKE_CXXFLAGS	+=  -lfto -ffast-math
@@ -154,7 +154,7 @@ CONFIG += SSE
 #
 # an attempt to have it run under W32 through cross compilation
 win32 {
-DESTDIR		= ../../windows-scanner
+DESTDIR		= ../../w32-programs/windows-scanner
 # includes in mingw differ from the includes in fedora linux
 
 exists ("./.git") {
@@ -289,7 +289,7 @@ pluto   {
         HEADERS         += ./devices/pluto-handler/pluto-handler.h
         SOURCES         += ./devices/pluto-handler/pluto-handler.cpp
         FORMS           += ./devices/pluto-handler/pluto-widget.ui
-        LIBS            += -liio
+        LIBS            += -liio -lad9361
 }
 
 NO_SSE  {
