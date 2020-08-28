@@ -26,9 +26,10 @@ install:
    - cmake ..
    - make
    - sudo make install
- 
+   - cd ..
+   - cd ..
 script:
-  - cmake . -DRTLSDR=ON -DAIRSPY=ON -DSDRPLAY=ON -DCMAKE_INSTALL_PREFIX=/usr
+  - cmake . -DRTLSDR=ON -DAIRSPY=ON -DSDRPLAY=ON -DPLUTO=ON -DCMAKE_INSTALL_PREFIX=/usr
   - make -j4
   - # sudo make DESTIDR=appdir install ; sudo chown -R $USER appdir ; find appdir/
   - ls -lh .

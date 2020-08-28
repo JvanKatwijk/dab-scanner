@@ -148,8 +148,8 @@ CONFIG		+= lime
 CONFIG		+= pluto
 #For x64 linux system uncomment SSE
 #For any other system comment SSE out and uncomment NO_SSE
-CONFIG += SSE
-#CONFIG  += NO_SSE
+#CONFIG += SSE
+CONFIG  += NO_SSE
 }
 #
 # an attempt to have it run under W32 through cross compilation
